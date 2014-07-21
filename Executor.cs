@@ -75,7 +75,8 @@ namespace MultiArc_Compiler
             {
                 if (separators.Contains(i) && i != entryPoint)
                 {
-                    instructions.AddLast(constants.MatchInstruction(binary.ToArray()));
+                    Instruction inst = constants.MatchInstruction(binary.ToArray());
+                    instructions.AddLast(inst);
                     binary.Clear();
                 }
                 binary.AddLast(binaryCode[i]);

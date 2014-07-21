@@ -865,12 +865,37 @@ namespace MultiArc_Compiler
         /// <returns>
         /// Matching instruction.
         /// </returns>
-        public Instruction MatchInstruction(byte[] binary)
+        public Instruction MatchInstruction(byte[] binary) // NOTE: This method must be tested more.
         {
             foreach (Instruction i in instructionSet)
             {
-                int opcodeSize = (i.StartBit - i.EndBit + 1) / 8;
-              //  for (int i = 0; i < 
+                if (i.Size != binary.Length)
+                {
+                    continue;
+                }
+                int size = 1;
+                for (int j = i.StartBit; j >= i.EndBit; j--)
+                {
+                    if (j % 8 == 0)
+                    {
+                        size++;
+                    }
+                }
+                int startBite = binary.Length - i.StartBit / 8 - 1;
+                int endBite = binary.Length - i.EndBit / 8 - 1;
+                int count = 0;
+                bool matched = true;
+                for (int j = startBite; j <= endBite; j++)
+                {
+                    if (!(((int)(i.Mask[count]) & (int)(binary[j])) == (int)(i.Mask[count])))
+                    {
+                        matched = false;
+                    }
+                }
+                if (matched == true)
+                {
+                    return i;
+                }
             }
             return null;
         }

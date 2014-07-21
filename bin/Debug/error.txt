@@ -1,5 +1,6 @@
-System.NullReferenceException: Object reference not set to an instance of an object.
-   at MultiArc_Compiler.Executor.Execute() in D:\Bojan\MultiArc Compiler\MultiArc Compiler\Executor.cs:line 71
+System.IndexOutOfRangeException: Index was outside the bounds of the array.
+   at MultiArc_Compiler.ArchConstants.MatchInstruction(Byte[] binary) in D:\Bojan\MultiArc Compiler\MultiArc Compiler\ArchConstants.cs:line 886
+   at MultiArc_Compiler.Executor.Execute() in D:\Bojan\MultiArc Compiler\MultiArc Compiler\Executor.cs:line 78
    at MultiArc_Compiler.Form1.ExecuteButton_Click(Object sender, EventArgs e) in D:\Bojan\MultiArc Compiler\MultiArc Compiler\Form1.cs:line 810
    at System.Windows.Forms.Control.OnClick(EventArgs e)
    at System.Windows.Forms.Button.OnClick(EventArgs e)

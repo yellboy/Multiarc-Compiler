@@ -308,6 +308,7 @@ namespace MultiArc_Compiler
                             separators.AddLast(count);
                             count += inst.Size;
                         }
+                        separators.AddLast(count);
                         File.WriteAllText("output.txt", "Compile successfull.");
                         return binaryCode;
                     }
