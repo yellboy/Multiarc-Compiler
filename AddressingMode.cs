@@ -1,0 +1,310 @@
+﻿/*
+ * File: AddressingMode.cs
+ * Author: Bojan Jelaca
+ * Date: March 2014
+ */
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.IO;
+using System.Reflection;
+using Microsoft.CSharp;
+using System.CodeDom;
+using System.CodeDom.Compiler;
+
+namespace MultiArc_Compiler
+{
+
+    /// <summary>
+    /// Class that represents one type of addressing mode.
+    /// </summary>
+    public class AddressingMode
+    {
+
+        /// <summary>
+        /// Name of the addressing mode. Per example, memdir, memind, regdir, imm...
+        /// </summary>
+        private string name;
+
+        public string Name
+        {
+            get
+            {
+                return name;
+            }
+            set
+            {
+                name = value;
+            }
+        }
+
+        /// <summary>
+        /// Path to the file with execution code for this addressing mode.
+        /// </summary>
+        private string fileName;
+
+        public string FileName
+        {
+            get
+            {
+                return fileName;
+            }
+            set
+            {
+                fileName = value;
+            }
+        }
+
+
+        /// <summary>
+        /// Binary code of this addressing mode.
+        /// </summary>
+        private byte code;
+
+        public byte Code
+        {
+            get
+            {
+                return code;
+            }
+            set
+            {
+                code = value;
+            }
+        }
+
+        /// <summary>
+        /// Code to be executed when GetData method is called.
+        /// </summary>
+        private string[] executionCode;
+
+        /// <summary>
+        /// List of regular expressions representing this addressing mode in assembly file.
+        /// </summary>
+        private LinkedList<string> expressions = new LinkedList<string>();
+
+        public LinkedList<string> Expressions
+        {
+            get
+            {
+                return expressions;
+            }
+        }
+
+        /// <summary>
+        /// Result that this addressing mode returns.
+        /// </summary>
+        private Data result;
+
+        public Data Result
+        {
+            get
+            {
+                return result;
+            }
+            set
+            {
+                result = value;
+            }
+        }
+
+
+        /// <summary>
+        /// Adds new expression to expressions list.
+        /// </summary>
+        /// <param name="expression">
+        /// Expression to be added.
+        /// </param>
+        /// <returns>
+        /// True if expression is not already in the list and false otherwise.
+        /// </returns>
+        public bool AddExpression(string expression)
+        {
+            foreach (string e in expressions)
+            {
+                if (e.Equals(expression))
+                {
+                    return false;
+                }
+            }
+            expressions.AddLast(expression);
+            return true;
+        }
+        
+        /// <summary>
+        /// Dictionary containing pairs of expressions and their joined values. 
+        /// </summary>
+        private Dictionary<string, int> values;
+
+        public Dictionary<string, int> Values
+        {
+            get
+            {
+                return values;
+            }
+        }
+
+        /// <summary>
+        /// True if this addressing mode can read operand value from expression.
+        /// </summary>
+        private bool operandReadFromExpression = true;
+
+        public bool OperandReadFromExpression
+        {
+            get
+            {
+                return operandReadFromExpression;
+            }
+            set
+            {
+                operandReadFromExpression = value;
+            }
+        }
+
+        /// <summary>
+        /// Adds new pair of expression and its joined value.
+        /// </summary>
+        /// <param name="expression">
+        /// Expression to be added.
+        /// </param>
+        /// <param name="value">
+        /// Joined value.
+        /// </param>
+        public void AddValue(string expression, int value)
+        {
+            if (values.ContainsKey(expression))
+            {
+                values[expression] = value;
+            }
+            else
+            {
+                values.Add(expression, value);
+            }
+        }
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="name">
+        /// Name of the addressing mode.
+        /// </param>
+        /// <param name="code">
+        /// Binary code for the addressing mode.
+        /// </param>
+        /// <param name="result">
+        /// Result this addressing mode returns.
+        /// </param>
+        /// <param name="fileName">
+        /// Name of the file where the execution code for this addressing mode is.
+        /// </param>
+        public AddressingMode(string name = null, byte code = 0, Data result = null, string fileName = null)
+        {
+            this.name = name;
+            this.code = code;
+            this.fileName = fileName;
+            this.result = result;
+            this.executionCode = null;
+            values = new Dictionary<string, int>();
+        }
+
+        /// <summary>
+        ///  Overriden operator ==.
+        /// </summary>
+        /// <param name="am1">
+        /// First operand.
+        /// </param>
+        /// <param name="am2">
+        /// Second operand.
+        /// </param>
+        /// <returns>
+        /// Bool value that tells whether two addressing modes are equal or not.
+        /// </returns>
+        public static bool operator== (AddressingMode am1, AddressingMode am2)
+        {
+            return am1.name.Equals(am2.name);
+        }
+
+        /// <summary>
+        ///  Overriden operator !=.
+        /// </summary>
+        /// <param name="am1">
+        /// First operand.
+        /// </param>
+        /// <param name="am2">
+        /// Second operand.
+        /// </param>
+        /// <returns>
+        /// Bool value that tells whether two addressing modes are different or not.
+        /// </returns>
+        public static bool operator!= (AddressingMode am1, AddressingMode am2)
+        {
+            return !am1.name.Equals(am2.name);
+        }
+
+        /// <summary>
+        /// Method that compares this addressing mode with another.
+        /// </summary>
+        /// <param name="am">
+        /// Another addressing mode to be compared with.
+        /// </param>
+        /// Bool value that tells whether two addressing modes are equal or not.
+        /// <returns></returns>
+        public bool Equals(AddressingMode am)
+        {
+            return this.name.Equals(am.name);
+        }
+
+        /// <summary>
+        /// Gets address and data for this addressing mode.
+        /// </summary>
+        /// <param name="operand">
+        /// Operand of instruction.
+        /// </param>
+        /// <param name="address">
+        /// After executing this method, this argument will contain address.
+        /// </param>
+        /// <param name="data">
+        /// After executing this method, this argument will contain data.
+        /// </param>
+        public void GetData(Int16 operand, ref UInt16 address, ref Int16 data)
+        {
+            var provider = CSharpCodeProvider.CreateProvider("c#");
+            var options = new CompilerParameters();
+            var assemblyContainingNotDynamicClass = Path.GetFileName(Assembly.GetExecutingAssembly().Location);
+            options.ReferencedAssemblies.Add(assemblyContainingNotDynamicClass);
+            string code = @"
+
+using System;
+using System.IO;
+using MultiArc_Compiler;
+
+public class DynamicClassAM
+{
+";
+            for (int i = 0; i < executionCode.Length; i++)
+            {
+                code += executionCode[i] + "\n";
+            }
+            code += "}";
+            var results = provider.CompileAssemblyFromSource(options, new[] { code });
+            if (results.Errors.Count > 0)
+            {
+                foreach (var error in results.Errors)
+                {
+                    File.AppendAllText("error.txt", this.name + ": " + error + "\n");
+                }
+            }
+            else
+            {
+                var t = results.CompiledAssembly.GetType("DynamicClassAM");
+                object[] parameters = new object[] { operand, Program.Mem, address, data };
+                t.GetMethod("getAddrData_" + this.name).Invoke(null, parameters);
+                address = (UInt16)parameters[2];
+                data = (Int16)parameters[3];
+            }
+        }
+
+    }
+}

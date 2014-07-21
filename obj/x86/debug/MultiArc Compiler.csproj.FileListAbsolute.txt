@@ -1,0 +1,23 @@
+D:\MultiArc Compiler\MultiArc Compiler\bin\Debug\MultiArc Compiler.exe
+D:\MultiArc Compiler\MultiArc Compiler\bin\Debug\MultiArc Compiler.pdb
+D:\MultiArc Compiler\MultiArc Compiler\obj\x86\Debug\ResolveAssemblyReference.cache
+D:\MultiArc Compiler\MultiArc Compiler\obj\x86\Debug\MultiArc_Compiler.Form1.resources
+D:\MultiArc Compiler\MultiArc Compiler\obj\x86\Debug\MultiArc_Compiler.Properties.Resources.resources
+D:\MultiArc Compiler\MultiArc Compiler\obj\x86\Debug\GenerateResource.read.1.tlog
+D:\MultiArc Compiler\MultiArc Compiler\obj\x86\Debug\GenerateResource.write.1.tlog
+D:\MultiArc Compiler\MultiArc Compiler\obj\x86\Debug\MultiArc Compiler.exe
+D:\MultiArc Compiler\MultiArc Compiler\obj\x86\Debug\MultiArc Compiler.pdb
+D:\MultiArc Compiler\MultiArc Compiler\obj\x86\Debug\MultiArc_Compiler.LengthsForm.resources
+D:\MultiArc Compiler\MultiArc Compiler\obj\x86\Debug\MultiArc_Compiler.FinishArcForm.resources
+D:\MultiArc Compiler\MultiArc Compiler\obj\x86\Debug\MultiArc_Compiler.RegistersForm.resources
+D:\Bojan\MultiArc Compiler\MultiArc Compiler\obj\x86\Debug\MultiArc Compiler.exe
+D:\Bojan\MultiArc Compiler\MultiArc Compiler\obj\x86\Debug\MultiArc Compiler.pdb
+D:\Bojan\MultiArc Compiler\MultiArc Compiler\bin\Debug\MultiArc Compiler.exe
+D:\Bojan\MultiArc Compiler\MultiArc Compiler\bin\Debug\MultiArc Compiler.pdb
+D:\Bojan\MultiArc Compiler\MultiArc Compiler\obj\x86\Debug\MultiArc_Compiler.FinishArcForm.resources
+D:\Bojan\MultiArc Compiler\MultiArc Compiler\obj\x86\Debug\MultiArc_Compiler.Form1.resources
+D:\Bojan\MultiArc Compiler\MultiArc Compiler\obj\x86\Debug\MultiArc_Compiler.LengthsForm.resources
+D:\Bojan\MultiArc Compiler\MultiArc Compiler\obj\x86\Debug\MultiArc_Compiler.Properties.Resources.resources
+D:\Bojan\MultiArc Compiler\MultiArc Compiler\obj\x86\Debug\MultiArc_Compiler.RegistersForm.resources
+D:\Bojan\MultiArc Compiler\MultiArc Compiler\obj\x86\Debug\MultiArc Compiler.csprojResolveAssemblyReference.cache
+D:\Bojan\MultiArc Compiler\MultiArc Compiler\obj\x86\Debug\MultiArc Compiler.csproj.GenerateResource.Cache
