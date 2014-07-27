@@ -1,19 +1,15 @@
-System.IndexOutOfRangeException: Index was outside the bounds of the array.
-   at MultiArc_Compiler.Executor.Execute() in D:\Bojan\MultiArc Compiler\MultiArc Compiler\Executor.cs:line 91
-   at MultiArc_Compiler.Form1.ExecuteButton_Click(Object sender, EventArgs e) in D:\Bojan\MultiArc Compiler\MultiArc Compiler\Form1.cs:line 810
-   at System.Windows.Forms.Control.OnClick(EventArgs e)
-   at System.Windows.Forms.Button.OnClick(EventArgs e)
-   at System.Windows.Forms.Button.OnMouseUp(MouseEventArgs mevent)
-   at System.Windows.Forms.Control.WmMouseUp(Message& m, MouseButtons button, Int32 clicks)
-   at System.Windows.Forms.Control.WndProc(Message& m)
-   at System.Windows.Forms.ButtonBase.WndProc(Message& m)
-   at System.Windows.Forms.Button.WndProc(Message& m)
-   at System.Windows.Forms.Control.ControlNativeWindow.OnMessage(Message& m)
-   at System.Windows.Forms.Control.ControlNativeWindow.WndProc(Message& m)
-   at System.Windows.Forms.NativeWindow.DebuggableCallback(IntPtr hWnd, Int32 msg, IntPtr wparam, IntPtr lparam)
-   at System.Windows.Forms.UnsafeNativeMethods.DispatchMessageW(MSG& msg)
-   at System.Windows.Forms.Application.ComponentManager.System.Windows.Forms.UnsafeNativeMethods.IMsoComponentManager.FPushMessageLoop(IntPtr dwComponentID, Int32 reason, Int32 pvLoopData)
-   at System.Windows.Forms.Application.ThreadContext.RunMessageLoopInner(Int32 reason, ApplicationContext context)
-   at System.Windows.Forms.Application.ThreadContext.RunMessageLoop(Int32 reason, ApplicationContext context)
-   at System.Windows.Forms.Application.Run(Form mainForm)
-   at MultiArc_Compiler.Program.Main() in D:\Bojan\MultiArc Compiler\MultiArc Compiler\Program.cs:line 24
+System.ArgumentException: An item with the same key has already been added.
+   at System.ThrowHelper.ThrowArgumentException(ExceptionResource resource)
+   at System.Collections.Generic.Dictionary`2.Insert(TKey key, TValue value, Boolean add)
+   at System.Collections.Generic.Dictionary`2.Add(TKey key, TValue value)
+   at MultiArc_Compiler.Form1.LoadArchitectureDialog_FileOk(Object sender, CancelEventArgs e) in D:\Bojan\MultiArc Compiler\MultiArc Compiler\Form1.cs:line 595System.Collections.Generic.KeyNotFoundException: The given key was not present in the dictionary.
+   at System.Collections.Generic.Dictionary`2.get_Item(TKey key)
+   at MultiArc_Compiler.Assembler.Assemble(String outputPath) in D:\Bojan\MultiArc Compiler\MultiArc Compiler\Assembler.cs:line 285System.Xml.XmlException: Data at the root level is invalid. Line 1, position 1.
+   at System.Xml.XmlTextReaderImpl.Throw(Exception e)
+   at System.Xml.XmlTextReaderImpl.Throw(String res, String arg)
+   at System.Xml.XmlTextReaderImpl.ParseRootLevelWhitespace()
+   at System.Xml.XmlTextReaderImpl.ParseDocumentContent()
+   at System.Xml.XmlTextReaderImpl.Read()
+   at System.Xml.XmlLoader.ReadCurrentNode(XmlDocument doc, XmlReader reader)
+   at System.Xml.XmlDocument.ReadNode(XmlReader reader)
+   at MultiArc_Compiler.Form1.LoadArchitectureDialog_FileOk(Object sender, CancelEventArgs e) in D:\Bojan\MultiArc Compiler\MultiArc Compiler\Form1.cs:line 310

@@ -7,6 +7,8 @@
 		<rom_end>1023</rom_end>
 		<ram_start>1024</ram_start>
 		<ram_end>2047</ram_end>
+		<init_file>init.ini</init_file>
+		<storage_file>memory.mem</storage_file>
 	</memory>
 	<data>
 		<b>8</b>

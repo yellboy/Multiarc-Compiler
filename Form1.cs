@@ -253,7 +253,7 @@ namespace MultiArc_Compiler
         // THIS METHOD MUST BE REWRITEN
         public void WriteArchitectureToFile(string fileName)
         {
-            Program.Mem = new Memory(constants.MEM_SIZE, constants.ADDR_UNIT_SIZE);
+            //Program.Mem = new Memory(constants.MEM_SIZE, constants.ADDR_UNIT_SIZE);
             StringBuilder content = new StringBuilder();
             content.Append(constants.WORD_LENGTH);
             content.Append("\n");
@@ -305,6 +305,7 @@ namespace MultiArc_Compiler
                 constants.RemoveAllAddressingModes();
                 constants.RemoveAllDataTypes();
                 constants.RemoveAllMnemonics();
+                constants.RemoveAllRegisters();
                 XmlReader xmlReader = XmlReader.Create(new StringReader(content));
                 XmlDocument doc = new XmlDocument();
                 XmlNode head = doc.ReadNode(xmlReader);
@@ -590,14 +591,12 @@ namespace MultiArc_Compiler
                                                                         {
                                                                             expToAdd += expParts[c];
                                                                         }
-                                                                        if (!am.Values.ContainsKey(expToAdd))
+                                                                        if (!am.Values.ContainsKey(expToAdd.ToLower()))
                                                                         {
                                                                             am.Values.Add(expToAdd.ToLower(), lastVal);
                                                                         }
                                                                     }
                                                                     lastVal++;
-
-
                                                                 }
                                                             }
                                                         }

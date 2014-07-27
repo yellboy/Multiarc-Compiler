@@ -251,24 +251,70 @@ namespace MultiArc_Compiler
         /// </summary>
         public void Initialize()
         {
-            string[] lines = File.ReadAllLines(initFile);
+            string[] lines = null;
+            if (initFile != null && File.Exists(initFile))
+            {
+                lines = File.ReadAllLines(initFile);
+            }
             Dictionary<uint, byte[]> map = new Dictionary<uint, byte[]>();
-            for (int i = 0; i < lines.Length; i++)
+            for (int i = 0; lines != null && i < lines.Length; i++)
             {
                 string[] words = lines[i].Split(' ', '\t');
-                uint address = Convert.ToUInt32(words[0]);
+                uint address = 0;
                 if (words[0].StartsWith("0x") || words[0].StartsWith("0X"))
                 {
                     address = Convert.ToUInt32(words[0], 16);
                 }
-                else if (words[0].StartsWith("0b"))
+                else if (words[0].StartsWith("0b") || words[0].StartsWith("0B"))
                 {
                     address = Convert.ToUInt32(words[0], 2);
                 }
-                else if (words[0].StartsWith("0o"))
+                else if (words[0].StartsWith("0o") || words[0].StartsWith("0O"))
+                {
+                    address = Convert.ToUInt32(words[0], 8);
+                }
+                else
+                {
+                    address = Convert.ToUInt32(words[0], 10);
+                }
+                byte[] val = new byte[auSize];
                 for (int j = 1; j <= auSize; j++)
                 {
-
+                    if (words[j].StartsWith("0x") || words[j].StartsWith("0X"))
+                    {
+                        val[j - 1] = Convert.ToByte(words[j].Substring(2, words[j].Length - 2), 16);
+                    }
+                    else if (words[j].StartsWith("0b") || words[j].StartsWith("0B"))
+                    {
+                        val[j - 1] = Convert.ToByte(words[j].Substring(2, words[j].Length - 2), 2);
+                    }
+                    else if (words[j].StartsWith("0o") || words[j].StartsWith("0O"))
+                    {
+                        val[j - 1] = Convert.ToByte(words[j].Substring(2, words[j].Length - 2), 8);
+                    }
+                    else
+                    {
+                        val[j - 1] = Convert.ToByte(words[j], 10);
+                    }
+                }
+                map.Add(address, val);
+            }
+            File.Delete(storageFile);
+            for (uint i = 0; i < size; i++)
+            {
+                if (map.ContainsKey(i))
+                {
+                    for (int k = 0; k < auSize; k++)
+                    {
+                        File.AppendAllText(storageFile, "" + (char)(map[i][k]));
+                    }
+                }
+                else
+                {
+                    for (int k = 0; k < auSize; k++)
+                    {
+                        File.AppendAllText(storageFile, "0");
+                    }
                 }
             }
         }
