@@ -60,6 +60,7 @@
     </Compile>
     <Compile Include="ILiteral.cs" />
     <Compile Include="Instruction.cs" />
+    <Compile Include="InstructionRegister.cs" />
     <Compile Include="LengthsForm.cs">
       <SubType>Form</SubType>
     </Compile>

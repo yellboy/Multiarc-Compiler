@@ -891,6 +891,7 @@ namespace MultiArc_Compiler
                     {
                         matched = false;
                     }
+                    count++;
                 }
                 if (matched == true)
                 {

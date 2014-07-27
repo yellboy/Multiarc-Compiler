@@ -71,15 +71,25 @@ namespace MultiArc_Compiler
             constants.GetRegister("pc").Val = entryPoint;
             LinkedList<Instruction> instructions = new LinkedList<Instruction>();
             LinkedList<byte> binary = new LinkedList<byte>();
-            for (int i = entryPoint; i < binaryCode.Length; i++)
+            while (true) 
             {
-                if (separators.Contains(i) && i != entryPoint)
+                int pc = constants.GetRegister("pc").Val;
+                if (separators.Contains(pc) && pc != entryPoint)
                 {
                     Instruction inst = constants.MatchInstruction(binary.ToArray());
-                    instructions.AddLast(inst);
+                    InstructionRegister ir = new InstructionRegister(binary.ToArray());
+                    inst.ReadAddressingModes(binary.ToArray());
+                    int[] operands = inst.FetchOperands(ir, constants);
+                    int[] result = inst.Execute(ir, constants, operands);
+                    inst.storeResult(ir, constants, result);
                     binary.Clear();
+                } 
+                if (pc >= binaryCode.Length)
+                {
+                    break;
                 }
-                binary.AddLast(binaryCode[i]);
+                binary.AddLast(binaryCode[pc++]);
+                constants.GetRegister("pc").Val = pc;
             }
 
         }

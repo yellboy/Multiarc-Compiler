@@ -134,6 +134,23 @@ namespace MultiArc_Compiler
         /// </summary>
         private Dictionary<string, int> operandEnds;
 
+        /// <summary>
+        /// Addressing mode selected with binary code.
+        /// </summary>
+        private AddressingMode selectedAddressingMode;
+
+        public AddressingMode SelectedAddressingMode
+        {
+            get
+            {
+                return selectedAddressingMode;
+            }
+            set
+            {
+                selectedAddressingMode = value;
+            }
+        }
+
         public Dictionary<string, int> OperandEnds
         {
             get

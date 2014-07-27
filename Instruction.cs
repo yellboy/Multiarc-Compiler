@@ -17,13 +17,6 @@ using System.IO;
 namespace MultiArc_Compiler
 {
 
-    public struct Parameters
-    {
-        public Int16 acc;
-        public Int16 pc;
-        public Int16 psw;
-    }
-
     /// <summary>
     /// Class that represents one type of instruction.
     /// </summary>
@@ -33,7 +26,7 @@ namespace MultiArc_Compiler
         /// <summary>
         /// String that contains code to be executed when this instruction is executed.
         /// </summary>
-        private string[] executionCode;
+        private string executionCode;
 
         /// <summary>
         /// Name of the instruction.
@@ -117,6 +110,10 @@ namespace MultiArc_Compiler
             set
             {
                 fileName = value;
+                if (fileName != null)
+                {
+                    executionCode = File.ReadAllText(fileName);
+                }
             }
         }
 
@@ -225,8 +222,10 @@ namespace MultiArc_Compiler
             return retVal;
         }
 
-        // TODO Add summary
-        public void Execute(byte addrMode, short operand, ref Int16 acc, ref Int16 pc, ref Int16 psw)
+        /// <summary>
+        /// Execution of instruction. 
+        /// </summary>
+        public int[] Execute(InstructionRegister ir, ArchConstants constants, int[] operands)
         {
             var provider = CSharpCodeProvider.CreateProvider("c#");
             var options = new CompilerParameters();
@@ -241,10 +240,7 @@ using MultiArc_Compiler;
 public class DynamicClassEX
 {
 ";
-            for (int i = 0; i < executionCode.Length; i++)
-            {
-                code += executionCode[i] + "\n";
-            }
+            code += executionCode;
             code += "}";
             var results = provider.CompileAssemblyFromSource(options, new[] { code });
             if (results.Errors.Count > 0)
@@ -253,21 +249,119 @@ public class DynamicClassEX
                 {
                     File.AppendAllText("error.txt", this.name + ": " + error + "\n");
                 }
+                return null;
             }
             else
             {
+                int[] result = null;
                 var t = results.CompiledAssembly.GetType("DynamicClassEX");
-               // AddressingMode am = this.GetAddressingMode(addrMode);
-                Int16 data = 0;
-                UInt16 address = 0;
-               // am.GetData(operand, ref address, ref data);
-                object[] parameters = new object[] {data, address, Program.Mem, acc, pc, psw};
-                t.GetMethod("execute" + this.name).Invoke(null, parameters);
-                acc = (Int16)parameters[3];
-                pc = (Int16)parameters[4];
-                psw = (Int16)parameters[5];
+                object[] parameters = new object[] { ir, Program.Mem, constants, operands, result };
+                t.GetMethod("execute_" + this.name).Invoke(null, parameters);
+                result = (int[])(parameters[4]);
+                return result;
             }
         }
 
+        /// <summary>
+        /// Reads addressing modes from binary code.
+        /// </summary>
+        /// <param name="binary">
+        /// Binary code.
+        /// </param>
+        public void ReadAddressingModes(byte[] binary)
+        {
+            foreach (Argument arg in arguments)
+            {
+                if (arg.AddressingModes.Count > 1)
+                {
+                    foreach (AddressingMode addrMode in arg.AddressingModes)
+                    {
+                        int codeStarts = arg.CodeStarts[addrMode.Name];
+                        int codeEnds = arg.CodeEnds[addrMode.Name];
+                        int codeValue = 0;
+                        int codeSize = 1;
+                        for (int k = codeStarts; k >= codeEnds; k--)
+                        {
+                            if (k % 8 == 0 && k != codeEnds)
+                            {
+                                codeSize++;
+                            }
+                        }
+                        int codeCount = codeStarts - codeEnds;
+                        int byteCount = codeSize - 1;
+                        for (int k = codeStarts; k >= codeEnds; k--)
+                        {
+                            int semiValue = (binary[binary.Length - 1 - codeEnds / 8 - byteCount] & (1 << (codeCount + codeEnds % 8)));
+                            codeValue |= (byte)semiValue;
+                            //codeValue |= (byte)((semiValue & (1 << (codeEnds % 8 + codeCount))) >> byteCount * 8); // This might be a problem.
+                            if ((codeEnds + codeCount) % 8 == 0)
+                                byteCount--;
+                            codeCount--;
+                        }
+                        codeValue >>= codeEnds % 8;
+                        if (arg.CodeValues[addrMode.Name] == codeValue)
+                        {
+                            arg.SelectedAddressingMode = addrMode;
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    arg.SelectedAddressingMode = arg.AddressingModes.ElementAt(0);
+                }
+
+            }
+        }
+
+        /// <summary>
+        /// Fetches operands for all arguments that are declared as src.
+        /// </summary>
+        /// <param name="ir">
+        /// Binary code of the instruction represented with InstructionRegister object.
+        /// </param>
+        /// <param name="constants">
+        /// Architecture constants of the curent architecture.
+        /// </param>
+        /// <returns>
+        /// Array containing fetched operands.
+        /// </returns>
+        public int[] FetchOperands(InstructionRegister ir, ArchConstants constants)
+        {
+            LinkedList<int> operands = new LinkedList<int>();
+            foreach (Argument arg in arguments)
+            {
+                if (arg.Type.ToLower().Equals("src"))
+                {
+                    int result = arg.SelectedAddressingMode.GetData(ir, constants, arg.OperandStarts[arg.SelectedAddressingMode.Name], arg.OperandEnds[arg.SelectedAddressingMode.Name]);
+                    operands.AddLast(result);
+                }
+            }
+            return operands.ToArray();
+        }
+
+        /// <summary>
+        /// Stores result of the execution.
+        /// </summary>
+        /// <param name="ir">
+        /// Binary code of the instruction represented with InstructionRegister object.
+        /// </param>
+        /// <param name="constants">
+        /// Architecture constants.
+        /// </param>
+        /// <param name="dataToStore">
+        /// Result of the instruction execution.
+        /// </param>
+        public void storeResult(InstructionRegister ir, ArchConstants constants, int[] dataToStore)
+        {
+            int argCount = 0;
+            foreach (Argument arg in arguments)
+            {
+                if (arg.Type.ToLower().Equals("dst"))
+                {
+                    arg.SelectedAddressingMode.SetData(ir, constants, arg.OperandStarts[arg.SelectedAddressingMode.Name], arg.OperandEnds[arg.SelectedAddressingMode.Name], dataToStore[argCount++]);
+                }
+            }
+        }
     }
 }

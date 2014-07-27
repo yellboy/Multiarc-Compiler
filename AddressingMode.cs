@@ -54,6 +54,10 @@ namespace MultiArc_Compiler
             set
             {
                 fileName = value;
+                if (fileName != null)
+                {
+                    executionCode = File.ReadAllText(fileName);
+                }
             }
         }
 
@@ -78,7 +82,7 @@ namespace MultiArc_Compiler
         /// <summary>
         /// Code to be executed when GetData method is called.
         /// </summary>
-        private string[] executionCode;
+        private string executionCode;
 
         /// <summary>
         /// List of regular expressions representing this addressing mode in assembly file.
@@ -205,7 +209,14 @@ namespace MultiArc_Compiler
             this.code = code;
             this.fileName = fileName;
             this.result = result;
-            this.executionCode = null;
+            if (fileName == null)
+            {
+                executionCode = null;
+            }
+            else
+            {
+                executionCode = File.ReadAllText(fileName);
+            }
             values = new Dictionary<string, int>();
         }
 
@@ -259,16 +270,22 @@ namespace MultiArc_Compiler
         /// <summary>
         /// Gets address and data for this addressing mode.
         /// </summary>
-        /// <param name="operand">
-        /// Operand of instruction.
+        /// <param name="ir">
+        /// Binary code of the instruction represented with InstructionRegister object.
         /// </param>
-        /// <param name="address">
-        /// After executing this method, this argument will contain address.
+        /// <param name="constants">
+        /// Constants representing current architecture.
         /// </param>
-        /// <param name="data">
-        /// After executing this method, this argument will contain data.
+        /// <param name="startBit">
+        /// Start bit of the operand in instruction code.
         /// </param>
-        public void GetData(Int16 operand, ref UInt16 address, ref Int16 data)
+        /// <param name="endBit">
+        /// End bit of the operand in instruction code.
+        /// </param>
+        /// <returns>
+        /// Wanted data.
+        /// </returns>
+        public int GetData(InstructionRegister ir, ArchConstants constants, int startBit, int endBit)
         {
             var provider = CSharpCodeProvider.CreateProvider("c#");
             var options = new CompilerParameters();
@@ -283,10 +300,44 @@ using MultiArc_Compiler;
 public class DynamicClassAM
 {
 ";
-            for (int i = 0; i < executionCode.Length; i++)
+            code += executionCode;
+            code += "}";
+            var results = provider.CompileAssemblyFromSource(options, new[] { code });
+            if (results.Errors.Count > 0)
             {
-                code += executionCode[i] + "\n";
+                foreach (var error in results.Errors)
+                {
+                    File.AppendAllText("error.txt", this.name + ": " + error + "\n");
+                }
+                return 0;
             }
+            else
+            {
+                var t = results.CompiledAssembly.GetType("DynamicClassAM");
+                int result = 0;
+                object[] parameters = new object[] { ir, Program.Mem, constants, startBit, endBit, result};
+                t.GetMethod("getAddrData_" + this.name).Invoke(null, parameters);
+                result = (int)(parameters[5]);
+                return result;
+            }
+        }
+
+        public void SetData(InstructionRegister ir, ArchConstants constants, int startBit, int endBit, int data)
+        {
+            var provider = CSharpCodeProvider.CreateProvider("c#");
+            var options = new CompilerParameters();
+            var assemblyContainingNotDynamicClass = Path.GetFileName(Assembly.GetExecutingAssembly().Location);
+            options.ReferencedAssemblies.Add(assemblyContainingNotDynamicClass);
+            string code = @"
+
+using System;
+using System.IO;
+using MultiArc_Compiler;
+
+public class DynamicClassAM
+{
+";
+            code += executionCode;
             code += "}";
             var results = provider.CompileAssemblyFromSource(options, new[] { code });
             if (results.Errors.Count > 0)
@@ -299,10 +350,8 @@ public class DynamicClassAM
             else
             {
                 var t = results.CompiledAssembly.GetType("DynamicClassAM");
-                object[] parameters = new object[] { operand, Program.Mem, address, data };
-                t.GetMethod("getAddrData_" + this.name).Invoke(null, parameters);
-                address = (UInt16)parameters[2];
-                data = (Int16)parameters[3];
+                object[] parameters = new object[] { ir, Program.Mem, constants, startBit, endBit, data };
+                t.GetMethod("setAddrData_" + this.name).Invoke(null, parameters);
             }
         }
 

@@ -326,6 +326,7 @@ namespace MultiArc_Compiler
                             if (node.HasChildNodes)
                             {
                                 list = node.ChildNodes;
+                                Program.Mem = new Memory();
                             }
                             foreach (XmlNode n in list)
                             {
@@ -333,26 +334,39 @@ namespace MultiArc_Compiler
                                 {
                                     case "size":
                                         constants.MEM_SIZE = Convert.ToInt32(n.InnerText);
+                                        Program.Mem.Size = Convert.ToInt32(n.InnerText);
                                         break;
                                     case "au":
                                         constants.ADDR_UNIT_SIZE = Convert.ToInt32(n.InnerText);
+                                        Program.Mem.AuSize = Convert.ToInt32(n.InnerText);
                                         break;
                                     case "ram_start":
                                         constants.RAM_START = Convert.ToInt32(n.InnerText);
+                                        Program.Mem.RamStart = Convert.ToUInt32(n.InnerText);
                                         break;
                                     case "ram_end":
                                         constants.RAM_END = Convert.ToInt32(n.InnerText);
+                                        Program.Mem.RamEnd = Convert.ToUInt32(n.InnerText);;
                                         break;
                                     case "rom_start":
                                         constants.ROM_START = Convert.ToInt32(n.InnerText);
+                                        Program.Mem.RomStart = Convert.ToUInt32(n.InnerText);
                                         break;
                                     case "rom_end":
                                         constants.ROM_END = Convert.ToInt32(n.InnerText);
+                                        Program.Mem.RomEnd = Convert.ToUInt32(n.InnerText);
+                                        break;
+                                    case "init_file":
+                                        Program.Mem.InitFile = n.InnerText;
+                                        break;
+                                    case "storage_file":
+                                        Program.Mem.StorageFile = n.InnerText;
                                         break;
                                     default:
                                         break;
                                 }
                             }
+                            Program.Mem.Initialize();
                             break;
                         case "data":
                             list = node.ChildNodes;

@@ -19,7 +19,7 @@ using System.Reflection;
 namespace MultiArc_Compiler
 {
     /// <summary>
-    /// Two pass assembler for single-addressed architecture.
+    /// Two pass assembler.
     /// </summary>
     public class Assembler
     {

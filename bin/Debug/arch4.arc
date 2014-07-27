@@ -99,7 +99,7 @@
 			<size>4</size>
 			<file>ld.cs</file>
 			<opcode>
-				<start_bit>27</start_bit>
+				<start_bit>31</start_bit>
 				<end_bit>22</end_bit>
 				<value>0000000101</value>
 			</opcode>

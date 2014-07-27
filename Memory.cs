@@ -13,19 +13,95 @@ using System.IO;
 namespace MultiArc_Compiler
 {
     /// <sumary>
-    /// Simulates RAM memory.
+    /// Simulates memory.
     /// </sumary>
     public class Memory
     {
+        private int size;
+
         /// <summary>
         /// Size of memory in bytes.
         /// </summary>
-        private int size
+        public int Size
         {
-            get;
-            set;
+            get
+            {
+                return size;
+            }
+            set
+            {
+                size = value;
+            }
         }
-        
+
+        private uint romStart;
+
+        /// <summary>
+        /// Begining address of rom memory.
+        /// </summary>
+        public uint RomStart
+        {
+            get
+            {
+                return romStart;
+            }
+            set
+            {
+                romStart = value;
+            }
+        }
+
+        private uint romEnd;
+
+        /// <summary>
+        /// Ending address of rom memory.
+        /// </summary>
+        public uint RomEnd
+        {
+            get
+            {
+                return romEnd;
+            }
+            set
+            {
+                romEnd = value;
+            }
+        }
+
+        private uint ramStart;
+
+        /// <summary>
+        /// Starting address of ram memory.
+        /// </summary>
+        public uint RamStart
+        {
+            get
+            {
+                return ramStart;
+            }
+            set
+            {
+                ramStart = value;
+            }
+        }
+
+        private uint ramEnd;
+
+        /// <summary>
+        /// Ending address of ram memory.
+        /// </summary>
+        public uint RamEnd
+        {
+            get
+            {
+                return ramEnd;
+            }
+            set
+            {
+                ramEnd = value;
+            }
+        }
+
         /// <summary>
         /// Array that represents memory.
         /// </summary>
@@ -41,26 +117,49 @@ namespace MultiArc_Compiler
         /// </summary>
         private int auSize;
 
-        /// <summary>
-        /// Public constructor.
-        /// </summary>
-        /// <param name="size">
-        /// Desired size of memory in number of addressible units.
-        /// </param>
-        /// <param name="auSize">
-        /// Size of addressible unit in bytes.
-        /// </param>
-        public Memory(int size, int auSize) 
+        public int AuSize
         {
-            this.size = size;
-            this.auSize = auSize;
-            memory = new byte[size][];
-            for (int i = 0; i < size; i++)
-                memory[i] = new byte[auSize];
-            free = new bool[size];
-            for (int i = 0; i < size; i++)
+            get
             {
-                free[i] = true;
+                return auSize;
+            }
+            set
+            {
+                auSize = value;
+            }
+        }
+
+        private string initFile;
+
+        /// <summary>
+        /// Path to the initializatoin file.
+        /// </summary>
+        public string InitFile
+        {
+            get
+            {
+                return initFile;
+            }
+            set
+            {
+                initFile = value;
+            }
+        }
+
+        private string storageFile;
+        
+        /// <summary>
+        /// Path to the file storing values for memory.
+        /// </summary>
+        public string StorageFile
+        {
+            get
+            {
+                return storageFile;
+            }
+            set
+            {
+                storageFile = value;
             }
         }
 
@@ -70,7 +169,9 @@ namespace MultiArc_Compiler
         /// <param name="address">
         /// Address to read or to write from.
         /// </param>
-        /// <returns></returns>
+        /// <returns>
+        /// Value from wanted address.
+        /// </returns>
         public byte[] this[uint address]
         {
             get
@@ -84,7 +185,6 @@ namespace MultiArc_Compiler
             }
         }
 
-
         /// <summary>
         /// Gets the address of the first free block in memory.
         /// </summary>
@@ -94,7 +194,7 @@ namespace MultiArc_Compiler
         /// <returns>
         /// Address of the required block or -1 if there is not enough free space. 
         /// </returns>
-        public Int64 firstFree(int length)
+        public int firstFree(int length)
         {
             for (int i = 0; i < size; i++)
             {
@@ -138,22 +238,38 @@ namespace MultiArc_Compiler
             return true;
         }
 
-        public void dump(string path = "memory.mem")
+        /// <summary>
+        /// Memory dump.
+        /// </summary>
+        public void dump()
         {
-            File.Delete(path);
-            for (int i = 0; i < size; i++)
-            {
-                if (free[i] == false)
-                {
-                    string text = "" + i + ":\t";
-                    for (int j = 0; j < auSize; j++)
-                    {
-                        text += memory[i][j] + " ";
-                    }
-                    text += "\n";
-                    File.AppendAllText(path, text);
-                }
+            
+        }
 
+        /// <summary>
+        /// Initializes memory from init file.
+        /// </summary>
+        public void Initialize()
+        {
+            string[] lines = File.ReadAllLines(initFile);
+            Dictionary<uint, byte[]> map = new Dictionary<uint, byte[]>();
+            for (int i = 0; i < lines.Length; i++)
+            {
+                string[] words = lines[i].Split(' ', '\t');
+                uint address = Convert.ToUInt32(words[0]);
+                if (words[0].StartsWith("0x") || words[0].StartsWith("0X"))
+                {
+                    address = Convert.ToUInt32(words[0], 16);
+                }
+                else if (words[0].StartsWith("0b"))
+                {
+                    address = Convert.ToUInt32(words[0], 2);
+                }
+                else if (words[0].StartsWith("0o"))
+                for (int j = 1; j <= auSize; j++)
+                {
+
+                }
             }
         }
     }
