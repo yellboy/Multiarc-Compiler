@@ -176,12 +176,34 @@ namespace MultiArc_Compiler
         {
             get
             {
-                return memory[address];
+                FileStream fs = new FileStream(storageFile, FileMode.Open);
+                for (int i = 0; i < address * auSize; i++)
+                {
+                    fs.ReadByte();
+                }
+                byte[] ret = new byte[auSize];
+                for (int i = 0; i < auSize; i++)
+                {
+                    ret[i] = (byte)(fs.ReadByte());
+                }
+                fs.Close();
+                return ret;
+                
             }
             set
             {
+                FileStream fs = new FileStream(storageFile, FileMode.Open);
+                for (int i = 0; i < address * auSize; i++)
+                {
+                    fs.ReadByte();
+                }
+                byte[] ret = new byte[auSize];
+                for (int i = 0; i < auSize; i++)
+                {
+                    fs.WriteByte(value[i]);
+                }
                 free[address] = false;
-                memory[address] = value;
+                fs.Close();
             }
         }
 
@@ -251,6 +273,7 @@ namespace MultiArc_Compiler
         /// </summary>
         public void Initialize()
         {
+            free = new bool[size];
             string[] lines = null;
             if (initFile != null && File.Exists(initFile))
             {
@@ -307,6 +330,7 @@ namespace MultiArc_Compiler
                     for (int k = 0; k < auSize; k++)
                     {
                         File.AppendAllText(storageFile, "" + (char)(map[i][k]));
+                        free[k] = false;
                     }
                 }
                 else

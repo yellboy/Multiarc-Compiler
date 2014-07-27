@@ -1,6 +1,21 @@
-public static void getAddrData_memdir(Int16 operand, Memory memory, ref UInt16 address, ref Int16 data)
+public static void getAddrData_memdir(InstructionRegister ir, Memory memory, ArchConstants constants, int startBit, int endBit, ref int result)
 {
-	address = (UInt16)operand;
-//	data |= (Int16)(memory.ReadByte((uint)operand));
-//	data |= (Int16)(memory.ReadByte((uint)(operand + 1)) << 8);
+	uint address = (uint)(ir.GetBits(startBit, endBit));
+	byte[] val = memory[address];
+	result = 0;
+	for (int j = 0; j < memory.AuSize; j++)
+	{
+		result |= val[j] << (8 * j);
+	}
+}
+
+public static void setAddrData_memdir(InstructionRegister ir, Memory memory, ArchConstants constants, int startBit, int endBit, int data)
+{
+	byte[] val = new byte[memory.AuSize];
+	for (int j = 0; j < memory.AuSize; j++)
+	{
+		val[j] = (byte)((data >> (8 * j)) & 0xff);
+	}
+	uint address = (uint)(ir.GetBits(startBit, endBit));
+	memory[address] = val;
 }

@@ -256,7 +256,7 @@ public class DynamicClassEX
                 int[] result = null;
                 var t = results.CompiledAssembly.GetType("DynamicClassEX");
                 object[] parameters = new object[] { ir, Program.Mem, constants, operands, result };
-                t.GetMethod("execute_" + this.name).Invoke(null, parameters);
+                t.GetMethod("execute_" + this.mnemonic.ToLower()).Invoke(null, parameters);
                 result = (int[])(parameters[4]);
                 return result;
             }
