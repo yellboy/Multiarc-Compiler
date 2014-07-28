@@ -53,14 +53,15 @@
 			<file>immed.cs</file>
 			<result>w</result>
 			<expression>"#"IDENTIFIER</expression>
-			<expression>"#"NUMBER</expression>
+			<expression>"#"DEC_NUMBER</expression>
+			<expression>"#"HEX_NUMBER</expression>
 		</immed>		
 		<memdir>
 			<name>memdir</name>
 			<file>memdir.cs</file>
 			<result>w</result>
 			<expression>IDENTIFIER</expression>
-			<expression>NUMBER</expression>
+			<expression>DEC_NUMBER</expression>
 		</memdir>
 		<regdir>
 			<name>regdir</name>

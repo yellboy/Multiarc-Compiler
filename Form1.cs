@@ -872,7 +872,10 @@ COLON = "":""
 COMMA = "",""
 
 SIGN = <<[+-]>>
-NUMBER = <<[0-9]+>>
+DEC_NUMBER = <<[0-9]+>>
+BIN_NUMBER = <<[01]+[bB]>>
+OCT_NUMBER = <<[0-8]+[oO]>>
+HEX_NUMBER = <<[0-9a-f]+[hH]>>
 IDENTIFIER = <<[a-z][a-z0-9_]*>>
 
 ENTER = <<[\n\r]+>>
@@ -886,9 +889,9 @@ Program = [Separator] [Origin] Lines ;
 
 Separator = ENTER (ENTER)* ;
 
-Integer = [SIGN] NUMBER ;
+Integer = [SIGN] DEC_NUMBER ;
 
-Origin = ORG NUMBER Separator ;
+Origin = ORG DEC_NUMBER Separator ;
 
 Lines = Line (Line)* ;
 

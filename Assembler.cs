@@ -264,11 +264,26 @@ namespace MultiArc_Compiler
                                     {
                                         child = child.GetChildAt(0);
                                     }
-                                    for (int l = 0; l < node.GetChildCount() && !child.Name.Equals("NUMBER"); l++)
+                                    for (int l = 0; l < node.GetChildCount() && !child.Name.Equals("DEC_NUMBER") && !child.Name.Equals("HEX_NUMBER") && !child.Name.Equals("OCT_NUMBER") && !child.Name.Equals("BIN_NUMBER"); l++)
                                     {
                                         child = node.GetChildAt(l);
                                     }
-                                    operandValue = Convert.ToInt32(((Token)child).Image.ToLower());
+                                    if (child.Name.Equals("DEC_NUMBER"))
+                                    {
+                                        operandValue = Convert.ToInt32(((Token)child).Image.ToLower());
+                                    }
+                                    else if (child.Name.Equals("HEX_NUMBER"))
+                                    {
+                                        operandValue = Convert.ToInt32(((Token)child).Image.ToLower().Substring(0, ((Token)child).Image.Length - 1), 16);
+                                    }
+                                    else if (child.Name.Equals("OCT_NUMBER"))
+                                    {
+                                        operandValue = Convert.ToInt32(((Token)child).Image.ToLower().Substring(0, ((Token)child).Image.Length - 1), 8);
+                                    }
+                                    else if (child.Name.Equals("BIN_NUMBER"))
+                                    {
+                                        operandValue = Convert.ToInt32(((Token)child).Image.ToLower().Substring(0, ((Token)child).Image.Length - 1), 2);
+                                    }
                                 }
                                 else
                                 {
@@ -314,7 +329,7 @@ namespace MultiArc_Compiler
                     }
                     catch (ParserLogException ex)
                     {
-                        string output = "Error(s) in code existed. Compile unsuccessfull.\nList of errors:\n";
+                        string output = "Error(s) in code existed. Compile unsuccessfull.\r\nList of errors:\r\n";
                         for (int j = 0; j < ex.Count; j++)
                         {
                             ParseException pe = ex[j];

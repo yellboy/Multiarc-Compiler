@@ -101,7 +101,7 @@ namespace MultiArc_Compiler {
                                             "Integer");
             alt = new ProductionPatternAlternative();
             alt.AddToken((int) Arch4Constants.SIGN, 0, 1);
-            alt.AddToken((int) Arch4Constants.NUMBER, 1, 1);
+            alt.AddToken((int) Arch4Constants.DEC_NUMBER, 1, 1);
             pattern.AddAlternative(alt);
             AddPattern(pattern);
 
@@ -109,7 +109,7 @@ namespace MultiArc_Compiler {
                                             "Origin");
             alt = new ProductionPatternAlternative();
             alt.AddToken((int) Arch4Constants.ORG, 1, 1);
-            alt.AddToken((int) Arch4Constants.NUMBER, 1, 1);
+            alt.AddToken((int) Arch4Constants.DEC_NUMBER, 1, 1);
             alt.AddProduction((int) Arch4Constants.SEPARATOR, 1, 1);
             pattern.AddAlternative(alt);
             AddPattern(pattern);
@@ -139,7 +139,11 @@ namespace MultiArc_Compiler {
             pattern.AddAlternative(alt);
             alt = new ProductionPatternAlternative();
             alt.AddToken((int) Arch4Constants.HASH, 1, 1);
-            alt.AddToken((int) Arch4Constants.NUMBER, 1, 1);
+            alt.AddToken((int) Arch4Constants.DEC_NUMBER, 1, 1);
+            pattern.AddAlternative(alt);
+            alt = new ProductionPatternAlternative();
+            alt.AddToken((int) Arch4Constants.HASH, 1, 1);
+            alt.AddToken((int) Arch4Constants.HEX_NUMBER, 1, 1);
             pattern.AddAlternative(alt);
             AddPattern(pattern);
 
@@ -149,7 +153,7 @@ namespace MultiArc_Compiler {
             alt.AddToken((int) Arch4Constants.IDENTIFIER, 1, 1);
             pattern.AddAlternative(alt);
             alt = new ProductionPatternAlternative();
-            alt.AddToken((int) Arch4Constants.NUMBER, 1, 1);
+            alt.AddToken((int) Arch4Constants.DEC_NUMBER, 1, 1);
             pattern.AddAlternative(alt);
             AddPattern(pattern);
 

@@ -226,10 +226,28 @@ namespace MultiArc_Compiler {
                                        "[+-]");
             AddPattern(pattern);
 
-            pattern = new TokenPattern((int) Arch4Constants.NUMBER,
-                                       "NUMBER",
+            pattern = new TokenPattern((int) Arch4Constants.DEC_NUMBER,
+                                       "DEC_NUMBER",
                                        TokenPattern.PatternType.REGEXP,
                                        "[0-9]+");
+            AddPattern(pattern);
+
+            pattern = new TokenPattern((int) Arch4Constants.BIN_NUMBER,
+                                       "BIN_NUMBER",
+                                       TokenPattern.PatternType.REGEXP,
+                                       "[01]+[bB]");
+            AddPattern(pattern);
+
+            pattern = new TokenPattern((int) Arch4Constants.OCT_NUMBER,
+                                       "OCT_NUMBER",
+                                       TokenPattern.PatternType.REGEXP,
+                                       "[0-8]+[oO]");
+            AddPattern(pattern);
+
+            pattern = new TokenPattern((int) Arch4Constants.HEX_NUMBER,
+                                       "HEX_NUMBER",
+                                       TokenPattern.PatternType.REGEXP,
+                                       "[0-9a-f]+[hH]");
             AddPattern(pattern);
 
             pattern = new TokenPattern((int) Arch4Constants.IDENTIFIER,

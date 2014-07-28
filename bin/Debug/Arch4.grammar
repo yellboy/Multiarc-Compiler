@@ -39,7 +39,10 @@ COLON = ":"
 COMMA = ","
 
 SIGN = <<[+-]>>
-NUMBER = <<[0-9]+>>
+DEC_NUMBER = <<[0-9]+>>
+BIN_NUMBER = <<[01]+[bB]>>
+OCT_NUMBER = <<[0-8]+[oO]>>
+HEX_NUMBER = <<[0-9a-f]+[hH]>>
 IDENTIFIER = <<[a-z][a-z0-9_]*>>
 
 ENTER = <<[\n\r]+>>
@@ -53,17 +56,17 @@ Program = [Separator] [Origin] Lines ;
 
 Separator = ENTER (ENTER)* ;
 
-Integer = [SIGN] NUMBER ;
+Integer = [SIGN] DEC_NUMBER ;
 
-Origin = ORG NUMBER Separator ;
+Origin = ORG DEC_NUMBER Separator ;
 
 Lines = Line (Line)* ;
 
 Line = [IDENTIFIER ":"] Instruction Separator ;
 
-IMMED = "#"IDENTIFIER | "#"NUMBER ;
+IMMED = "#"IDENTIFIER | "#"DEC_NUMBER | "#"HEX_NUMBER ;
 
-MEMDIR = IDENTIFIER | NUMBER ;
+MEMDIR = IDENTIFIER | DEC_NUMBER ;
 
 REGDIR = R0 | R1 | R2 | R3 | R4 | R5 | R6 | R7 | R8 | R9 | R10 | R11 | R12 | R13 | R14 | R15 ;
 

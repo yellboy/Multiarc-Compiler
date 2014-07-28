@@ -117,8 +117,17 @@ namespace MultiArc_Compiler {
             case (int) Arch4Constants.SIGN:
                 EnterSign((Token) node);
                 break;
-            case (int) Arch4Constants.NUMBER:
-                EnterNumber((Token) node);
+            case (int) Arch4Constants.DEC_NUMBER:
+                EnterDecNumber((Token) node);
+                break;
+            case (int) Arch4Constants.BIN_NUMBER:
+                EnterBinNumber((Token) node);
+                break;
+            case (int) Arch4Constants.OCT_NUMBER:
+                EnterOctNumber((Token) node);
+                break;
+            case (int) Arch4Constants.HEX_NUMBER:
+                EnterHexNumber((Token) node);
                 break;
             case (int) Arch4Constants.IDENTIFIER:
                 EnterIdentifier((Token) node);
@@ -246,8 +255,14 @@ namespace MultiArc_Compiler {
                 return ExitComma((Token) node);
             case (int) Arch4Constants.SIGN:
                 return ExitSign((Token) node);
-            case (int) Arch4Constants.NUMBER:
-                return ExitNumber((Token) node);
+            case (int) Arch4Constants.DEC_NUMBER:
+                return ExitDecNumber((Token) node);
+            case (int) Arch4Constants.BIN_NUMBER:
+                return ExitBinNumber((Token) node);
+            case (int) Arch4Constants.OCT_NUMBER:
+                return ExitOctNumber((Token) node);
+            case (int) Arch4Constants.HEX_NUMBER:
+                return ExitHexNumber((Token) node);
             case (int) Arch4Constants.IDENTIFIER:
                 return ExitIdentifier((Token) node);
             case (int) Arch4Constants.ENTER:
@@ -1152,7 +1167,7 @@ namespace MultiArc_Compiler {
          * <exception cref='ParseException'>if the node analysis
          * discovered errors</exception>
          */
-        public virtual void EnterNumber(Token node) {
+        public virtual void EnterDecNumber(Token node) {
         }
 
         /**
@@ -1166,7 +1181,85 @@ namespace MultiArc_Compiler {
          * <exception cref='ParseException'>if the node analysis
          * discovered errors</exception>
          */
-        public virtual Node ExitNumber(Token node) {
+        public virtual Node ExitDecNumber(Token node) {
+            return node;
+        }
+
+        /**
+         * <summary>Called when entering a parse tree node.</summary>
+         *
+         * <param name='node'>the node being entered</param>
+         *
+         * <exception cref='ParseException'>if the node analysis
+         * discovered errors</exception>
+         */
+        public virtual void EnterBinNumber(Token node) {
+        }
+
+        /**
+         * <summary>Called when exiting a parse tree node.</summary>
+         *
+         * <param name='node'>the node being exited</param>
+         *
+         * <returns>the node to add to the parse tree, or
+         *          null if no parse tree should be created</returns>
+         *
+         * <exception cref='ParseException'>if the node analysis
+         * discovered errors</exception>
+         */
+        public virtual Node ExitBinNumber(Token node) {
+            return node;
+        }
+
+        /**
+         * <summary>Called when entering a parse tree node.</summary>
+         *
+         * <param name='node'>the node being entered</param>
+         *
+         * <exception cref='ParseException'>if the node analysis
+         * discovered errors</exception>
+         */
+        public virtual void EnterOctNumber(Token node) {
+        }
+
+        /**
+         * <summary>Called when exiting a parse tree node.</summary>
+         *
+         * <param name='node'>the node being exited</param>
+         *
+         * <returns>the node to add to the parse tree, or
+         *          null if no parse tree should be created</returns>
+         *
+         * <exception cref='ParseException'>if the node analysis
+         * discovered errors</exception>
+         */
+        public virtual Node ExitOctNumber(Token node) {
+            return node;
+        }
+
+        /**
+         * <summary>Called when entering a parse tree node.</summary>
+         *
+         * <param name='node'>the node being entered</param>
+         *
+         * <exception cref='ParseException'>if the node analysis
+         * discovered errors</exception>
+         */
+        public virtual void EnterHexNumber(Token node) {
+        }
+
+        /**
+         * <summary>Called when exiting a parse tree node.</summary>
+         *
+         * <param name='node'>the node being exited</param>
+         *
+         * <returns>the node to add to the parse tree, or
+         *          null if no parse tree should be created</returns>
+         *
+         * <exception cref='ParseException'>if the node analysis
+         * discovered errors</exception>
+         */
+        public virtual Node ExitHexNumber(Token node) {
             return node;
         }
 

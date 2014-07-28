@@ -225,6 +225,18 @@ namespace MultiArc_Compiler
         /// <summary>
         /// Execution of instruction. 
         /// </summary>
+        /// <param name="ir">
+        /// Binary code of the instruction represented as InstructionRegister object.
+        /// </param>
+        /// <param name="constants">
+        /// Constants for current architecture.
+        /// </param>
+        /// <param name="operands">
+        /// Operands needed for operation.
+        /// </param>
+        /// <returns>
+        /// Result of instruction execution.
+        /// </returns>
         public int[] Execute(InstructionRegister ir, ArchConstants constants, int[] operands)
         {
             var provider = CSharpCodeProvider.CreateProvider("c#");
