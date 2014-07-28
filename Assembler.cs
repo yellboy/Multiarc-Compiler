@@ -255,7 +255,24 @@ namespace MultiArc_Compiler
                                 AddressingMode am = addrModes.ElementAt(j);
                                 int argumentIndex = argumentsIndexes.ElementAt(j);
                                 int operandValue = 0;
-                                if (am.OperandReadFromExpression)
+                                if (am.OperandInValues)
+                                {
+                                    string expr = "";
+                                    if (instructions.ElementAt(i).GetChildAt(argumentIndex).GetChildAt(0) is Production)
+                                    {
+                                        expr = ((Production)instructions.ElementAt(i).GetChildAt(argumentIndex).GetChildAt(0)).Name;
+                                    }
+                                    else
+                                    {
+                                        for (int l = 0; l < instructions.ElementAt(i).GetChildAt(argumentIndex).GetChildCount(); l++)
+                                            expr += ((Token)instructions.ElementAt(i).GetChildAt(argumentIndex).GetChildAt(l)).Image;
+                                    }
+                                    if (am.Values.ContainsKey(expr.ToLower()))
+                                    {
+                                        operandValue = am.Values[expr.ToLower()];
+                                    }
+                                }
+                                else if (am.OperandReadFromExpression)
                                 {
                                     Node node = (instructions.ElementAt(i).GetChildAt(argumentIndex));
                                     int childCount = node.GetChildCount();
@@ -285,19 +302,9 @@ namespace MultiArc_Compiler
                                         operandValue = Convert.ToInt32(((Token)child).Image.ToLower().Substring(0, ((Token)child).Image.Length - 1), 2);
                                     }
                                 }
-                                else
+                                else if (am.OperandValueDefinedByUser)
                                 {
-                                    string expr = "";
-                                    if (instructions.ElementAt(i).GetChildAt(argumentIndex).GetChildAt(0) is Production)
-                                    {
-                                        expr = ((Production)instructions.ElementAt(i).GetChildAt(argumentIndex).GetChildAt(0)).Name;
-                                    }
-                                    else
-                                    {
-                                        for (int l = 0; l < instructions.ElementAt(i).GetChildAt(argumentIndex).GetChildCount(); l++)
-                                            expr += ((Token)instructions.ElementAt(i).GetChildAt(argumentIndex).GetChildAt(l)).Image;
-                                    }
-                                    operandValue = am.Values[expr.ToLower()];
+                                    operandValue = am.GetOperandValue(instructions.ElementAt(i).ToString(), count + inst.Size);
                                 }
                                 int operandStart = inst.Arguments.ElementAt(j).OperandStarts[am.Name];
                                 int operandEnd = inst.Arguments.ElementAt(j).OperandEnds[am.Name];

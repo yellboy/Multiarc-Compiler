@@ -531,6 +531,28 @@ namespace MultiArc_Compiler
                                                         am.AddValue(exp.ToLower(), val);
                                                     }
                                                     break;
+                                                case "operand":
+                                                    if (child.HasChildNodes)
+                                                    {
+                                                        foreach (XmlNode bin in child.ChildNodes)
+                                                        {
+                                                            switch (bin.InnerText)
+                                                            {
+                                                                case "user_defined":
+                                                                    am.OperandValueDefinedByUser = true;
+                                                                    break;
+                                                                case "read_from_expression":
+                                                                    am.OperandReadFromExpression = true;
+                                                                    break;
+                                                                case "read_from_values":
+                                                                    am.OperandInValues = true;
+                                                                    break;
+                                                                default:
+                                                                    break;
+                                                            }
+                                                        }
+                                                    }
+                                                    break;
                                                 case "expression":
                                                     if (child.HasChildNodes)
                                                     {

@@ -153,7 +153,7 @@ namespace MultiArc_Compiler
         /// <summary>
         /// True if this addressing mode can read operand value from expression.
         /// </summary>
-        private bool operandReadFromExpression = true;
+        private bool operandReadFromExpression = false;
 
         public bool OperandReadFromExpression
         {
@@ -164,6 +164,40 @@ namespace MultiArc_Compiler
             set
             {
                 operandReadFromExpression = value;
+            }
+        }
+
+        private bool operandInValues = false;
+
+        /// <summary>
+        /// True if this addressing mode has set of binary code for operand for every expression.
+        /// </summary>
+        public bool OperandInValues
+        {
+            get
+            {
+                return operandInValues;
+            }
+            set
+            {
+                operandInValues = value;
+            }
+        }
+
+        private bool operandValueDefinedByUser = false;
+
+        /// <summary>
+        /// True if this the way to get binary value for operand of this addressing mode is defined by user.
+        /// </summary>
+        public bool OperandValueDefinedByUser
+        {
+            get
+            {
+                return operandValueDefinedByUser;
+            }
+            set
+            {
+                operandValueDefinedByUser = value;
             }
         }
 
@@ -355,5 +389,10 @@ public class DynamicClassAM
             }
         }
 
+
+        internal int GetOperandValue(string p, int p_2)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

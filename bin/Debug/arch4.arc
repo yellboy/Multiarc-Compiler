@@ -46,6 +46,7 @@
 		<name>ST</name>
 		<name>ADD</name>
 		<name>HALT</name>
+		<name>JMP</name>
 	</instruction_mnemonics>
 	<addressing_modes>
 		<immed>
@@ -55,6 +56,7 @@
 			<expression>"#"IDENTIFIER</expression>
 			<expression>"#"DEC_NUMBER</expression>
 			<expression>"#"HEX_NUMBER</expression>
+			<operand>read_from_expression</operand>
 		</immed>		
 		<memdir>
 			<name>memdir</name>
@@ -62,6 +64,7 @@
 			<result>w</result>
 			<expression>IDENTIFIER</expression>
 			<expression>DEC_NUMBER</expression>
+			<operand>read_from_expression</operand>
 		</memdir>
 		<regdir>
 			<name>regdir</name>
@@ -78,6 +81,8 @@
 				<expression>"R1"</expression>
 				<value>01</value>
 			</expression_value>
+			<operand>read_from_expression</operand>
+			<operand>read_from_values</operand>
 		</regdir>
 		<regind>
 			<name>regind</name>
@@ -94,7 +99,17 @@
 				<expression>"(R1)"</expression>
 				<value>01</value>
 			</expression_value>
+			<operand>read_from_expression</operand>
+			<operand>read_from_values</operand>
 		</regind>
+		<pcrel>
+			<name>pcrel</name>
+			<file>pcrel.cs</file>
+			<result>b</result>
+			<expression>IDENTIFIER</expression>
+			<expression>DEC_NUMBER</expression>
+			<operand>user_defined</operand>
+		</pcrel>
 	</addressing_modes>
 	<instructions>
 		<ld1>
@@ -178,5 +193,27 @@
 				</arg>
 			</arguments>
 		</ld2>
+		<jmp>
+			<mnemonic>JMP</mnemonic>
+			<size>2</size>
+			<file>jmp.cs</file>
+			<opcode>
+				<start_bit>15</start_bit>
+				<end_bit>8</end_bit>
+				<value>11001100</value>
+			</opcode>
+			<arguments>
+				<arg>
+					<type>src</type>
+					<addressing_mode>
+						<name>pcrel</name>
+						<operand>
+							<start_bit>7</start_bit>
+							<end_bit>0</end_bit>
+						</operand>
+					</addressing_mode>
+				</arg>
+			</arguments>
+		</jmp>
 	</instructions>
 </architecture>

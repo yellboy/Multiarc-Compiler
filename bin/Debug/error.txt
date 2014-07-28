@@ -1,0 +1,19 @@
+System.IO.FileNotFoundException: Could not find file 'D:\Bojan\MultiArc Compiler\MultiArc Compiler\bin\Debug\pcrel.cs'.
+File name: 'D:\Bojan\MultiArc Compiler\MultiArc Compiler\bin\Debug\pcrel.cs'
+   at System.IO.__Error.WinIOError(Int32 errorCode, String maybeFullPath)
+   at System.IO.FileStream.Init(String path, FileMode mode, FileAccess access, Int32 rights, Boolean useRights, FileShare share, Int32 bufferSize, FileOptions options, SECURITY_ATTRIBUTES secAttrs, String msgPath, Boolean bFromProxy, Boolean useLongPath, Boolean checkHost)
+   at System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, String msgPath, Boolean bFromProxy, Boolean useLongPath, Boolean checkHost)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding, Boolean detectEncodingFromByteOrderMarks, Int32 bufferSize, Boolean checkHost)
+   at System.IO.File.InternalReadAllText(String path, Encoding encoding, Boolean checkHost)
+   at System.IO.File.ReadAllText(String path)
+   at MultiArc_Compiler.AddressingMode.set_FileName(String value) in D:\Bojan\MultiArc Compiler\MultiArc Compiler\AddressingMode.cs:line 59
+   at MultiArc_Compiler.Form1.LoadArchitectureDialog_FileOk(Object sender, CancelEventArgs e) in D:\Bojan\MultiArc Compiler\MultiArc Compiler\Form1.cs:line 508System.IO.FileNotFoundException: Could not find file 'D:\Bojan\MultiArc Compiler\MultiArc Compiler\bin\Debug\jmp.cs'.
+File name: 'D:\Bojan\MultiArc Compiler\MultiArc Compiler\bin\Debug\jmp.cs'
+   at System.IO.__Error.WinIOError(Int32 errorCode, String maybeFullPath)
+   at System.IO.FileStream.Init(String path, FileMode mode, FileAccess access, Int32 rights, Boolean useRights, FileShare share, Int32 bufferSize, FileOptions options, SECURITY_ATTRIBUTES secAttrs, String msgPath, Boolean bFromProxy, Boolean useLongPath, Boolean checkHost)
+   at System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, String msgPath, Boolean bFromProxy, Boolean useLongPath, Boolean checkHost)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding, Boolean detectEncodingFromByteOrderMarks, Int32 bufferSize, Boolean checkHost)
+   at System.IO.File.InternalReadAllText(String path, Encoding encoding, Boolean checkHost)
+   at System.IO.File.ReadAllText(String path)
+   at MultiArc_Compiler.Instruction.set_FileName(String value) in D:\Bojan\MultiArc Compiler\MultiArc Compiler\Instruction.cs:line 115
+   at MultiArc_Compiler.Form1.LoadArchitectureDialog_FileOk(Object sender, CancelEventArgs e) in D:\Bojan\MultiArc Compiler\MultiArc Compiler\Form1.cs:line 701
