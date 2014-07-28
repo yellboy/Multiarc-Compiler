@@ -64,6 +64,12 @@ namespace MultiArc_Compiler {
                                        "HALT");
             AddPattern(pattern);
 
+            pattern = new TokenPattern((int) Arch4Constants.JMP,
+                                       "JMP",
+                                       TokenPattern.PatternType.STRING,
+                                       "JMP");
+            AddPattern(pattern);
+
             pattern = new TokenPattern((int) Arch4Constants.R0,
                                        "R0",
                                        TokenPattern.PatternType.STRING,

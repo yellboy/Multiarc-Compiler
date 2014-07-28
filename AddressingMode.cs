@@ -389,10 +389,49 @@ public class DynamicClassAM
             }
         }
 
-
-        internal int GetOperandValue(string p, int p_2)
+        /// <summary>
+        /// Calculates binary value for operand.
+        /// </summary>
+        /// <param name="image">
+        /// String representing instruction in assembly language.
+        /// </param>
+        /// <param name="currentLocation">
+        /// Current value of location counter (value of pc during execution).
+        /// </param>
+        /// <returns>
+        /// Binary value for operand.
+        /// </returns>
+        public int GetOperandValue(string image, int currentLocation)
         {
-            throw new NotImplementedException();
+            var provider = CSharpCodeProvider.CreateProvider("c#");
+            var options = new CompilerParameters();
+            var assemblyContainingNotDynamicClass = Path.GetFileName(Assembly.GetExecutingAssembly().Location);
+            options.ReferencedAssemblies.Add(assemblyContainingNotDynamicClass);
+            string code = @"
+
+using System;
+using System.IO;
+using MultiArc_Compiler;
+
+public class DynamicClassAM
+{
+";
+            code += executionCode;
+            code += "}";
+            var results = provider.CompileAssemblyFromSource(options, new[] { code });
+            if (results.Errors.Count > 0)
+            {
+                foreach (var error in results.Errors)
+                {
+                    File.AppendAllText("error.txt", this.name + ": " + error + "\n");
+                }
+            }
+            else
+            {
+                var t = results.CompiledAssembly.GetType("DynamicClassAM");
+                object[] parameters = new object[] { ir, Program.Mem, constants, startBit, endBit, data };
+                t.GetMethod("setAddrData_" + this.name).Invoke(null, parameters);
+            }
         }
     }
 }

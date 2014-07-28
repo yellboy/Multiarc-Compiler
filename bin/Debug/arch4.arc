@@ -193,7 +193,7 @@
 				</arg>
 			</arguments>
 		</ld2>
-		<jmp>
+		<jmp1>
 			<mnemonic>JMP</mnemonic>
 			<size>2</size>
 			<file>jmp.cs</file>
@@ -214,6 +214,6 @@
 					</addressing_mode>
 				</arg>
 			</arguments>
-		</jmp>
+		</jmp1>
 	</instructions>
 </architecture>

@@ -79,3 +79,6 @@ ld1 = LD ( REGDIR ) COMMA ( MEMDIR | IMMED ) ;
 
 ld2 = LD ( REGDIR ) COMMA ( REGIND ) ;
 
+jmp1 = JMP ( PCREL ) ;
+
+Instruction = ld1 | ld2 | jmp1 ;

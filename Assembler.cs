@@ -304,7 +304,8 @@ namespace MultiArc_Compiler
                                 }
                                 else if (am.OperandValueDefinedByUser)
                                 {
-                                    operandValue = am.GetOperandValue(instructions.ElementAt(i).ToString(), count + inst.Size);
+                                    string image = getExpression(instructions.ElementAt(i), "");
+                                    operandValue = am.GetOperandValue(image, count + inst.Size);
                                 }
                                 int operandStart = inst.Arguments.ElementAt(j).OperandStarts[am.Name];
                                 int operandEnd = inst.Arguments.ElementAt(j).OperandEnds[am.Name];
@@ -351,6 +352,22 @@ namespace MultiArc_Compiler
             {
                 File.AppendAllText("error.txt", ex.ToString());
                 return null;
+            }
+        }
+
+        private string getExpression(Node node, string expression)
+        {
+            if (node is Token)
+            {
+                return expression + " " + ((Token)node).Image;
+            }
+            else
+            {
+                for (int i = 0; i < node.GetChildCount(); i++)
+                {
+                    expression = getExpression(node.GetChildAt(i), expression);
+                }
+                return expression;
             }
         }
 
