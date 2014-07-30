@@ -21,3 +21,4 @@ D:\Bojan\MultiArc Compiler\MultiArc Compiler\obj\x86\Debug\MultiArc_Compiler.Pro
 D:\Bojan\MultiArc Compiler\MultiArc Compiler\obj\x86\Debug\MultiArc_Compiler.RegistersForm.resources
 D:\Bojan\MultiArc Compiler\MultiArc Compiler\obj\x86\Debug\MultiArc Compiler.csprojResolveAssemblyReference.cache
 D:\Bojan\MultiArc Compiler\MultiArc Compiler\obj\x86\Debug\MultiArc Compiler.csproj.GenerateResource.Cache
+D:\Bojan\MultiArc Compiler\MultiArc Compiler\obj\x86\Debug\MultiArc_Compiler.MemoryDumpForm.resources

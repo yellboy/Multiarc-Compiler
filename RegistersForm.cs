@@ -58,5 +58,14 @@ namespace MultiArc_Compiler
             this.Height += updateButton.Height;
             this.Visible = true;
         }
+
+        private void updateButton_Click(object sender, EventArgs e)
+        {
+            for (int i = 0; i < registersValues.Length; i++)
+            {
+                constants.GetRegister(registersNames[i].Text).Val = Convert.ToInt32(registersValues[i].Text);
+            }
+
+        }
     }
 }

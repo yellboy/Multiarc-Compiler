@@ -851,7 +851,7 @@ namespace MultiArc_Compiler
 
         private void memoryDumpToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Program.Mem.dump();
+            new MemoryDumpForm();
         }
 
         private void registersToolStripMenuItem_Click(object sender, EventArgs e)
