@@ -15,6 +15,7 @@ using System.CodeDom.Compiler;
 using System.CodeDom;
 using Microsoft.CSharp;
 using System.Reflection;
+using System.Windows.Forms;
 
 namespace MultiArc_Compiler
 {
@@ -30,8 +31,14 @@ namespace MultiArc_Compiler
 
         public ArchConstants Constants
         {
-            get;
-            set;
+            get
+            {
+                return constants;
+            }
+            set
+            {
+                constants = value;
+            }
         }
 
         /// <summary>
@@ -116,6 +123,11 @@ namespace MultiArc_Compiler
         /// List that contains informations about positions in binary code where are instruction separators.
         /// </summary>
         private LinkedList<int> separators;
+        
+        /// <summary>
+        /// Output represented with TextBoxBase.
+        /// </summary>
+        private TextBoxBase output;
 
         public LinkedList<int> Separators
         {
@@ -128,17 +140,21 @@ namespace MultiArc_Compiler
         /// <summary>
         /// Constructor.
         /// </summary>
-        /// <param name="code">
+        /// <param name="codePath">
         /// String with full path of the file that contains assembly code.
         /// </param>
         /// <param name="constants">
         /// Object containing binary constants for used architecture.
         /// </param>
-        public Assembler(string codePath, ArchConstants constants)
+        /// <param name="output">
+        /// Output represented as TextBox.
+        /// </param>
+        public Assembler(string codePath, ArchConstants constants, TextBoxBase output)
         {
             this.constants = constants;
             this.codePath = codePath;
             this.code = File.ReadAllText(codePath);
+            this.output = output;
             symbolTable = new LinkedList<Symbol>(); // Creates empty symbol table.
             literalTable = new LinkedList<ILiteral>(); // Creates empty literal table.
             separators = new LinkedList<int>();
@@ -153,12 +169,16 @@ namespace MultiArc_Compiler
         /// <param name="constants">
         /// Object containing binary constants for used architecture.
         /// </param>
-        public Assembler(string code, ArchConstants constants, Memory memory)
+        /// <param name="output">
+        /// Output represented as TextBox.
+        /// </param>
+        public Assembler(string code, ArchConstants constants, Memory memory, TextBoxBase output)
         {
             this.memory = memory;
             this.constants = constants;
             this.code = code;
             this.codePath = "NO PATH";
+            this.output = output;
             symbolTable = new LinkedList<Symbol>(); // Creates emtpy symbol table.
             literalTable = new LinkedList<ILiteral>();
             separators = new LinkedList<int>();
@@ -297,6 +317,7 @@ namespace MultiArc_Compiler
                                     Node node = (instructions.ElementAt(i).GetChildAt(argumentIndex));
                                     int childCount = node.GetChildCount();
                                     Node child = node;
+                                    int sign = 1;
                                     while (!(child.GetChildAt(0) is Token))
                                     {
                                         child = child.GetChildAt(0);
@@ -304,25 +325,36 @@ namespace MultiArc_Compiler
                                     for (int l = 0; l < node.GetChildCount() && !child.Name.Equals("DEC_NUMBER") && !child.Name.Equals("HEX_NUMBER") && !child.Name.Equals("OCT_NUMBER") && !child.Name.Equals("BIN_NUMBER") && !child.Name.Equals("IDENTIFIER"); l++)
                                     {
                                         child = node.GetChildAt(l);
+                                        if (l != 0 && node.GetChildAt(l - 1).Name.Equals("SIGN"))
+                                        {
+                                            if (((Token)node.GetChildAt(l - 1)).Image.Equals("+"))
+                                            {
+                                                sign = 1;
+                                            }
+                                            else
+                                            {
+                                                sign = -1;
+                                            }
+                                        }
                                     }
                                     if (child.Name.Equals("DEC_NUMBER"))
                                     {
-                                        operandValue = Convert.ToInt32(((Token)child).Image.ToLower());
+                                        operandValue = Convert.ToInt32(((Token)child).Image.ToLower()) * sign;
                                         shouldBeWritten = true;
                                     }
                                     else if (child.Name.Equals("HEX_NUMBER"))
                                     {
-                                        operandValue = Convert.ToInt32(((Token)child).Image.ToLower().Substring(0, ((Token)child).Image.Length - 1), 16);
+                                        operandValue = Convert.ToInt32(((Token)child).Image.ToLower().Substring(0, ((Token)child).Image.Length - 1), 16) * sign;
                                         shouldBeWritten = true;
                                     }
                                     else if (child.Name.Equals("OCT_NUMBER"))
                                     {
-                                        operandValue = Convert.ToInt32(((Token)child).Image.ToLower().Substring(0, ((Token)child).Image.Length - 1), 8);
+                                        operandValue = Convert.ToInt32(((Token)child).Image.ToLower().Substring(0, ((Token)child).Image.Length - 1), 8) * sign;
                                         shouldBeWritten = true;
                                     }
                                     else if (child.Name.Equals("BIN_NUMBER"))
                                     {
-                                        operandValue = Convert.ToInt32(((Token)child).Image.ToLower().Substring(0, ((Token)child).Image.Length - 1), 2);
+                                        operandValue = Convert.ToInt32(((Token)child).Image.ToLower().Substring(0, ((Token)child).Image.Length - 1), 2) * sign;
                                         shouldBeWritten = true;
                                     }
                                     else if (child.Name.Equals("IDENTIFIER"))
@@ -350,29 +382,41 @@ namespace MultiArc_Compiler
                                     int childCount = node.GetChildCount();
                                     Node child = node;
                                     bool labelNotYet = false;
+                                    int sign = 1;
                                     while (!(child.GetChildAt(0) is Token))
                                     {
                                         child = child.GetChildAt(0);
                                     }
                                     for (int l = 0; l < node.GetChildCount() && !child.Name.Equals("DEC_NUMBER") && !child.Name.Equals("HEX_NUMBER") && !child.Name.Equals("OCT_NUMBER") && !child.Name.Equals("BIN_NUMBER") && !child.Name.Equals("IDENTIFIER"); l++)
                                     {
-                                        child = node.GetChildAt(l);
+                                        child = node.GetChildAt(l); 
+                                        if (l != 0 && node.GetChildAt(l - 1).Name.Equals("SIGN"))
+                                        {
+                                            if (((Token)node.GetChildAt(l - 1)).Image.Equals("+"))
+                                            {
+                                                sign = 1;
+                                            }
+                                            else
+                                            {
+                                                sign = -1;
+                                            }
+                                        }
                                     }
                                     if (child.Name.Equals("DEC_NUMBER"))
                                     {
-                                        operandValue = Convert.ToInt32(((Token)child).Image.ToLower());
+                                        operandValue = Convert.ToInt32(((Token)child).Image.ToLower()) * sign;
                                     }
                                     else if (child.Name.Equals("HEX_NUMBER"))
                                     {
-                                        operandValue = Convert.ToInt32(((Token)child).Image.ToLower().Substring(0, ((Token)child).Image.Length - 1), 16);
+                                        operandValue = Convert.ToInt32(((Token)child).Image.ToLower().Substring(0, ((Token)child).Image.Length - 1), 16) * sign;
                                     }
                                     else if (child.Name.Equals("OCT_NUMBER"))
                                     {
-                                        operandValue = Convert.ToInt32(((Token)child).Image.ToLower().Substring(0, ((Token)child).Image.Length - 1), 8);
+                                        operandValue = Convert.ToInt32(((Token)child).Image.ToLower().Substring(0, ((Token)child).Image.Length - 1), 8) * sign;
                                     }
                                     else if (child.Name.Equals("BIN_NUMBER"))
                                     {
-                                        operandValue = Convert.ToInt32(((Token)child).Image.ToLower().Substring(0, ((Token)child).Image.Length - 1), 2);
+                                        operandValue = Convert.ToInt32(((Token)child).Image.ToLower().Substring(0, ((Token)child).Image.Length - 1), 2) * sign;
                                     }
                                     else if (child.Name.Equals("IDENTIFIER"))
                                     {
@@ -555,18 +599,19 @@ namespace MultiArc_Compiler
                             }
                             count += inst.Size;
                         }
-                        File.WriteAllText("output.txt", "Compile successfull.");
+                        //File.WriteAllText("output.txt", "Compile successfull.");
+                        output.Text += DateTime.Now.ToString() + " Compile successfull.\n";
                         return binaryCode;
                     }
                     catch (ParserLogException ex)
                     {
-                        string output = "Error(s) in code existed. Compile unsuccessfull.\r\nList of errors:\r\n";
+                        string o = "Error(s) in code existed. Compile unsuccessfull.\r\nList of errors:\r\n";
                         for (int j = 0; j < ex.Count; j++)
                         {
                             ParseException pe = ex[j];
-                            output += (j + 1) + ": Syntax error " + '\'' + pe.ErrorMessage + '\'' + " in line " + pe.Line + " and column " + pe.Column + "\n";
+                            o += (j + 1) + ": Syntax error " + '\'' + pe.ErrorMessage + '\'' + " in line " + pe.Line + " and column " + pe.Column + "\n";
                         }
-                        File.WriteAllText("output.txt", output);
+                        output.Text += DateTime.Now.ToString() + " " + o;
                         return null;
                     }
                 }

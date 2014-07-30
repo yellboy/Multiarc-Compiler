@@ -1,4 +1,10 @@
-﻿using System;
+﻿/*
+ * File: InstructionRegister.cs
+ * Author: Bojan Jelaca
+ * Date: July 2014
+ */ 
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -65,14 +71,18 @@ namespace MultiArc_Compiler
             int byteCount = size - 1;
             for (int k = start; k >= end; k--)
             {
-                int semiValue = (binary[binary.Length - 1 - end / 8 - byteCount] & (1 << (count + end % 8)));
-                result |= (byte)semiValue;
+                int semiValue = (binary[binary.Length - 1 - end / 8 - byteCount] & (1 << ((count + end) % 8)));
+                result |= semiValue << 8 * byteCount;
                 //codeValue |= (byte)((semiValue & (1 << (codeEnds % 8 + codeCount))) >> byteCount * 8); // This might be a problem.
                 if ((end + count) % 8 == 0)
                     byteCount--;
                 count--;
             }
             result >>= end % 8;
+            if ((result & (1 << start - end)) != 0)
+            {
+                result -= (1 << start - end + 1);
+            }
             return result;
         }
     }

@@ -53,6 +53,9 @@ namespace MultiArc_Compiler
                 this.Controls.Add(registersNames[i]);
                 this.Controls.Add(registersValues[i]);
             }
+            updateButton.Location = new System.Drawing.Point(xText, yText);
+            updateButton.Size = new Size(52, 20);
+            this.Height += updateButton.Height;
             this.Visible = true;
         }
     }

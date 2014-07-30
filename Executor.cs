@@ -9,6 +9,7 @@ using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Windows.Forms;
 
 namespace MultiArc_Compiler
 {
@@ -39,6 +40,11 @@ namespace MultiArc_Compiler
         private int entryPoint;
 
         /// <summary>
+        /// Text box representing output.
+        /// </summary>
+        private TextBoxBase output;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="constants">
@@ -55,12 +61,16 @@ namespace MultiArc_Compiler
         /// <param name="psw">
         /// Program status word before exection.
         /// </param>
-        public Executor(ArchConstants constants, byte[] binaryCode, LinkedList<int> separators, Int16 entryPoint = 0) 
+        /// <param name="output">
+        /// Text box representing output.
+        /// </param>
+        public Executor(ArchConstants constants, byte[] binaryCode, LinkedList<int> separators, TextBoxBase output,  Int16 entryPoint = 0) 
         {
             this.constants = constants;
             this.binaryCode = binaryCode;
             this.entryPoint = entryPoint;
             this.separators = separators;
+            this.output = output;
         }
 
         /// <summary>
@@ -92,7 +102,7 @@ namespace MultiArc_Compiler
                 binary.AddLast(binaryCode[pc++]);
                 constants.GetRegister("pc").Val = pc;
             }
-
+            output.Text += DateTime.Now.ToString() + " Code executed successfully\n";
         }
 
     }

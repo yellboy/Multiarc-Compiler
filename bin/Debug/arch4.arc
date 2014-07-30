@@ -54,8 +54,8 @@
 			<file>immed.cs</file>
 			<result>w</result>
 			<expression>"#"IDENTIFIER</expression>
-			<expression>"#"DEC_NUMBER</expression>
-			<expression>"#"HEX_NUMBER</expression>
+			<expression>"#" [SIGN] DEC_NUMBER</expression>
+			<expression>"#" [SIGN] HEX_NUMBER</expression>
 			<operand>read_from_expression</operand>
 			<operand_type>absolute</operand_type>
 		</immed>		

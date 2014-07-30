@@ -147,9 +147,6 @@ namespace MultiArc_Compiler {
             case (int) Arch4Constants.SEPARATOR:
                 EnterSeparator((Production) node);
                 break;
-            case (int) Arch4Constants.INTEGER:
-                EnterInteger((Production) node);
-                break;
             case (int) Arch4Constants.ORIGIN:
                 EnterOrigin((Production) node);
                 break;
@@ -284,8 +281,6 @@ namespace MultiArc_Compiler {
                 return ExitProgram((Production) node);
             case (int) Arch4Constants.SEPARATOR:
                 return ExitSeparator((Production) node);
-            case (int) Arch4Constants.INTEGER:
-                return ExitInteger((Production) node);
             case (int) Arch4Constants.ORIGIN:
                 return ExitOrigin((Production) node);
             case (int) Arch4Constants.LINES:
@@ -331,9 +326,6 @@ namespace MultiArc_Compiler {
                 break;
             case (int) Arch4Constants.SEPARATOR:
                 ChildSeparator(node, child);
-                break;
-            case (int) Arch4Constants.INTEGER:
-                ChildInteger(node, child);
                 break;
             case (int) Arch4Constants.ORIGIN:
                 ChildOrigin(node, child);
@@ -1465,46 +1457,6 @@ namespace MultiArc_Compiler {
          * discovered errors</exception>
          */
         public virtual void ChildSeparator(Production node, Node child) {
-            node.AddChild(child);
-        }
-
-        /**
-         * <summary>Called when entering a parse tree node.</summary>
-         *
-         * <param name='node'>the node being entered</param>
-         *
-         * <exception cref='ParseException'>if the node analysis
-         * discovered errors</exception>
-         */
-        public virtual void EnterInteger(Production node) {
-        }
-
-        /**
-         * <summary>Called when exiting a parse tree node.</summary>
-         *
-         * <param name='node'>the node being exited</param>
-         *
-         * <returns>the node to add to the parse tree, or
-         *          null if no parse tree should be created</returns>
-         *
-         * <exception cref='ParseException'>if the node analysis
-         * discovered errors</exception>
-         */
-        public virtual Node ExitInteger(Production node) {
-            return node;
-        }
-
-        /**
-         * <summary>Called when adding a child to a parse tree
-         * node.</summary>
-         *
-         * <param name='node'>the parent node</param>
-         * <param name='child'>the child node, or null</param>
-         *
-         * <exception cref='ParseException'>if the node analysis
-         * discovered errors</exception>
-         */
-        public virtual void ChildInteger(Production node, Node child) {
             node.AddChild(child);
         }
 

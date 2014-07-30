@@ -62,7 +62,7 @@ namespace MultiArc_Compiler
 
         private void AssemblyButton_Click(object sender, EventArgs e)
         {
-            Assembler asm = new Assembler(CodeBox.Text, constants, Program.Mem);
+            Assembler asm = new Assembler(CodeBox.Text, constants, Program.Mem, OutputBox);
             binary = asm.Assemble();
             if (binary != null)
             {
@@ -810,6 +810,7 @@ namespace MultiArc_Compiler
                             break;
                     }
                 }
+                OutputBox.Text += DateTime.Now.ToString() + " Architecture loaded successfully.\n";
             }
             catch (Exception ex)
             {
@@ -844,7 +845,7 @@ namespace MultiArc_Compiler
 
         private void ExecuteButton_Click(object sender, EventArgs e)
         {
-            Executor ex = new Executor(constants, binary, separators);
+            Executor ex = new Executor(constants, binary, separators, OutputBox);
             ex.Execute();
         }
 
@@ -914,15 +915,11 @@ Program = [Separator] [Origin] Lines ;
 
 Separator = ENTER (ENTER)* ;
 
-Integer = [SIGN] DEC_NUMBER ;
-
 Origin = ORG DEC_NUMBER Separator ;
 
 Lines = Line (Line)* ;
 
-Label = IDENTIFIER "":""
-
-Line = [Label] Instruction Separator ;
+Line = [IDENTIFIER "":""] Instruction Separator ;
 
 ";
                 File.AppendAllText(fileName, content);

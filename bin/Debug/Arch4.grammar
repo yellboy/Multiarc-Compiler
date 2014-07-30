@@ -57,17 +57,13 @@ Program = [Separator] [Origin] Lines ;
 
 Separator = ENTER (ENTER)* ;
 
-Integer = [SIGN] DEC_NUMBER ;
-
 Origin = ORG DEC_NUMBER Separator ;
 
 Lines = Line (Line)* ;
 
-Label = IDENTIFIER ":"
+Line = [IDENTIFIER ":"] Instruction Separator ;
 
-Line = [Label] Instruction Separator ;
-
-IMMED = "#"IDENTIFIER | "#"DEC_NUMBER | "#"HEX_NUMBER ;
+IMMED = "#"IDENTIFIER | "#" [SIGN] DEC_NUMBER | "#" [SIGN] HEX_NUMBER ;
 
 MEMDIR = IDENTIFIER | DEC_NUMBER ;
 

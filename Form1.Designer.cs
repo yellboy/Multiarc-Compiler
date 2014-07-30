@@ -62,8 +62,10 @@
             this.createNewToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.memoryDumpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.LoadArchitectureDialog = new System.Windows.Forms.OpenFileDialog();
             this.registersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.LoadArchitectureDialog = new System.Windows.Forms.OpenFileDialog();
+            this.OutputBox = new System.Windows.Forms.RichTextBox();
+            this.outputLabel = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -360,10 +362,6 @@
             this.memoryDumpToolStripMenuItem.Text = "Memory dump";
             this.memoryDumpToolStripMenuItem.Click += new System.EventHandler(this.memoryDumpToolStripMenuItem_Click);
             // 
-            // LoadArchitectureDialog
-            // 
-            this.LoadArchitectureDialog.FileOk += new System.ComponentModel.CancelEventHandler(this.LoadArchitectureDialog_FileOk);
-            // 
             // registersToolStripMenuItem
             // 
             this.registersToolStripMenuItem.Name = "registersToolStripMenuItem";
@@ -371,11 +369,36 @@
             this.registersToolStripMenuItem.Text = "Registers";
             this.registersToolStripMenuItem.Click += new System.EventHandler(this.registersToolStripMenuItem_Click);
             // 
+            // LoadArchitectureDialog
+            // 
+            this.LoadArchitectureDialog.FileOk += new System.ComponentModel.CancelEventHandler(this.LoadArchitectureDialog_FileOk);
+            // 
+            // OutputBox
+            // 
+            this.OutputBox.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.OutputBox.Location = new System.Drawing.Point(12, 511);
+            this.OutputBox.Name = "OutputBox";
+            this.OutputBox.ReadOnly = true;
+            this.OutputBox.Size = new System.Drawing.Size(822, 118);
+            this.OutputBox.TabIndex = 24;
+            this.OutputBox.Text = "";
+            // 
+            // outputLabel
+            // 
+            this.outputLabel.AutoSize = true;
+            this.outputLabel.Location = new System.Drawing.Point(12, 495);
+            this.outputLabel.Name = "outputLabel";
+            this.outputLabel.Size = new System.Drawing.Size(39, 13);
+            this.outputLabel.TabIndex = 25;
+            this.outputLabel.Text = "Output";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(846, 496);
+            this.ClientSize = new System.Drawing.Size(846, 641);
+            this.Controls.Add(this.outputLabel);
+            this.Controls.Add(this.OutputBox);
             this.Controls.Add(this.ByteCountBox);
             this.Controls.Add(this.BinFileNameLabel);
             this.Controls.Add(this.BinSaveFileAsButton);
@@ -446,6 +469,8 @@
         private System.Windows.Forms.ToolStripMenuItem viewToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem memoryDumpToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem registersToolStripMenuItem;
+        private System.Windows.Forms.RichTextBox OutputBox;
+        private System.Windows.Forms.Label outputLabel;
 
     }
 }
