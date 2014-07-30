@@ -81,8 +81,9 @@ namespace MultiArc_Compiler
                     inst.ReadAddressingModes(binary.ToArray());
                     int[] operands = inst.FetchOperands(ir, constants);
                     int[] result = inst.Execute(ir, constants, operands);
-                    inst.storeResult(ir, constants, result);
+                    inst.StoreResult(ir, constants, result);
                     binary.Clear();
+                    pc = constants.GetRegister("pc").Val;
                 } 
                 if (pc >= binaryCode.Length)
                 {

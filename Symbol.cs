@@ -56,9 +56,9 @@ namespace MultiArc_Compiler
         /// <summary>
         /// Offset of symbol in its section.
         /// </summary>
-        private Int16 offset;
+        private int offset;
 
-        public Int16 Offset
+        public int Offset
         {
             get
             {
@@ -102,7 +102,7 @@ namespace MultiArc_Compiler
         /// <param name="local">
         /// Is symbol local?
         /// </param>
-        public Symbol(String label, int section, Int16 offset, bool local)
+        public Symbol(String label, int section, int offset, bool local)
         {
             this.label = label;
             this.section = section;

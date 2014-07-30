@@ -303,8 +303,8 @@ public class DynamicClassEX
                         int byteCount = codeSize - 1;
                         for (int k = codeStarts; k >= codeEnds; k--)
                         {
-                            int semiValue = (binary[binary.Length - 1 - codeEnds / 8 - byteCount] & (1 << (codeCount + codeEnds % 8)));
-                            codeValue |= (byte)semiValue;
+                            int semiValue = (binary[binary.Length - 1 - codeEnds / 8 - byteCount] & (1 << ((codeCount + codeEnds) % 8)));
+                            codeValue |= semiValue << byteCount * 8;
                             //codeValue |= (byte)((semiValue & (1 << (codeEnds % 8 + codeCount))) >> byteCount * 8); // This might be a problem.
                             if ((codeEnds + codeCount) % 8 == 0)
                                 byteCount--;
@@ -364,7 +364,7 @@ public class DynamicClassEX
         /// <param name="dataToStore">
         /// Result of the instruction execution.
         /// </param>
-        public void storeResult(InstructionRegister ir, ArchConstants constants, int[] dataToStore)
+        public void StoreResult(InstructionRegister ir, ArchConstants constants, int[] dataToStore)
         {
             int argCount = 0;
             foreach (Argument arg in arguments)

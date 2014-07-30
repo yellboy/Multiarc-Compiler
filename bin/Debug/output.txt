@@ -1,3 +1,1 @@
-Error(s) in code existed. Compile unsuccessfull.
-List of errors:
-1: Syntax error 'unexpected token "3h" <HEX_NUMBER>, expected one of <IDENTIFIER>, or <DEC_NUMBER>' in line 1 and column 5
+Compile successfull.

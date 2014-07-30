@@ -1,3 +1,20 @@
-System.NotImplementedException: The method or operation is not implemented.
-   at MultiArc_Compiler.AddressingMode.GetOperandValue(String p, Int32 p_2) in D:\Bojan\MultiArc Compiler\MultiArc Compiler\AddressingMode.cs:line 395
-   at MultiArc_Compiler.Assembler.Assemble(String outputPath) in D:\Bojan\MultiArc Compiler\MultiArc Compiler\Assembler.cs:line 308
+System.IndexOutOfRangeException: Index was outside the bounds of the array.
+   at MultiArc_Compiler.ArchConstants.MatchInstruction(Byte[] binary) in D:\Bojan\MultiArc Compiler\MultiArc Compiler\ArchConstants.cs:line 915
+   at MultiArc_Compiler.Executor.Execute() in D:\Bojan\MultiArc Compiler\MultiArc Compiler\Executor.cs:line 79
+   at MultiArc_Compiler.Form1.ExecuteButton_Click(Object sender, EventArgs e) in D:\Bojan\MultiArc Compiler\MultiArc Compiler\Form1.cs:line 848
+   at System.Windows.Forms.Control.OnClick(EventArgs e)
+   at System.Windows.Forms.Button.OnClick(EventArgs e)
+   at System.Windows.Forms.Button.OnMouseUp(MouseEventArgs mevent)
+   at System.Windows.Forms.Control.WmMouseUp(Message& m, MouseButtons button, Int32 clicks)
+   at System.Windows.Forms.Control.WndProc(Message& m)
+   at System.Windows.Forms.ButtonBase.WndProc(Message& m)
+   at System.Windows.Forms.Button.WndProc(Message& m)
+   at System.Windows.Forms.Control.ControlNativeWindow.OnMessage(Message& m)
+   at System.Windows.Forms.Control.ControlNativeWindow.WndProc(Message& m)
+   at System.Windows.Forms.NativeWindow.DebuggableCallback(IntPtr hWnd, Int32 msg, IntPtr wparam, IntPtr lparam)
+   at System.Windows.Forms.UnsafeNativeMethods.DispatchMessageW(MSG& msg)
+   at System.Windows.Forms.Application.ComponentManager.System.Windows.Forms.UnsafeNativeMethods.IMsoComponentManager.FPushMessageLoop(IntPtr dwComponentID, Int32 reason, Int32 pvLoopData)
+   at System.Windows.Forms.Application.ThreadContext.RunMessageLoopInner(Int32 reason, ApplicationContext context)
+   at System.Windows.Forms.Application.ThreadContext.RunMessageLoop(Int32 reason, ApplicationContext context)
+   at System.Windows.Forms.Application.Run(Form mainForm)
+   at MultiArc_Compiler.Program.Main() in D:\Bojan\MultiArc Compiler\MultiArc Compiler\Program.cs:line 24

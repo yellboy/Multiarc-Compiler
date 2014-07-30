@@ -63,7 +63,9 @@ Origin = ORG DEC_NUMBER Separator ;
 
 Lines = Line (Line)* ;
 
-Line = [IDENTIFIER ":"] Instruction Separator ;
+Label = IDENTIFIER ":"
+
+Line = [Label] Instruction Separator ;
 
 IMMED = "#"IDENTIFIER | "#"DEC_NUMBER | "#"HEX_NUMBER ;
 

@@ -1,0 +1,5 @@
+Error: in Arch4.grammar: line 68:
+    unexpected token "=", expected ";"
+
+Line = [Label] Instruction Separator ;
+     ^

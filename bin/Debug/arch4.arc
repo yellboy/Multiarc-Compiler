@@ -57,6 +57,7 @@
 			<expression>"#"DEC_NUMBER</expression>
 			<expression>"#"HEX_NUMBER</expression>
 			<operand>read_from_expression</operand>
+			<operand_type>absolute</operand_type>
 		</immed>		
 		<memdir>
 			<name>memdir</name>
@@ -65,6 +66,7 @@
 			<expression>IDENTIFIER</expression>
 			<expression>DEC_NUMBER</expression>
 			<operand>read_from_expression</operand>
+			<operand_type>absolute</operand_type>
 		</memdir>
 		<regdir>
 			<name>regdir</name>
@@ -83,6 +85,7 @@
 			</expression_value>
 			<operand>read_from_expression</operand>
 			<operand>read_from_values</operand>
+			<operand_type>absolute</operand_type>
 		</regdir>
 		<regind>
 			<name>regind</name>
@@ -101,6 +104,7 @@
 			</expression_value>
 			<operand>read_from_expression</operand>
 			<operand>read_from_values</operand>
+			<operand_type>absolute</operand_type>
 		</regind>
 		<pcrel>
 			<name>pcrel</name>
@@ -108,7 +112,8 @@
 			<result>b</result>
 			<expression>IDENTIFIER</expression>
 			<expression>DEC_NUMBER</expression>
-			<operand>user_defined</operand>
+			<operand>read_from_expression</operand>
+			<operand_type>relative</operand_type>
 		</pcrel>
 	</addressing_modes>
 	<instructions>
@@ -168,7 +173,7 @@
 			<opcode>
 				<start_bit>11</start_bit>
 				<end_bit>8</end_bit>
-				<value>0000</value>
+				<value>1000</value>
 			</opcode>
 			<arguments>
 				<arg>

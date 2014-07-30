@@ -201,6 +201,23 @@ namespace MultiArc_Compiler
             }
         }
 
+        private string operandType;
+
+        /// <summary>
+        /// Relative or absolute.
+        /// </summary>
+        public string OperandType
+        {
+            get
+            {
+                return operandType;
+            }
+            set
+            {
+                operandType = value;
+            }
+        }
+
         /// <summary>
         /// Adds new pair of expression and its joined value.
         /// </summary>
@@ -401,7 +418,7 @@ public class DynamicClassAM
         /// <returns>
         /// Binary value for operand.
         /// </returns>
-        public int GetOperandValue(string image, int currentLocation)
+        public int GetOperandValue(string image, int currentLocation, int relativeValue, int absoluteValue)
         {
             var provider = CSharpCodeProvider.CreateProvider("c#");
             var options = new CompilerParameters();
@@ -425,12 +442,16 @@ public class DynamicClassAM
                 {
                     File.AppendAllText("error.txt", this.name + ": " + error + "\n");
                 }
+                return 0;
             }
             else
             {
                 var t = results.CompiledAssembly.GetType("DynamicClassAM");
-                object[] parameters = new object[] { ir, Program.Mem, constants, startBit, endBit, data };
-                t.GetMethod("setAddrData_" + this.name).Invoke(null, parameters);
+                int operand = 0;
+                object[] parameters = new object[] { image, currentLocation, relativeValue, absoluteValue, operand };
+                t.GetMethod("getOperand_" + this.name).Invoke(null, parameters);
+                operand = (int)parameters[4];
+                return operand;
             }
         }
     }

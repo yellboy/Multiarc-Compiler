@@ -82,6 +82,8 @@ namespace MultiArc_Compiler
 
         private LinkedList<Node> instructions = new LinkedList<Node>();
 
+        private Dictionary<Node, string> labels = new Dictionary<Node, string>();
+
         /// <summary>
         /// Binary code that assemler generates.
         /// </summary>
@@ -205,14 +207,30 @@ namespace MultiArc_Compiler
                     try
                     {
                         Node n = parser.Parse();
+                        instructions.Clear();
+                        labels.Clear();
+                        symbolTable.Clear();
                         getInstructionsFromTree(n);
                         binaryCode = new byte[instructions.Count * constants.MAX_BYTES];
                         count = 0;
                         separators.Clear();
                         separators = new LinkedList<int>();
+                        // First passing:
                         for (int i = 0; i < instructions.Count; i++)
                         {
                             Instruction inst = constants.GetInstruction(instructions.ElementAt(i).GetName());
+                            if (labels.ContainsKey(instructions.ElementAt(i)))
+                            {
+                                Symbol symbol = new Symbol(labels[instructions.ElementAt(i)], 0, count, true);
+                                if (symbolTable.Contains(symbol))
+                                {
+                                    throw new Exception("Label already defined");
+                                }
+                                else
+                                {
+                                    symbolTable.AddLast(symbol);
+                                }
+                            }
                             for (int j = inst.Mask.Length - 1; j >= 0; j--)
                             {
                                 binaryCode[count + j] = inst.Mask[j];
@@ -255,8 +273,10 @@ namespace MultiArc_Compiler
                                 AddressingMode am = addrModes.ElementAt(j);
                                 int argumentIndex = argumentsIndexes.ElementAt(j);
                                 int operandValue = 0;
+                                bool shouldBeWritten = false;
                                 if (am.OperandInValues)
                                 {
+                                    shouldBeWritten = true;
                                     string expr = "";
                                     if (instructions.ElementAt(i).GetChildAt(argumentIndex).GetChildAt(0) is Production)
                                     {
@@ -281,7 +301,60 @@ namespace MultiArc_Compiler
                                     {
                                         child = child.GetChildAt(0);
                                     }
-                                    for (int l = 0; l < node.GetChildCount() && !child.Name.Equals("DEC_NUMBER") && !child.Name.Equals("HEX_NUMBER") && !child.Name.Equals("OCT_NUMBER") && !child.Name.Equals("BIN_NUMBER"); l++)
+                                    for (int l = 0; l < node.GetChildCount() && !child.Name.Equals("DEC_NUMBER") && !child.Name.Equals("HEX_NUMBER") && !child.Name.Equals("OCT_NUMBER") && !child.Name.Equals("BIN_NUMBER") && !child.Name.Equals("IDENTIFIER"); l++)
+                                    {
+                                        child = node.GetChildAt(l);
+                                    }
+                                    if (child.Name.Equals("DEC_NUMBER"))
+                                    {
+                                        operandValue = Convert.ToInt32(((Token)child).Image.ToLower());
+                                        shouldBeWritten = true;
+                                    }
+                                    else if (child.Name.Equals("HEX_NUMBER"))
+                                    {
+                                        operandValue = Convert.ToInt32(((Token)child).Image.ToLower().Substring(0, ((Token)child).Image.Length - 1), 16);
+                                        shouldBeWritten = true;
+                                    }
+                                    else if (child.Name.Equals("OCT_NUMBER"))
+                                    {
+                                        operandValue = Convert.ToInt32(((Token)child).Image.ToLower().Substring(0, ((Token)child).Image.Length - 1), 8);
+                                        shouldBeWritten = true;
+                                    }
+                                    else if (child.Name.Equals("BIN_NUMBER"))
+                                    {
+                                        operandValue = Convert.ToInt32(((Token)child).Image.ToLower().Substring(0, ((Token)child).Image.Length - 1), 2);
+                                        shouldBeWritten = true;
+                                    }
+                                    else if (child.Name.Equals("IDENTIFIER"))
+                                    {
+                                        string label = ((Token)child).Image;
+                                        operandValue = 0;
+                                        foreach (Symbol s in symbolTable)
+                                        {
+                                            if (s.Label.ToLower().Equals(label))
+                                            {
+                                                operandValue = s.Offset;
+                                                break;
+                                            }
+                                        }
+                                        
+                                    }
+                                    if (am.OperandType.ToLower().Equals("relative"))
+                                    {
+                                        operandValue = operandValue - inst.Size - count;
+                                    }
+                                }
+                                else if (am.OperandValueDefinedByUser)
+                                {
+                                    Node node = (instructions.ElementAt(i).GetChildAt(argumentIndex));
+                                    int childCount = node.GetChildCount();
+                                    Node child = node;
+                                    bool labelNotYet = false;
+                                    while (!(child.GetChildAt(0) is Token))
+                                    {
+                                        child = child.GetChildAt(0);
+                                    }
+                                    for (int l = 0; l < node.GetChildCount() && !child.Name.Equals("DEC_NUMBER") && !child.Name.Equals("HEX_NUMBER") && !child.Name.Equals("OCT_NUMBER") && !child.Name.Equals("BIN_NUMBER") && !child.Name.Equals("IDENTIFIER"); l++)
                                     {
                                         child = node.GetChildAt(l);
                                     }
@@ -301,37 +374,187 @@ namespace MultiArc_Compiler
                                     {
                                         operandValue = Convert.ToInt32(((Token)child).Image.ToLower().Substring(0, ((Token)child).Image.Length - 1), 2);
                                     }
-                                }
-                                else if (am.OperandValueDefinedByUser)
-                                {
-                                    string image = getExpression(instructions.ElementAt(i), "");
-                                    operandValue = am.GetOperandValue(image, count + inst.Size);
-                                }
-                                int operandStart = inst.Arguments.ElementAt(j).OperandStarts[am.Name];
-                                int operandEnd = inst.Arguments.ElementAt(j).OperandEnds[am.Name];
-                                int operandSize = 1;
-                                for (int k = operandStart; k >= operandEnd; k--)
-                                {
-                                    if (k % 8 == 0 && k != operandEnd)
+                                    else if (child.Name.Equals("IDENTIFIER"))
                                     {
-                                        operandSize++;
+                                        string label = ((Token)child).Image;
+                                        operandValue = 0;
+                                        bool found = false;
+                                        foreach (Symbol s in symbolTable)
+                                        {
+                                            if (s.Label.ToLower().Equals(label))
+                                            {
+                                                operandValue = s.Offset;
+                                                found = true;
+                                                break;
+                                            }
+                                        }
+                                        if (found == false)
+                                        {
+                                            labelNotYet = true;
+                                        }
+                                    }
+                                    int relativeOperandValue = operandValue - inst.Size - count;
+                                    string image = getExpression(instructions.ElementAt(i), "");
+                                    if (labelNotYet == false)
+                                    {
+                                        operandValue = am.GetOperandValue(image, count + inst.Size, relativeOperandValue, operandValue);
+                                        shouldBeWritten = true;
                                     }
                                 }
-                                int operandCount = operandStart - operandEnd;
-                                byteCount = operandSize - 1;
-                                for (int k = operandStart; k >= operandEnd; k--)
+                                if (shouldBeWritten == true)
                                 {
-                                    int semiValue = (operandValue & (1 << operandCount)) << operandEnd % 8;
-                                    binaryCode[count + inst.Size - 1 - operandEnd / 8 - byteCount] |= (byte)((semiValue & (1 << (operandEnd % 8 + operandCount))) >> byteCount * 8); // This might be a problem.
-                                    if ((operandEnd + operandCount) % 8 == 0)
-                                        byteCount--;
-                                    operandCount--; 
+                                    int operandStart = inst.Arguments.ElementAt(j).OperandStarts[am.Name];
+                                    int operandEnd = inst.Arguments.ElementAt(j).OperandEnds[am.Name];
+                                    int operandSize = 1;
+                                    for (int k = operandStart; k >= operandEnd; k--)
+                                    {
+                                        if (k % 8 == 0 && k != operandEnd)
+                                        {
+                                            operandSize++;
+                                        }
+                                    }
+                                    int operandCount = operandStart - operandEnd;
+                                    byteCount = operandSize - 1;
+                                    for (int k = operandStart; k >= operandEnd; k--)
+                                    {
+                                        int semiValue = (operandValue & (1 << operandCount)) << operandEnd % 8;
+                                        binaryCode[count + inst.Size - 1 - operandEnd / 8 - byteCount] |= (byte)((semiValue & (1 << (operandEnd % 8 + operandCount))) >> byteCount * 8); // This might be a problem.
+                                        if ((operandEnd + operandCount) % 8 == 0)
+                                            byteCount--;
+                                        operandCount--;
+                                    }
                                 }
                             }
                             separators.AddLast(count);
                             count += inst.Size;
                         }
                         separators.AddLast(count);
+                        count = 0;
+                        // Second passing:
+                        for (int i = 0; i < instructions.Count; i++)
+                        {
+                            Instruction inst = constants.GetInstruction(instructions.ElementAt(i).GetName());
+                            LinkedList<AddressingMode> addrModes = new LinkedList<AddressingMode>();
+                            LinkedList<int> argumentsIndexes = new LinkedList<int>();
+                            for (int j = 0; j < instructions.ElementAt(i).GetChildCount(); j++)
+                            {
+                                AddressingMode am = null;
+                                am = constants.GetAddressingMode(instructions.ElementAt(i).GetChildAt(j).Name);
+                                if (!object.ReferenceEquals(am, null))
+                                {
+                                    addrModes.AddLast(am);
+                                    argumentsIndexes.AddLast(j);
+                                }
+                            }
+                            for (int j = 0; j < inst.Arguments.Count; j++)
+                            {
+                                AddressingMode am = addrModes.ElementAt(j);
+                                int argumentIndex = argumentsIndexes.ElementAt(j);
+                                int operandValue = 0;
+                                bool shouldBeOverwriten = false;
+                                if (am.OperandReadFromExpression)
+                                {
+                                    Node node = (instructions.ElementAt(i).GetChildAt(argumentIndex));
+                                    int childCount = node.GetChildCount();
+                                    Node child = node;
+                                    while (!(child.GetChildAt(0) is Token))
+                                    {
+                                        child = child.GetChildAt(0);
+                                    }
+                                    for (int l = 0; l < node.GetChildCount() && !child.Name.Equals("DEC_NUMBER") && !child.Name.Equals("HEX_NUMBER") && !child.Name.Equals("OCT_NUMBER") && !child.Name.Equals("BIN_NUMBER") && !child.Name.Equals("IDENTIFIER"); l++)
+                                    {
+                                        child = node.GetChildAt(l);
+                                    }
+                                    if (child.Name.Equals("IDENTIFIER"))
+                                    {
+                                        string label = ((Token)child).Image;
+                                        operandValue = 0;
+                                        shouldBeOverwriten = true;
+                                        bool found = false;
+                                        foreach (Symbol s in symbolTable)
+                                        {
+                                            if (s.Label.ToLower().Equals(label))
+                                            {
+                                                operandValue = s.Offset;
+                                                found = true;
+                                                break;
+                                            }
+                                        }
+                                        if (found == false)
+                                        {
+                                            operandValue = Program.Mem.firstFree(Program.Mem.AuSize);
+                                            Program.Mem.allocate(operandValue, Program.Mem.AuSize); // This must be improved.
+                                        }
+                                        
+                                    }
+                                    if (am.OperandType.ToLower().Equals("relative"))
+                                    {
+                                        operandValue = operandValue - inst.Size - count;
+                                    }
+                                }
+                                else if (am.OperandValueDefinedByUser)
+                                {
+                                    Node node = (instructions.ElementAt(i).GetChildAt(argumentIndex));
+                                    int childCount = node.GetChildCount();
+                                    Node child = node;
+                                    while (!(child.GetChildAt(0) is Token))
+                                    {
+                                        child = child.GetChildAt(0);
+                                    }
+                                    for (int l = 0; l < node.GetChildCount() && !child.Name.Equals("DEC_NUMBER") && !child.Name.Equals("HEX_NUMBER") && !child.Name.Equals("OCT_NUMBER") && !child.Name.Equals("BIN_NUMBER") && !child.Name.Equals("IDENTIFIER"); l++)
+                                    {
+                                        child = node.GetChildAt(l);
+                                    }
+                                    if (child.Name.Equals("IDENTIFIER"))
+                                    {
+                                        string label = ((Token)child).Image;
+                                        bool found = false;
+                                        shouldBeOverwriten = true;
+                                        foreach (Symbol s in symbolTable)
+                                        {
+                                            if (s.Label.ToLower().Equals(label))
+                                            {
+                                                operandValue = s.Offset;
+                                                found = true;
+                                                break;
+                                            }
+                                        }
+                                        if (found == false)
+                                        {
+                                            operandValue = Program.Mem.firstFree(Program.Mem.AuSize);
+                                            Program.Mem.allocate(operandValue, Program.Mem.AuSize); // This must be improved.
+                                        }
+                                    }
+                                    int relativeOperandValue = operandValue - inst.Size - count;
+                                    string image = getExpression(instructions.ElementAt(i), "");
+                                    operandValue = am.GetOperandValue(image, count + inst.Size, relativeOperandValue, operandValue);
+                                }
+                                if (shouldBeOverwriten == true)
+                                {
+                                    int operandStart = inst.Arguments.ElementAt(j).OperandStarts[am.Name];
+                                    int operandEnd = inst.Arguments.ElementAt(j).OperandEnds[am.Name];
+                                    int operandSize = 1;
+                                    for (int k = operandStart; k >= operandEnd; k--)
+                                    {
+                                        if (k % 8 == 0 && k != operandEnd)
+                                        {
+                                            operandSize++;
+                                        }
+                                    }
+                                    int operandCount = operandStart - operandEnd;
+                                    int byteCount = operandSize - 1;
+                                    for (int k = operandStart; k >= operandEnd; k--)
+                                    {
+                                        int semiValue = (operandValue & (1 << operandCount)) << operandEnd % 8;
+                                        binaryCode[count + inst.Size - 1 - operandEnd / 8 - byteCount] |= (byte)((semiValue & (1 << (operandEnd % 8 + operandCount))) >> byteCount * 8); // This might be a problem.
+                                        if ((operandEnd + operandCount) % 8 == 0)
+                                            byteCount--;
+                                        operandCount--;
+                                    }
+                                }
+                            }
+                            count += inst.Size;
+                        }
                         File.WriteAllText("output.txt", "Compile successfull.");
                         return binaryCode;
                     }
@@ -355,6 +578,18 @@ namespace MultiArc_Compiler
             }
         }
 
+        /// <summary>
+        /// Recursive method that creates expression from node.
+        /// </summary>
+        /// <param name="node">
+        /// Node for which expression needs to be calculated.
+        /// </param>
+        /// <param name="expression">
+        /// Expression created by now.
+        /// </param>
+        /// <returns>
+        /// Wanted expression.
+        /// </returns>
         private string getExpression(Node node, string expression)
         {
             if (node is Token)
@@ -602,6 +837,10 @@ namespace MultiArc_Compiler
                 if (n.Name.Equals("Instruction"))
                 {
                     this.instructions.AddLast(n.GetChildAt(i));
+                    if (n.Parent.GetChildAt(0).Name.Equals("IDENTIFIER") && n.Parent.GetChildAt(1).Name.Equals("COLON"))
+                    {
+                        labels.Add(n.GetChildAt(i), ((Token)n.Parent.GetChildAt(0)).Image);
+                    }
                 }
             }
             for (int i = 0; i < n.GetChildCount(); i++)

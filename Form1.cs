@@ -553,6 +553,9 @@ namespace MultiArc_Compiler
                                                         }
                                                     }
                                                     break;
+                                                case "operand_type":
+                                                    am.OperandType = child.InnerText;
+                                                    break;
                                                 case "expression":
                                                     if (child.HasChildNodes)
                                                     {
@@ -677,7 +680,7 @@ namespace MultiArc_Compiler
                                                     size = 1;
                                                     for (int j = i.StartBit; j >= i.EndBit; j--)
                                                     {
-                                                        if (j % 8 == 0)
+                                                        if (j % 8 == 0 && j != i.EndBit)
                                                         {
                                                             size++;
                                                         }
@@ -917,7 +920,9 @@ Origin = ORG DEC_NUMBER Separator ;
 
 Lines = Line (Line)* ;
 
-Line = [IDENTIFIER "":""] Instruction Separator ;
+Label = IDENTIFIER "":""
+
+Line = [Label] Instruction Separator ;
 
 ";
                 File.AppendAllText(fileName, content);

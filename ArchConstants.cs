@@ -873,10 +873,11 @@ namespace MultiArc_Compiler
                 {
                     continue;
                 }
+                /*
                 int size = 1;
                 for (int j = i.StartBit; j >= i.EndBit; j--)
                 {
-                    if (j % 8 == 0)
+                    if (j % 8 == 0 && j != i.EndBit)
                     {
                         size++;
                     }
@@ -894,6 +895,46 @@ namespace MultiArc_Compiler
                     count++;
                 }
                 if (matched == true)
+                {
+                    return i;
+                }*/
+                int codeStarts = i.StartBit;
+                int codeEnds = i.EndBit;
+                int codeValue = 0;
+                int codeSize = 1;
+                for (int k = codeStarts; k >= codeEnds; k--)
+                {
+                    if (k % 8 == 0 && k != codeEnds)
+                    {
+                        codeSize++;
+                    }
+                }
+                int codeCount = codeStarts - codeEnds;
+                int byteCount = codeSize - 1;
+                for (int k = codeStarts; k >= codeEnds; k--)
+                {
+                    int semiValue = (binary[binary.Length - 1 - codeEnds / 8 - byteCount] & (1 << ((codeCount + codeEnds) % 8)));
+                    codeValue |= semiValue << byteCount * 8;
+                    //codeValue |= (byte)((semiValue & (1 << (codeEnds % 8 + codeCount))) >> byteCount * 8); // This might be a problem.
+                    if ((codeEnds + codeCount) % 8 == 0)
+                        byteCount--;
+                    codeCount--;
+                }
+                int maskValue = 0;
+                codeStarts -= i.Mask.Length * 8;
+                codeEnds -= i.Mask.Length * 8;
+                byteCount = codeSize - 1;
+                codeCount = codeStarts - codeEnds;
+                for (int k = codeStarts; k >= codeEnds; k--)
+                {
+                    int semiValue = (i.Mask[i.Mask.Length - 1 - codeEnds / 8 - byteCount] & (1 << ((codeCount + codeEnds) % 8)));
+                    maskValue |= semiValue << byteCount * 8;
+                    //codeValue |= (byte)((semiValue & (1 << (codeEnds % 8 + codeCount))) >> byteCount * 8); // This might be a problem.
+                    if ((codeEnds + codeCount) % 8 == 0)
+                        byteCount--;
+                    codeCount--;
+                }
+                if (maskValue == codeValue)
                 {
                     return i;
                 }

@@ -8,9 +8,3 @@ public static void setAddrData_pcrel(InstructionRegister ir, Memory memory, Arch
 
 }
 	
-public static void getOperand_pcrel(string image, int currentLocation, ref int operand)
-{
-	string[] words = image.split(' ');
-	
-	
-}
