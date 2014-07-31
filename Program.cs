@@ -25,7 +25,6 @@ namespace MultiArc_Compiler
             }
             catch (Exception ex)
             {
-                //File.("error.txt");
                 File.WriteAllText("error.txt", ex.ToString());
             }
         }
