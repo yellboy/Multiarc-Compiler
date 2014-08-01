@@ -17,7 +17,7 @@ namespace MultiArc_Compiler
     /// </sumary>
     public class Memory
     {
-        private int size;
+        private int size = -1;
 
         /// <summary>
         /// Size of memory in bytes.
@@ -115,7 +115,7 @@ namespace MultiArc_Compiler
         /// <summary>
         /// Size of addressible unit in bytes.
         /// </summary>
-        private int auSize;
+        private int auSize = -1;
 
         public int AuSize
         {
@@ -177,12 +177,7 @@ namespace MultiArc_Compiler
             get
             {
                 FileStream fs = new FileStream(storageFile, FileMode.Open);
-                //fs.Position = address;
                 fs.Seek(address - fs.Position, SeekOrigin.Current);
-                /*for (int i = 0; i < address * auSize; i++)
-                {
-                    fs.ReadByte();
-                }*/
                 byte[] ret = new byte[auSize];
                 for (int i = 0; i < auSize; i++)
                 {
@@ -195,12 +190,7 @@ namespace MultiArc_Compiler
             set
             {
                 FileStream fs = new FileStream(storageFile, FileMode.Open);
-                //fs.Position = address;
                 fs.Seek(address - fs.Position, SeekOrigin.Current);
-                /*for (int i = 0; i < address * auSize; i++)
-                {
-                    fs.ReadByte();
-                }*/
                 byte[] ret = new byte[auSize];
                 for (int i = 0; i < auSize; i++)
                 {
@@ -282,6 +272,10 @@ namespace MultiArc_Compiler
             if (initFile != null && File.Exists(initFile))
             {
                 lines = File.ReadAllLines(initFile);
+            }
+            if (storageFile == null)
+            {
+                storageFile = "memory.mem";
             }
             Dictionary<uint, byte[]> map = new Dictionary<uint, byte[]>();
             for (int i = 0; lines != null && i < lines.Length; i++)

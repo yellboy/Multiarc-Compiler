@@ -406,6 +406,8 @@ namespace MultiArc_Compiler
         /// </returns>
         public AddressingMode GetAddressingMode(string name)
         {
+            if (name == null)
+                return null;
             foreach (AddressingMode am in allAddressingModes)
             {
                 if (am.Name.ToLower().Equals(name.ToLower()))

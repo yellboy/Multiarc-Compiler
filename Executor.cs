@@ -103,6 +103,7 @@ namespace MultiArc_Compiler
                 constants.GetRegister("pc").Val = pc;
             }
             output.Text += DateTime.Now.ToString() + " Code executed successfully\n";
+            output.ScrollToCaret();
         }
 
     }

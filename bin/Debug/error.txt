@@ -1,30 +1,25 @@
-System.IO.IOException: An attempt was made to move the file pointer before the beginning of the file.
-
-   at System.IO.__Error.WinIOError(Int32 errorCode, String maybeFullPath)
-   at System.IO.FileStream.SeekCore(Int64 offset, SeekOrigin origin)
-   at System.IO.FileStream.Seek(Int64 offset, SeekOrigin origin)
-   at MultiArc_Compiler.Memory.get_Item(UInt32 address) in D:\Bojan\MultiArc Compiler\MultiArc Compiler\Memory.cs:line 181
-   at MultiArc_Compiler.MemoryDumpForm..ctor() in D:\Bojan\MultiArc Compiler\MultiArc Compiler\MemoryDumpForm.cs:line 43
-   at MultiArc_Compiler.Form1.memoryDumpToolStripMenuItem_Click(Object sender, EventArgs e) in D:\Bojan\MultiArc Compiler\MultiArc Compiler\Form1.cs:line 854
-   at System.Windows.Forms.ToolStripItem.RaiseEvent(Object key, EventArgs e)
-   at System.Windows.Forms.ToolStripMenuItem.OnClick(EventArgs e)
-   at System.Windows.Forms.ToolStripItem.HandleClick(EventArgs e)
-   at System.Windows.Forms.ToolStripItem.HandleMouseUp(MouseEventArgs e)
-   at System.Windows.Forms.ToolStripItem.FireEventInteractive(EventArgs e, ToolStripItemEventType met)
-   at System.Windows.Forms.ToolStripItem.FireEvent(EventArgs e, ToolStripItemEventType met)
-   at System.Windows.Forms.ToolStrip.OnMouseUp(MouseEventArgs mea)
-   at System.Windows.Forms.ToolStripDropDown.OnMouseUp(MouseEventArgs mea)
-   at System.Windows.Forms.Control.WmMouseUp(Message& m, MouseButtons button, Int32 clicks)
-   at System.Windows.Forms.Control.WndProc(Message& m)
-   at System.Windows.Forms.ScrollableControl.WndProc(Message& m)
-   at System.Windows.Forms.ToolStrip.WndProc(Message& m)
-   at System.Windows.Forms.ToolStripDropDown.WndProc(Message& m)
-   at System.Windows.Forms.Control.ControlNativeWindow.OnMessage(Message& m)
-   at System.Windows.Forms.Control.ControlNativeWindow.WndProc(Message& m)
-   at System.Windows.Forms.NativeWindow.DebuggableCallback(IntPtr hWnd, Int32 msg, IntPtr wparam, IntPtr lparam)
-   at System.Windows.Forms.UnsafeNativeMethods.DispatchMessageW(MSG& msg)
-   at System.Windows.Forms.Application.ComponentManager.System.Windows.Forms.UnsafeNativeMethods.IMsoComponentManager.FPushMessageLoop(IntPtr dwComponentID, Int32 reason, Int32 pvLoopData)
-   at System.Windows.Forms.Application.ThreadContext.RunMessageLoopInner(Int32 reason, ApplicationContext context)
-   at System.Windows.Forms.Application.ThreadContext.RunMessageLoop(Int32 reason, ApplicationContext context)
-   at System.Windows.Forms.Application.Run(Form mainForm)
-   at MultiArc_Compiler.Program.Main() in D:\Bojan\MultiArc Compiler\MultiArc Compiler\Program.cs:line 24
+System.Xml.XmlException: Data at the root level is invalid. Line 1, position 1.
+   at System.Xml.XmlTextReaderImpl.Throw(Exception e)
+   at System.Xml.XmlTextReaderImpl.Throw(String res, String arg)
+   at System.Xml.XmlTextReaderImpl.ParseRootLevelWhitespace()
+   at System.Xml.XmlTextReaderImpl.ParseDocumentContent()
+   at System.Xml.XmlTextReaderImpl.Read()
+   at System.Xml.XmlLoader.ReadCurrentNode(XmlDocument doc, XmlReader reader)
+   at System.Xml.XmlDocument.ReadNode(XmlReader reader)
+   at MultiArc_Compiler.Form1.LoadArchitectureDialog_FileOk(Object sender, CancelEventArgs e) in D:\Bojan\MultiArc Compiler\MultiArc Compiler\Form1.cs:line 312System.NullReferenceException: Object reference not set to an instance of an object.
+   at MultiArc_Compiler.Form1.LoadArchitectureDialog_FileOk(Object sender, CancelEventArgs e) in D:\Bojan\MultiArc Compiler\MultiArc Compiler\Form1.cs:line 734System.NullReferenceException: Object reference not set to an instance of an object.
+   at MultiArc_Compiler.Form1.LoadArchitectureDialog_FileOk(Object sender, CancelEventArgs e) in D:\Bojan\MultiArc Compiler\MultiArc Compiler\Form1.cs:line 734System.NullReferenceException: Object reference not set to an instance of an object.
+   at MultiArc_Compiler.Form1.LoadArchitectureDialog_FileOk(Object sender, CancelEventArgs e) in D:\Bojan\MultiArc Compiler\MultiArc Compiler\Form1.cs:line 734System.NullReferenceException: Object reference not set to an instance of an object.
+   at MultiArc_Compiler.Form1.LoadArchitectureDialog_FileOk(Object sender, CancelEventArgs e) in D:\Bojan\MultiArc Compiler\MultiArc Compiler\Form1.cs:line 734System.NullReferenceException: Object reference not set to an instance of an object.
+   at MultiArc_Compiler.Form1.LoadArchitectureDialog_FileOk(Object sender, CancelEventArgs e) in D:\Bojan\MultiArc Compiler\MultiArc Compiler\Form1.cs:line 734System.NullReferenceException: Object reference not set to an instance of an object.
+   at MultiArc_Compiler.Form1.LoadArchitectureDialog_FileOk(Object sender, CancelEventArgs e) in D:\Bojan\MultiArc Compiler\MultiArc Compiler\Form1.cs:line 734System.Xml.XmlException: The 'operand_type' start tag on line 69 position 5 does not match the end tag of 'operand'. Line 69, position 28.
+   at System.Xml.XmlTextReaderImpl.Throw(Exception e)
+   at System.Xml.XmlTextReaderImpl.Throw(String res, String[] args)
+   at System.Xml.XmlTextReaderImpl.ThrowTagMismatch(NodeData startTag)
+   at System.Xml.XmlTextReaderImpl.ParseEndElement()
+   at System.Xml.XmlTextReaderImpl.ParseElementContent()
+   at System.Xml.XmlTextReaderImpl.Read()
+   at System.Xml.XmlLoader.LoadNode(Boolean skipOverWhitespace)
+   at System.Xml.XmlLoader.ReadCurrentNode(XmlDocument doc, XmlReader reader)
+   at System.Xml.XmlDocument.ReadNode(XmlReader reader)
+   at MultiArc_Compiler.Form1.LoadArchitectureDialog_FileOk(Object sender, CancelEventArgs e) in D:\Bojan\MultiArc Compiler\MultiArc Compiler\Form1.cs:line 312

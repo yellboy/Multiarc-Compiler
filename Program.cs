@@ -11,6 +11,8 @@ namespace MultiArc_Compiler
 
         public static Memory Mem;
 
+        private static Form1 form;
+
         /// <summary>
         /// The main entry point for the application.
         /// </summary> 
@@ -21,10 +23,11 @@ namespace MultiArc_Compiler
             {
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
-                Application.Run(new Form1());
+                Application.Run(form = new Form1());
             }
             catch (Exception ex)
             {
+                form.AddToOutput(ex.ToString());
                 File.WriteAllText("error.txt", ex.ToString());
             }
         }

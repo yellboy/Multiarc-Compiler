@@ -271,39 +271,6 @@ namespace MultiArc_Compiler
             values = new Dictionary<string, int>();
         }
 
-        /// <summary>
-        ///  Overriden operator ==.
-        /// </summary>
-        /// <param name="am1">
-        /// First operand.
-        /// </param>
-        /// <param name="am2">
-        /// Second operand.
-        /// </param>
-        /// <returns>
-        /// Bool value that tells whether two addressing modes are equal or not.
-        /// </returns>
-        public static bool operator== (AddressingMode am1, AddressingMode am2)
-        {
-            return am1.name.Equals(am2.name);
-        }
-
-        /// <summary>
-        ///  Overriden operator !=.
-        /// </summary>
-        /// <param name="am1">
-        /// First operand.
-        /// </param>
-        /// <param name="am2">
-        /// Second operand.
-        /// </param>
-        /// <returns>
-        /// Bool value that tells whether two addressing modes are different or not.
-        /// </returns>
-        public static bool operator!= (AddressingMode am1, AddressingMode am2)
-        {
-            return !am1.name.Equals(am2.name);
-        }
 
         /// <summary>
         /// Method that compares this addressing mode with another.

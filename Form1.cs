@@ -296,6 +296,7 @@ namespace MultiArc_Compiler
 
         private void LoadArchitectureDialog_FileOk(object sender, CancelEventArgs e)
         {
+            int errorCount = 0;
             try
             {
                 string fileName = LoadArchitectureDialog.FileName;
@@ -309,6 +310,7 @@ namespace MultiArc_Compiler
                 XmlReader xmlReader = XmlReader.Create(new StringReader(content));
                 XmlDocument doc = new XmlDocument();
                 XmlNode head = doc.ReadNode(xmlReader);
+                bool registersSpecified = false;
                 foreach (XmlNode node in head.ChildNodes)
                 {
                     XmlNodeList list = null;
@@ -324,6 +326,7 @@ namespace MultiArc_Compiler
                             prepareGrammarFile();
                             break;
                         case "memory":
+                            int memoryErrorCount = 0;
                             if (node.HasChildNodes)
                             {
                                 list = node.ChildNodes;
@@ -334,27 +337,21 @@ namespace MultiArc_Compiler
                                 switch (n.Name)
                                 {
                                     case "size":
-                                        constants.MEM_SIZE = Convert.ToInt32(n.InnerText);
                                         Program.Mem.Size = Convert.ToInt32(n.InnerText);
                                         break;
                                     case "au":
-                                        constants.ADDR_UNIT_SIZE = Convert.ToInt32(n.InnerText);
                                         Program.Mem.AuSize = Convert.ToInt32(n.InnerText);
                                         break;
                                     case "ram_start":
-                                        constants.RAM_START = Convert.ToInt32(n.InnerText);
                                         Program.Mem.RamStart = Convert.ToUInt32(n.InnerText);
                                         break;
                                     case "ram_end":
-                                        constants.RAM_END = Convert.ToInt32(n.InnerText);
                                         Program.Mem.RamEnd = Convert.ToUInt32(n.InnerText);;
                                         break;
                                     case "rom_start":
-                                        constants.ROM_START = Convert.ToInt32(n.InnerText);
                                         Program.Mem.RomStart = Convert.ToUInt32(n.InnerText);
                                         break;
                                     case "rom_end":
-                                        constants.ROM_END = Convert.ToInt32(n.InnerText);
                                         Program.Mem.RomEnd = Convert.ToUInt32(n.InnerText);
                                         break;
                                     case "init_file":
@@ -367,7 +364,23 @@ namespace MultiArc_Compiler
                                         break;
                                 }
                             }
-                            Program.Mem.Initialize();
+                            if (Program.Mem.Size == -1)
+                            {
+                                OutputBox.Text += DateTime.Now.ToString() + " ERROR: Memory size must be specified.\n";
+                                OutputBox.ScrollToCaret();
+                                memoryErrorCount++;
+                            }
+                            else if (Program.Mem.AuSize == -1)
+                            {
+                                OutputBox.Text += DateTime.Now.ToString() + " ERROR: Addressible unit size in memory must be specified.\n";
+                                OutputBox.ScrollToCaret();
+                                memoryErrorCount++;
+                            }
+                            errorCount += memoryErrorCount;
+                            if (memoryErrorCount == 0)
+                            {
+                                Program.Mem.Initialize();
+                            }
                             break;
                         case "data":
                             list = node.ChildNodes;
@@ -381,6 +394,8 @@ namespace MultiArc_Compiler
                             break;
                         case "registers":
                             list = node.ChildNodes;
+                            registersSpecified = true;
+                            int registerErrorCount = 0;
                             foreach (XmlNode n in list)
                             {
                                 switch (n.Name)
@@ -412,14 +427,29 @@ namespace MultiArc_Compiler
                                                         break;
                                                 }
                                             }
-                                            for (int i = 0; i < number; i++)
+                                            if (number == 0)
                                             {
-                                                Register r = new Register(size);
-                                                r.Size = size;
-                                                r.Val = value;
-                                                r.Group = "general_purpose";
-                                                r.AddName(prefix + i);
-                                                constants.AddRegister(r);
+                                                OutputBox.Text += DateTime.Now.ToString() + " ERROR: General purpose registers' number must be specified.\n";
+                                                OutputBox.ScrollToCaret();
+                                                registerErrorCount++;
+                                            }
+                                            if (size == 0)
+                                            {
+                                                OutputBox.Text += DateTime.Now.ToString() + " ERROR: General purpose registers' size must be specified.\n";
+                                                OutputBox.ScrollToCaret();
+                                                registerErrorCount++;
+                                            }
+                                            if (registerErrorCount == 0)
+                                            {
+                                                for (int i = 0; i < number; i++)
+                                                {
+                                                    Register r = new Register(size);
+                                                    r.Size = size;
+                                                    r.Val = value;
+                                                    r.Group = "general_purpose";
+                                                    r.AddName(prefix + i);
+                                                    constants.AddRegister(r);
+                                                }
                                             }
                                         }
                                         break;
@@ -454,6 +484,8 @@ namespace MultiArc_Compiler
                                                         partReg.Size = 0;
                                                         partReg.BaseReg = r;
                                                         partReg.Group = null;
+                                                        partReg.Start = -1;
+                                                        partReg.End = -1;
                                                         foreach (XmlNode partParameter in part)
                                                         {
                                                             switch (partParameter.Name)
@@ -474,27 +506,66 @@ namespace MultiArc_Compiler
                                                                     break;
                                                             }
                                                         }
-                                                        partReg.Size = partReg.End - partReg.Start + 1;
-                                                        r.AddPart(partReg);
-                                                        constants.AddRegister(partReg);
+                                                        if (partReg.Start == -1)
+                                                        {
+                                                            OutputBox.Text += DateTime.Now.ToString() + " ERROR: " + n.Name + "'s part start must be specified.\n";
+                                                            OutputBox.ScrollToCaret();
+                                                            registerErrorCount++;
+                                                        }
+                                                        if (partReg.End == -1)
+                                                        {
+                                                            OutputBox.Text += DateTime.Now.ToString() + " ERROR: " + n.Name + "'s part end must be specified.\n";
+                                                            OutputBox.ScrollToCaret();
+                                                            registerErrorCount++;
+                                                        }
+                                                        if (partReg.Names.Count == 0)
+                                                        {
+                                                            OutputBox.Text += DateTime.Now.ToString() + " ERROR: " + n.Name + "'s part name(s) must be specified.\n";
+                                                            OutputBox.ScrollToCaret();
+                                                            registerErrorCount++;
+                                                        }
+                                                        if (registerErrorCount == 0)
+                                                        {
+                                                            partReg.Size = partReg.End - partReg.Start + 1;
+                                                            r.AddPart(partReg);
+                                                            constants.AddRegister(partReg);
+                                                        }
                                                         break;
                                                     default:
                                                         break;
                                                 }
                                             }
-                                            constants.AddRegister(r);
+                                            if (r.Size == 0)
+                                            {
+                                                OutputBox.Text += DateTime.Now.ToString() + " ERROR: " + n.Name + "'s size must be specified.\n";
+                                                OutputBox.ScrollToCaret();
+                                                registerErrorCount++;
+                                            }
+                                            if (r.Names.Count == 0)
+                                            {
+                                                OutputBox.Text += DateTime.Now.ToString() + " ERROR: " + n.Name + "'s name(s) must be specified.\n";
+                                                OutputBox.ScrollToCaret();
+                                                registerErrorCount++;
+                                            }
+                                            if (registerErrorCount == 0)
+                                            {
+                                                constants.AddRegister(r);
+                                            }
                                         }
                                         break;
                                 }
                             }
+                            errorCount += registerErrorCount;
                             break;
                         case "addressing_modes":
                             {
+                                int amErrorCount = 0;
                                 XmlNodeList modes = node.ChildNodes;
                                 foreach (XmlNode mode in modes)
                                 {
                                     if (!mode.Name.Equals("#whitespace"))
                                     {
+                                        amErrorCount = 0;
                                         AddressingMode am = new AddressingMode();
                                         XmlNodeList children = mode.ChildNodes;
                                         foreach (XmlNode child in children)
@@ -568,6 +639,7 @@ namespace MultiArc_Compiler
                                                             {
                                                                 case "registers_group":
                                                                     am.OperandReadFromExpression = false;
+                                                                    am.OperandInValues = true;
                                                                     group = expression.InnerText;
                                                                     exp += group;
                                                                     break;
@@ -635,20 +707,65 @@ namespace MultiArc_Compiler
                                                     break;
                                             }
                                         }
-                                        constants.AddAddressingMode(am);
-                                        appendAMToGrammarFile(am);
+                                        if (am.Name == null)
+                                        {
+                                            OutputBox.Text += DateTime.Now.ToString() + " ERROR: " + mode.Name + "'s name must be specified.\n";
+                                            OutputBox.ScrollToCaret();
+                                            amErrorCount++;
+                                        }
+                                        if (am.FileName == null)
+                                        {
+                                            OutputBox.Text += DateTime.Now.ToString() + " ERROR: " + mode.Name + "'s file must be specified.\n";
+                                            OutputBox.ScrollToCaret();
+                                            amErrorCount++;
+                                        }
+                                        if (am.OperandInValues == false && am.OperandReadFromExpression == false && am.OperandValueDefinedByUser == false)
+                                        {
+                                            OutputBox.Text += DateTime.Now.ToString() + " ERROR: " + mode.Name + "'s operand must be specified.\n";
+                                            OutputBox.ScrollToCaret();
+                                            amErrorCount++;
+                                        }
+                                        if (am.OperandType == null)
+                                        {
+                                            OutputBox.Text += DateTime.Now.ToString() + " ERROR: " + mode.Name + "'s operand type must be specified.\n";
+                                            OutputBox.ScrollToCaret();
+                                            amErrorCount++;
+                                        }
+                                        else if (!am.OperandType.Equals("relative") && !am.OperandType.Equals("absolute"))
+                                        {
+                                            OutputBox.Text += DateTime.Now.ToString() + " ERROR: " + mode.Name + "'s operand type can only be 'absolute' or 'relative'.\n";
+                                            OutputBox.ScrollToCaret();
+                                            amErrorCount++;
+                                        }
+                                        if (am.Expressions.Count == 0 && am.Values.Count == 0)
+                                        {
+                                            OutputBox.Text += DateTime.Now.ToString() + " ERROR: " + mode.Name + "'s expression must be specified.\n";
+                                            OutputBox.ScrollToCaret();
+                                            amErrorCount++;
+                                        }
+                                        if (amErrorCount == 0)
+                                        {
+                                            constants.AddAddressingMode(am);
+                                            appendAMToGrammarFile(am);
+                                        }
+                                        errorCount += amErrorCount;
                                     }
                                 }
                             }
                             break;
                         case "instructions":
                             {
+                                int instErrorCount = 0;
                                 foreach (XmlNode instruction in node.ChildNodes)
                                 {
                                     if (!instruction.Name.Equals("#whitespace"))
                                     {
                                         Instruction i = new Instruction();
                                         i.Name = instruction.Name;
+                                        i.StartBit = -1;
+                                        i.EndBit = -1;
+                                        i.Size = -1;
+                                        bool opcodeSpecified = false;
                                         foreach (XmlNode child in instruction.ChildNodes)
                                         {
                                             switch (child.Name)
@@ -659,7 +776,8 @@ namespace MultiArc_Compiler
                                                 case "opcode":
                                                     XmlNodeList opCodeList = child.ChildNodes;
                                                     int size = 0;
-                                                    int value = 0;
+                                                    int value = -1;
+                                                    opcodeSpecified = true;
                                                     foreach (XmlNode opCodeNode in opCodeList)
                                                     {
                                                         switch (opCodeNode.Name)
@@ -677,24 +795,45 @@ namespace MultiArc_Compiler
                                                                 break;
                                                         }
                                                     }
-                                                    size = 1;
-                                                    for (int j = i.StartBit; j >= i.EndBit; j--)
+                                                    if (i.StartBit == -1)
                                                     {
-                                                        if (j % 8 == 0 && j != i.EndBit)
-                                                        {
-                                                            size++;
-                                                        }
+                                                        OutputBox.Text += DateTime.Now.ToString() + " ERROR: " + instruction.Name + "'s start bit of opcode must be specified.\n";
+                                                        OutputBox.ScrollToCaret();
+                                                        instErrorCount++;
                                                     }
-                                                    i.Mask = new byte[size];
-                                                    int count = i.StartBit - i.EndBit;
-                                                    int byteCount = size - 1;
-                                                    for (int j = i.StartBit; j >= i.EndBit; j--)
+                                                    if (i.EndBit == -1)
                                                     {
-                                                        int semiValue = (value & (1 << count)) << i.EndBit % 8;
-                                                        i.Mask[size - 1 - byteCount] |= (byte)((semiValue & (1 << (i.EndBit % 8 + count))) >> byteCount * 8); // This might be a problem.
-                                                        if ((i.EndBit + count) % 8 == 0)
-                                                            byteCount--;
-                                                        count--;
+                                                        OutputBox.Text += DateTime.Now.ToString() + " ERROR: " + instruction.Name + "'s end bit of opcode must be specified.\n";
+                                                        OutputBox.ScrollToCaret();
+                                                        instErrorCount++;
+                                                    }
+                                                    if (value == -1)
+                                                    {
+                                                        OutputBox.Text += DateTime.Now.ToString() + " ERROR: " + instruction.Name + "'s value of opcode must be specified.\n";
+                                                        OutputBox.ScrollToCaret();
+                                                        instErrorCount++;
+                                                    }
+                                                    if (instErrorCount == 0)
+                                                    {
+                                                        size = 1;
+                                                        for (int j = i.StartBit; j >= i.EndBit; j--)
+                                                        {
+                                                            if (j % 8 == 0 && j != i.EndBit)
+                                                            {
+                                                                size++;
+                                                            }
+                                                        }
+                                                        i.Mask = new byte[size];
+                                                        int count = i.StartBit - i.EndBit;
+                                                        int byteCount = size - 1;
+                                                        for (int j = i.StartBit; j >= i.EndBit; j--)
+                                                        {
+                                                            int semiValue = (value & (1 << count)) << i.EndBit % 8;
+                                                            i.Mask[size - 1 - byteCount] |= (byte)((semiValue & (1 << (i.EndBit % 8 + count))) >> byteCount * 8); // This might be a problem.
+                                                            if ((i.EndBit + count) % 8 == 0)
+                                                                byteCount--;
+                                                            count--;
+                                                        }
                                                     }
                                                     break;
                                                 case "mnemonic":
@@ -712,6 +851,7 @@ namespace MultiArc_Compiler
                                                             if (arg.Name.Equals("arg"))
                                                             {
                                                                 Argument a = new Argument();
+                                                                bool addressingModeSpecified = false;
                                                                 foreach (XmlNode argNode in arg.ChildNodes)
                                                                 {
                                                                     switch (argNode.Name)
@@ -721,12 +861,13 @@ namespace MultiArc_Compiler
                                                                             break;
                                                                         case "addressing_mode":
                                                                             {
-                                                                                int codeStart = 0;
-                                                                                int codeEnd = 0;
-                                                                                int operandStart = 0;
-                                                                                int operandEnd = 0;
-                                                                                int codeValue = 0;
-                                                                                string name = "";
+                                                                                int codeStart = -1;
+                                                                                int codeEnd = -1;
+                                                                                int operandStart = -1;
+                                                                                int operandEnd = -1;
+                                                                                int codeValue = -1;
+                                                                                addressingModeSpecified = true;
+                                                                                string name = null;
                                                                                 XmlNodeList amNodes = argNode.ChildNodes;
                                                                                 foreach (XmlNode amNode in amNodes)
                                                                                 {
@@ -737,6 +878,8 @@ namespace MultiArc_Compiler
                                                                                             break;
                                                                                         case "opcode":
                                                                                             {
+                                                                                                codeStart = -1;
+                                                                                                codeEnd = -1;
                                                                                                 XmlNodeList opcodeList = amNode.ChildNodes;
                                                                                                 foreach (XmlNode opcodeNode in opcodeList)
                                                                                                 {
@@ -755,12 +898,32 @@ namespace MultiArc_Compiler
                                                                                                             break;
                                                                                                     }
                                                                                                 }
+                                                                                                if (codeEnd == -1)
+                                                                                                {
+                                                                                                    OutputBox.Text += DateTime.Now.ToString() + " ERROR: Every " + instruction.Name + "'s argument code start bit must be specified, if opcode is specified.\n";
+                                                                                                    OutputBox.ScrollToCaret();
+                                                                                                    instErrorCount++;
+                                                                                                }
+                                                                                                if (codeStart == -1)
+                                                                                                {
+                                                                                                    OutputBox.Text += DateTime.Now.ToString() + " ERROR: Every " + instruction.Name + "'s argument code end bit must be specified, if opcode is specified.\n";
+                                                                                                    OutputBox.ScrollToCaret();
+                                                                                                    instErrorCount++;
+                                                                                                }
+                                                                                                if (codeValue == -1)
+                                                                                                {
+                                                                                                    OutputBox.Text += DateTime.Now.ToString() + " ERROR: Every " + instruction.Name + "'s argument code value must be specified, if opcode is specified.\n";
+                                                                                                    OutputBox.ScrollToCaret();
+                                                                                                    instErrorCount++;
+                                                                                                }
 
                                                                                             }
                                                                                             break;
                                                                                         case "operand":
                                                                                             {
                                                                                                 XmlNodeList operandList = amNode.ChildNodes;
+                                                                                                operandEnd = -1;
+                                                                                                operandStart = -1;
                                                                                                 foreach (XmlNode operandNode in operandList)
                                                                                                 {
                                                                                                     switch (operandNode.Name)
@@ -777,19 +940,67 @@ namespace MultiArc_Compiler
                                                                                                 }
 
                                                                                             }
+                                                                                            if (operandEnd == -1)
+                                                                                            {
+                                                                                                OutputBox.Text += DateTime.Now.ToString() + " ERROR: Every " + instruction.Name + "'s argument operand start bit must be specified, if operand is specified.\n";
+                                                                                                OutputBox.ScrollToCaret();
+                                                                                                instErrorCount++;
+                                                                                            }
+                                                                                            if (operandStart == -1)
+                                                                                            {
+                                                                                                OutputBox.Text += DateTime.Now.ToString() + " ERROR: Every " + instruction.Name + "'s argument operand end bit must be specified, if operand is specified.\n";
+                                                                                                OutputBox.ScrollToCaret();
+                                                                                                instErrorCount++;
+                                                                                            }
                                                                                             break;
                                                                                         default:
                                                                                             break;
                                                                                     }
                                                                                 }
-                                                                                a.AddAddressingMode(constants.GetAddressingMode(name), codeValue, codeStart, codeEnd, operandStart, operandEnd);
+                                                                                if (name == null)
+                                                                                {
+                                                                                    OutputBox.Text += DateTime.Now.ToString() + " ERROR: Every " + instruction.Name + "'s argument addressing mode name must be specified.\n";
+                                                                                    OutputBox.ScrollToCaret();
+                                                                                    instErrorCount++;
+                                                                                }
+                                                                                if (constants.GetAddressingMode(name) == null)
+                                                                                {
+                                                                                    OutputBox.Text += DateTime.Now.ToString() + " ERROR: Every " + instruction.Name + "'s argument addressing mode must be previously created.\n";
+                                                                                    OutputBox.ScrollToCaret();
+                                                                                    instErrorCount++;
+                                                                                }
+                                                                                if (instErrorCount == 0)
+                                                                                {
+                                                                                    a.AddAddressingMode(constants.GetAddressingMode(name), codeValue, codeStart, codeEnd, operandStart, operandEnd);
+                                                                                }
                                                                             }
                                                                             break;
                                                                         default:
                                                                             break;
                                                                     }
                                                                 }
-                                                                i.AddArgument(a);
+                                                                if (a.Type == null)
+                                                                {
+                                                                    OutputBox.Text += DateTime.Now.ToString() + " ERROR: Every " + instruction.Name + "'s argument's type must be specified.\n";
+                                                                    OutputBox.ScrollToCaret();
+                                                                    instErrorCount++;
+                                                                }
+                                                                else if (!a.Type.Equals("src") && !a.Type.Equals("dst"))
+                                                                {
+                                                                    OutputBox.Text += DateTime.Now.ToString() + " ERROR: Every " + instruction.Name + "'s argument's type must be either 'src' or 'dst'.\n";
+                                                                    OutputBox.ScrollToCaret();
+                                                                    instErrorCount++;
+                                                                }
+                                                                if (addressingModeSpecified == false)
+                                                                {
+                                                                    OutputBox.Text += DateTime.Now.ToString() + " ERROR: Every " + instruction.Name + "'s argument's addressing mode must be specified.\n";
+                                                                    OutputBox.ScrollToCaret();
+                                                                    instErrorCount++;
+                                                                }
+                                                                if (instErrorCount == 0)
+                                                                {
+                                                                    i.AddArgument(a);
+                                                                }
                                                             }
 
                                                         }
@@ -799,47 +1010,124 @@ namespace MultiArc_Compiler
                                                     break;
                                             }
                                         }
+                                        if (i.Size == -1)
+                                        {
+                                            OutputBox.Text += DateTime.Now.ToString() + " ERROR: " + instruction.Name + "'s size must be specified.\n";
+                                            OutputBox.ScrollToCaret();
+                                            instErrorCount++;
+                                        }
+                                        if (opcodeSpecified == false)
+                                        {
+                                            OutputBox.Text += DateTime.Now.ToString() + " ERROR: " + instruction.Name + "'s opcode must be specified.\n";
+                                            OutputBox.ScrollToCaret();
+                                            instErrorCount++;
+                                        }
+                                        if (i.Mnemonic == null)
+                                        {
+                                            OutputBox.Text += DateTime.Now.ToString() + " ERROR: " + instruction.Name + "'s mnemonic must be specified.\n";
+                                            OutputBox.ScrollToCaret();
+                                            instErrorCount++;
+                                        }
+                                        if (!constants.Mnemonics.Contains(i.Mnemonic))
+                                        {
+                                            OutputBox.Text += DateTime.Now.ToString() + " ERROR: " + instruction.Name + "'s mnemonic must be listed in mnemonics list.\n";
+                                            OutputBox.ScrollToCaret();
+                                            instErrorCount++;
+                                        }
+                                        if (i.FileName == null)
+                                        {
+                                            OutputBox.Text += DateTime.Now.ToString() + " ERROR: " + instruction.Name + "'s file must be specified.\n";
+                                            OutputBox.ScrollToCaret();
+                                            instErrorCount++;
+                                        }
                                         constants.AddInstruction(i);
                                         apendInstructionToGrammarFile(i);
                                     }
 
                                 }
+                                errorCount += instErrorCount;
                             }
                             break;
                         default:
                             break;
                     }
                 }
-                OutputBox.Text += DateTime.Now.ToString() + " Architecture loaded successfully.\n";
+                if (constants.Name == null)
+                {
+                    OutputBox.Text += DateTime.Now.ToString() + " ERROR: Architecture must have a name.\n";
+                    OutputBox.ScrollToCaret();
+                    errorCount++;
+                }
+                if (constants.Mnemonics == null || constants.Mnemonics.Count == 0)
+                {
+                    OutputBox.Text += DateTime.Now.ToString() + " ERROR: Mnemonics must be specified.\n";
+                    OutputBox.ScrollToCaret();
+                    errorCount++;
+                }
+                if (Program.Mem == null)
+                {
+                    OutputBox.Text += DateTime.Now.ToString() + " ERROR: Memory must be specified.\n";
+                    OutputBox.ScrollToCaret();
+                    errorCount++;
+                }
+                if (registersSpecified == false)
+                {
+                    OutputBox.Text += DateTime.Now.ToString() + " ERROR: Registers must be specified.\n";
+                    OutputBox.ScrollToCaret();
+                    errorCount++;
+                }
+                if (errorCount == 0)
+                {
+                    OutputBox.Text += DateTime.Now.ToString() + " Architecture loaded successfully.\n";
+                    OutputBox.ScrollToCaret();
+                }
+                else
+                {
+                    OutputBox.Text += DateTime.Now.ToString() + " Architecture could not be loadded. " + errorCount + " error(s) existed.\n";
+                    OutputBox.ScrollToCaret();
+                }
             }
             catch (Exception ex)
             {
+                OutputBox.Text += DateTime.Now.ToString() + " Error in architecture file: " + ex.Message + "\n";
+                OutputBox.ScrollToCaret();
                 File.AppendAllText("error.txt", ex.ToString());
                 return;
             }
-            addAllInstructionsToGrammarFile();
-            try
+            if (errorCount == 0)
             {
-                string command = "/C java -jar Grammar//grammatica-1.5.jar " + constants.Name + ".grammar --csoutput grammar//cs --csnamespace MultiArc_Compiler --cspublic";
-                Process proc = new Process();
-                proc.StartInfo.FileName = "CMD.exe";
-                proc.StartInfo.Arguments = command;
-                proc.StartInfo.UseShellExecute = false;
-                proc.StartInfo.RedirectStandardOutput = true;
-                proc.StartInfo.RedirectStandardError = true;
-                proc.Start();
-                string line = "";
-                while (!proc.StandardOutput.EndOfStream)
-                    line += proc.StandardOutput.ReadLine() + "\n";
-                File.WriteAllText("cmdout.txt", line);
-                line = "";
-                while (!proc.StandardError.EndOfStream)
-                    line += proc.StandardError.ReadLine() + "\n";
-                File.WriteAllText("cmderr.txt", line);
-            }
-            catch (Exception ex)
-            {
-                File.AppendAllText("error.txt", ex.ToString());
+                addAllInstructionsToGrammarFile();
+                try
+                {
+                    string command = "/C java -jar Grammar//grammatica-1.5.jar " + constants.Name + ".grammar --csoutput grammar//cs --csnamespace MultiArc_Compiler --cspublic";
+                    Process proc = new Process();
+                    proc.StartInfo.FileName = "CMD.exe";
+                    proc.StartInfo.Arguments = command;
+                    proc.StartInfo.UseShellExecute = false;
+                    proc.StartInfo.RedirectStandardOutput = true;
+                    proc.StartInfo.RedirectStandardError = true;
+                    proc.Start();
+                    string line = "";
+                    while (!proc.StandardOutput.EndOfStream)
+                        line += proc.StandardOutput.ReadLine() + "\n";
+                    File.WriteAllText("cmdout.txt", line);
+                    line = "";
+                    while (!proc.StandardError.EndOfStream)
+                    {
+                        string l = proc.StandardError.ReadLine();
+                        line += l + "\n";
+                    }
+                    if (!line.Equals(""))
+                    {
+                        OutputBox.Text += DateTime.Now.ToString() + " Error in grammar: " + line + "\n";
+                        OutputBox.ScrollToCaret();
+                    }
+                    File.WriteAllText("cmderr.txt", line);
+                }
+                catch (Exception ex)
+                {
+                    File.AppendAllText("error.txt", ex.ToString());
+                }
             }
         }
 
@@ -982,6 +1270,17 @@ Line = [IDENTIFIER "":""] Instruction Separator ;
             {
                 File.AppendAllText("error.txt", ex.ToString());
             }
+        }
+
+        public void AddToOutput(string text)
+        {
+            OutputBox.Text += DateTime.Now.ToString() + " " + text + "\n";
+            OutputBox.ScrollToCaret();
+        }
+
+        private void clearOutputButton_Click(object sender, EventArgs e)
+        {
+            OutputBox.Text = "";
         }
 
     }

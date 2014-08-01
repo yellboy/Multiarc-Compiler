@@ -601,6 +601,7 @@ namespace MultiArc_Compiler
                         }
                         //File.WriteAllText("output.txt", "Compile successfull.");
                         output.Text += DateTime.Now.ToString() + " Compile successfull.\n";
+                        output.ScrollToCaret();
                         return binaryCode;
                     }
                     catch (ParserLogException ex)
@@ -612,6 +613,7 @@ namespace MultiArc_Compiler
                             o += (j + 1) + ": Syntax error " + '\'' + pe.ErrorMessage + '\'' + " in line " + pe.Line + " and column " + pe.Column + "\n";
                         }
                         output.Text += DateTime.Now.ToString() + " " + o;
+                        output.ScrollToCaret();
                         return null;
                     }
                 }

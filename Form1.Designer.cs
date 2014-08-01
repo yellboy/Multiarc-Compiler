@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.CodeBox = new System.Windows.Forms.RichTextBox();
             this.BinaryCodeBox = new System.Windows.Forms.RichTextBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -66,6 +67,7 @@
             this.LoadArchitectureDialog = new System.Windows.Forms.OpenFileDialog();
             this.OutputBox = new System.Windows.Forms.RichTextBox();
             this.outputLabel = new System.Windows.Forms.Label();
+            this.clearOutputButton = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -376,7 +378,7 @@
             // OutputBox
             // 
             this.OutputBox.BackColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.OutputBox.Location = new System.Drawing.Point(12, 511);
+            this.OutputBox.Location = new System.Drawing.Point(12, 528);
             this.OutputBox.Name = "OutputBox";
             this.OutputBox.ReadOnly = true;
             this.OutputBox.Size = new System.Drawing.Size(822, 118);
@@ -386,17 +388,32 @@
             // outputLabel
             // 
             this.outputLabel.AutoSize = true;
-            this.outputLabel.Location = new System.Drawing.Point(12, 495);
+            this.outputLabel.Location = new System.Drawing.Point(12, 512);
             this.outputLabel.Name = "outputLabel";
             this.outputLabel.Size = new System.Drawing.Size(39, 13);
             this.outputLabel.TabIndex = 25;
             this.outputLabel.Text = "Output";
             // 
+            // clearOutputButton
+            // 
+            this.clearOutputButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.clearOutputButton.Image = ((System.Drawing.Image)(resources.GetObject("clearOutputButton.Image")));
+            this.clearOutputButton.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.clearOutputButton.Location = new System.Drawing.Point(789, 507);
+            this.clearOutputButton.Name = "clearOutputButton";
+            this.clearOutputButton.Size = new System.Drawing.Size(45, 22);
+            this.clearOutputButton.TabIndex = 26;
+            this.clearOutputButton.Text = "Clear";
+            this.clearOutputButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.clearOutputButton.UseVisualStyleBackColor = true;
+            this.clearOutputButton.Click += new System.EventHandler(this.clearOutputButton_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(846, 641);
+            this.ClientSize = new System.Drawing.Size(846, 658);
+            this.Controls.Add(this.clearOutputButton);
             this.Controls.Add(this.outputLabel);
             this.Controls.Add(this.OutputBox);
             this.Controls.Add(this.ByteCountBox);
@@ -471,6 +488,7 @@
         private System.Windows.Forms.ToolStripMenuItem registersToolStripMenuItem;
         private System.Windows.Forms.RichTextBox OutputBox;
         private System.Windows.Forms.Label outputLabel;
+        private System.Windows.Forms.Button clearOutputButton;
 
     }
 }
