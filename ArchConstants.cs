@@ -923,8 +923,11 @@ namespace MultiArc_Compiler
                     codeCount--;
                 }
                 int maskValue = 0;
-                codeStarts -= i.Mask.Length * 8;
-                codeEnds -= i.Mask.Length * 8;
+                if (i.Size != i.Mask.Length)
+                {
+                    codeStarts -= i.Mask.Length * 8;
+                    codeEnds -= i.Mask.Length * 8;
+                }
                 byteCount = codeSize - 1;
                 codeCount = codeStarts - codeEnds;
                 for (int k = codeStarts; k >= codeEnds; k--)

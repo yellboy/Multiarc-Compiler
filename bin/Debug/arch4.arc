@@ -220,5 +220,15 @@
 				</arg>
 			</arguments>
 		</jmp1>
+		<halt1>
+			<mnemonic>HALT</mnemonic>
+			<size>1</size>
+			<file>halt.cs</file>
+			<opcode>
+				<start_bit>7</start_bit>
+				<end_bit>0</end_bit>
+				<value>0001010</value>
+			</opcode>
+		</halt1>
 	</instructions>
 </architecture>

@@ -34,6 +34,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -44,6 +45,9 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="testApp">
+      <HintPath>..\Line_Numbers_v1.2_src\c# Line Numbers\testApp\bin\Debug\testApp.exe</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AddressingMode.cs" />
@@ -66,6 +70,9 @@
     </Compile>
     <Compile Include="LengthsForm.Designer.cs">
       <DependentUpon>LengthsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="linenum_rtf.cs">
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="Literal.cs" />
     <Compile Include="Memory.cs" />
@@ -121,6 +128,7 @@
     </Compile>
     <Compile Include="Settings.cs" />
     <Compile Include="Symbol.cs" />
+    <Compile Include="Variables.cs" />
     <EmbeddedResource Include="FinishArcForm.resx">
       <DependentUpon>FinishArcForm.cs</DependentUpon>
     </EmbeddedResource>

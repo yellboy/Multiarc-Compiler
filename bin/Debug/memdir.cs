@@ -1,4 +1,4 @@
-public static void getAddrData_memdir(InstructionRegister ir, Memory memory, ArchConstants constants, int startBit, int endBit, ref int result)
+public static void getAddrData_memdir(InstructionRegister ir, Memory memory, ArchConstants constants, Variables variables, int startBit, int endBit, ref int result)
 {
 	uint address = (uint)(ir.GetBits(startBit, endBit));
 	byte[] val = memory[address];
@@ -9,7 +9,7 @@ public static void getAddrData_memdir(InstructionRegister ir, Memory memory, Arc
 	}
 }
 
-public static void setAddrData_memdir(InstructionRegister ir, Memory memory, ArchConstants constants, int startBit, int endBit, int data)
+public static void setAddrData_memdir(InstructionRegister ir, Memory memory, ArchConstants constants, Variables variables, int startBit, int endBit, int data)
 {
 	byte[] val = new byte[memory.AuSize];
 	for (int j = 0; j < memory.AuSize; j++)

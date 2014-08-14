@@ -18,6 +18,10 @@
                 components.Dispose();
             }
             base.Dispose(disposing);
+            if (ex != null)
+            {
+                ex.Abort();
+            }
         }
 
         #region Windows Form Designer generated code
@@ -28,46 +32,57 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.CodeBox = new System.Windows.Forms.RichTextBox();
             this.BinaryCodeBox = new System.Windows.Forms.RichTextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.AssemblyButton = new System.Windows.Forms.Button();
-            this.ExecuteButton = new System.Windows.Forms.Button();
             this.LoadFileDialog = new System.Windows.Forms.OpenFileDialog();
-            this.LoadFilePathText = new System.Windows.Forms.TextBox();
-            this.LoadFileBrowseButton = new System.Windows.Forms.Button();
-            this.ChooseFileLabel = new System.Windows.Forms.Label();
-            this.LoadFromFileButton = new System.Windows.Forms.Button();
-            this.SaveFileButton = new System.Windows.Forms.Button();
-            this.SaveFileAsButton = new System.Windows.Forms.Button();
             this.SaveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.FileNameLabel = new System.Windows.Forms.Label();
-            this.BinLoadFileLabel = new System.Windows.Forms.Label();
-            this.BinFilePathText = new System.Windows.Forms.TextBox();
-            this.BinFileBrowseButton = new System.Windows.Forms.Button();
-            this.BinSaveFileAsButton = new System.Windows.Forms.Button();
-            this.BinSaveFileButton = new System.Windows.Forms.Button();
-            this.BinFileLoadButton = new System.Windows.Forms.Button();
             this.BinSaveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.BinLoadFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.BinFileNameLabel = new System.Windows.Forms.Label();
-            this.ByteCountBox = new System.Windows.Forms.RichTextBox();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.projectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.architectureToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.LoadArcToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.createNewToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.fileToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.projectToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.fileToolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.architectureToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.loadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.recompileCodeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.memoryDumpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.registersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.debugToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.assembleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.executeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.executeWithoutDebugToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.nextStepToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.LoadArchitectureDialog = new System.Windows.Forms.OpenFileDialog();
             this.OutputBox = new System.Windows.Forms.RichTextBox();
             this.outputLabel = new System.Windows.Forms.Label();
             this.clearOutputButton = new System.Windows.Forms.Button();
+            this.NewProjectButton = new System.Windows.Forms.Button();
+            this.NewProjectTip = new System.Windows.Forms.ToolTip(this.components);
+            this.NewFileButton = new System.Windows.Forms.Button();
+            this.NewFileTip = new System.Windows.Forms.ToolTip(this.components);
+            this.OpenFileButton = new System.Windows.Forms.Button();
+            this.OpenFileTip = new System.Windows.Forms.ToolTip(this.components);
+            this.SaveFileButton = new System.Windows.Forms.Button();
+            this.SaveFileTip = new System.Windows.Forms.ToolTip(this.components);
+            this.LoadArcButton = new System.Windows.Forms.Button();
+            this.LoadArcTip = new System.Windows.Forms.ToolTip(this.components);
+            this.DebugButton = new System.Windows.Forms.Button();
+            this.DebugTip = new System.Windows.Forms.ToolTip(this.components);
+            this.lineNumbers_For_RichTextBox1 = new LineNumbers.LineNumbers_For_RichTextBox();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -75,18 +90,19 @@
             // 
             this.CodeBox.AcceptsTab = true;
             this.CodeBox.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.CodeBox.Location = new System.Drawing.Point(12, 45);
+            this.CodeBox.Location = new System.Drawing.Point(29, 78);
             this.CodeBox.Name = "CodeBox";
             this.CodeBox.Size = new System.Drawing.Size(413, 310);
             this.CodeBox.TabIndex = 1;
             this.CodeBox.TabStop = false;
-            this.CodeBox.Text = "";
+            this.CodeBox.Text = "   ";
             // 
             // BinaryCodeBox
             // 
             this.BinaryCodeBox.AcceptsTab = true;
+            this.BinaryCodeBox.BackColor = System.Drawing.SystemColors.Window;
             this.BinaryCodeBox.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.BinaryCodeBox.Location = new System.Drawing.Point(476, 45);
+            this.BinaryCodeBox.Location = new System.Drawing.Point(458, 78);
             this.BinaryCodeBox.Name = "BinaryCodeBox";
             this.BinaryCodeBox.ReadOnly = true;
             this.BinaryCodeBox.Size = new System.Drawing.Size(358, 310);
@@ -97,7 +113,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 29);
+            this.label1.Location = new System.Drawing.Point(12, 62);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(32, 13);
             this.label1.TabIndex = 3;
@@ -106,93 +122,16 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(435, 29);
+            this.label2.Location = new System.Drawing.Point(455, 62);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(64, 13);
             this.label2.TabIndex = 4;
             this.label2.Text = "Binary Code";
             // 
-            // AssemblyButton
-            // 
-            this.AssemblyButton.Location = new System.Drawing.Point(12, 439);
-            this.AssemblyButton.Name = "AssemblyButton";
-            this.AssemblyButton.Size = new System.Drawing.Size(67, 45);
-            this.AssemblyButton.TabIndex = 5;
-            this.AssemblyButton.Text = "Assembly";
-            this.AssemblyButton.UseVisualStyleBackColor = true;
-            this.AssemblyButton.Click += new System.EventHandler(this.AssemblyButton_Click);
-            // 
-            // ExecuteButton
-            // 
-            this.ExecuteButton.Image = global::MultiArc_Compiler.Properties.Resources.play;
-            this.ExecuteButton.Location = new System.Drawing.Point(85, 439);
-            this.ExecuteButton.Name = "ExecuteButton";
-            this.ExecuteButton.Size = new System.Drawing.Size(47, 45);
-            this.ExecuteButton.TabIndex = 6;
-            this.ExecuteButton.UseVisualStyleBackColor = true;
-            this.ExecuteButton.Click += new System.EventHandler(this.ExecuteButton_Click);
-            // 
             // LoadFileDialog
             // 
             this.LoadFileDialog.DefaultExt = "as";
             this.LoadFileDialog.FileOk += new System.ComponentModel.CancelEventHandler(this.LoadFileDialog_FileOk);
-            // 
-            // LoadFilePathText
-            // 
-            this.LoadFilePathText.Location = new System.Drawing.Point(12, 374);
-            this.LoadFilePathText.Name = "LoadFilePathText";
-            this.LoadFilePathText.Size = new System.Drawing.Size(289, 20);
-            this.LoadFilePathText.TabIndex = 8;
-            this.LoadFilePathText.Text = "Full path to file...";
-            // 
-            // LoadFileBrowseButton
-            // 
-            this.LoadFileBrowseButton.Location = new System.Drawing.Point(307, 374);
-            this.LoadFileBrowseButton.Name = "LoadFileBrowseButton";
-            this.LoadFileBrowseButton.Size = new System.Drawing.Size(56, 20);
-            this.LoadFileBrowseButton.TabIndex = 9;
-            this.LoadFileBrowseButton.Text = "Browse";
-            this.LoadFileBrowseButton.UseVisualStyleBackColor = true;
-            this.LoadFileBrowseButton.Click += new System.EventHandler(this.LoadFileBrowseButton_Click);
-            // 
-            // ChooseFileLabel
-            // 
-            this.ChooseFileLabel.AutoSize = true;
-            this.ChooseFileLabel.Location = new System.Drawing.Point(12, 358);
-            this.ChooseFileLabel.Name = "ChooseFileLabel";
-            this.ChooseFileLabel.Size = new System.Drawing.Size(70, 13);
-            this.ChooseFileLabel.TabIndex = 10;
-            this.ChooseFileLabel.Text = "Load from file";
-            // 
-            // LoadFromFileButton
-            // 
-            this.LoadFromFileButton.Location = new System.Drawing.Point(12, 400);
-            this.LoadFromFileButton.Name = "LoadFromFileButton";
-            this.LoadFromFileButton.Size = new System.Drawing.Size(67, 23);
-            this.LoadFromFileButton.TabIndex = 11;
-            this.LoadFromFileButton.Text = "Load";
-            this.LoadFromFileButton.UseVisualStyleBackColor = true;
-            this.LoadFromFileButton.Click += new System.EventHandler(this.LoadFromFileButton_Click);
-            // 
-            // SaveFileButton
-            // 
-            this.SaveFileButton.Location = new System.Drawing.Point(85, 400);
-            this.SaveFileButton.Name = "SaveFileButton";
-            this.SaveFileButton.Size = new System.Drawing.Size(71, 23);
-            this.SaveFileButton.TabIndex = 12;
-            this.SaveFileButton.Text = "Save";
-            this.SaveFileButton.UseVisualStyleBackColor = true;
-            this.SaveFileButton.Click += new System.EventHandler(this.SaveFileButton_Click);
-            // 
-            // SaveFileAsButton
-            // 
-            this.SaveFileAsButton.Location = new System.Drawing.Point(162, 400);
-            this.SaveFileAsButton.Name = "SaveFileAsButton";
-            this.SaveFileAsButton.Size = new System.Drawing.Size(68, 23);
-            this.SaveFileAsButton.TabIndex = 13;
-            this.SaveFileAsButton.Text = "Save As";
-            this.SaveFileAsButton.UseVisualStyleBackColor = true;
-            this.SaveFileAsButton.Click += new System.EventHandler(this.SaveFileAsButton_Click);
             // 
             // SaveFileDialog
             // 
@@ -206,63 +145,6 @@
             this.FileNameLabel.Name = "FileNameLabel";
             this.FileNameLabel.Size = new System.Drawing.Size(0, 13);
             this.FileNameLabel.TabIndex = 14;
-            // 
-            // BinLoadFileLabel
-            // 
-            this.BinLoadFileLabel.AutoSize = true;
-            this.BinLoadFileLabel.Location = new System.Drawing.Point(435, 358);
-            this.BinLoadFileLabel.Name = "BinLoadFileLabel";
-            this.BinLoadFileLabel.Size = new System.Drawing.Size(70, 13);
-            this.BinLoadFileLabel.TabIndex = 15;
-            this.BinLoadFileLabel.Text = "Load from file";
-            // 
-            // BinFilePathText
-            // 
-            this.BinFilePathText.Location = new System.Drawing.Point(431, 374);
-            this.BinFilePathText.Name = "BinFilePathText";
-            this.BinFilePathText.Size = new System.Drawing.Size(289, 20);
-            this.BinFilePathText.TabIndex = 16;
-            this.BinFilePathText.Text = "Full path to file...";
-            // 
-            // BinFileBrowseButton
-            // 
-            this.BinFileBrowseButton.Location = new System.Drawing.Point(726, 373);
-            this.BinFileBrowseButton.Name = "BinFileBrowseButton";
-            this.BinFileBrowseButton.Size = new System.Drawing.Size(56, 20);
-            this.BinFileBrowseButton.TabIndex = 17;
-            this.BinFileBrowseButton.Text = "Browse";
-            this.BinFileBrowseButton.UseVisualStyleBackColor = true;
-            this.BinFileBrowseButton.Click += new System.EventHandler(this.BinFileBrowseButton_Click);
-            // 
-            // BinSaveFileAsButton
-            // 
-            this.BinSaveFileAsButton.Location = new System.Drawing.Point(582, 400);
-            this.BinSaveFileAsButton.Name = "BinSaveFileAsButton";
-            this.BinSaveFileAsButton.Size = new System.Drawing.Size(68, 23);
-            this.BinSaveFileAsButton.TabIndex = 20;
-            this.BinSaveFileAsButton.Text = "Save As";
-            this.BinSaveFileAsButton.UseVisualStyleBackColor = true;
-            this.BinSaveFileAsButton.Click += new System.EventHandler(this.BinSaveFileAsButton_Click);
-            // 
-            // BinSaveFileButton
-            // 
-            this.BinSaveFileButton.Location = new System.Drawing.Point(505, 400);
-            this.BinSaveFileButton.Name = "BinSaveFileButton";
-            this.BinSaveFileButton.Size = new System.Drawing.Size(71, 23);
-            this.BinSaveFileButton.TabIndex = 19;
-            this.BinSaveFileButton.Text = "Save";
-            this.BinSaveFileButton.UseVisualStyleBackColor = true;
-            this.BinSaveFileButton.Click += new System.EventHandler(this.BinSaveFileButton_Click);
-            // 
-            // BinFileLoadButton
-            // 
-            this.BinFileLoadButton.Location = new System.Drawing.Point(431, 400);
-            this.BinFileLoadButton.Name = "BinFileLoadButton";
-            this.BinFileLoadButton.Size = new System.Drawing.Size(67, 23);
-            this.BinFileLoadButton.TabIndex = 18;
-            this.BinFileLoadButton.Text = "Load";
-            this.BinFileLoadButton.UseVisualStyleBackColor = true;
-            this.BinFileLoadButton.Click += new System.EventHandler(this.BinFileLoadButton_Click);
             // 
             // BinSaveFileDialog
             // 
@@ -281,31 +163,27 @@
             this.BinFileNameLabel.Size = new System.Drawing.Size(0, 13);
             this.BinFileNameLabel.TabIndex = 21;
             // 
-            // ByteCountBox
-            // 
-            this.ByteCountBox.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.ByteCountBox.Location = new System.Drawing.Point(438, 45);
-            this.ByteCountBox.Name = "ByteCountBox";
-            this.ByteCountBox.ReadOnly = true;
-            this.ByteCountBox.Size = new System.Drawing.Size(32, 310);
-            this.ByteCountBox.TabIndex = 22;
-            this.ByteCountBox.Text = "";
-            // 
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
-            this.viewToolStripMenuItem});
+            this.architectureToolStripMenuItem1,
+            this.viewToolStripMenuItem,
+            this.debugToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(846, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(829, 24);
             this.menuStrip1.TabIndex = 23;
             this.menuStrip1.Text = "menuStrip1";
             // 
             // fileToolStripMenuItem
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.newToolStripMenuItem});
+            this.newToolStripMenuItem,
+            this.openToolStripMenuItem,
+            this.saveToolStripMenuItem,
+            this.saveAsToolStripMenuItem,
+            this.exitToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem.Text = "File";
@@ -314,39 +192,97 @@
             // 
             this.newToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.projectToolStripMenuItem,
-            this.architectureToolStripMenuItem});
+            this.fileToolStripMenuItem1});
             this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-            this.newToolStripMenuItem.Size = new System.Drawing.Size(98, 22);
+            this.newToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
             this.newToolStripMenuItem.Text = "New";
             // 
             // projectToolStripMenuItem
             // 
             this.projectToolStripMenuItem.Name = "projectToolStripMenuItem";
-            this.projectToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
+            this.projectToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift)
+                        | System.Windows.Forms.Keys.N)));
+            this.projectToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
             this.projectToolStripMenuItem.Text = "Project";
             // 
-            // architectureToolStripMenuItem
+            // fileToolStripMenuItem1
             // 
-            this.architectureToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.LoadArcToolStripMenuItem,
-            this.createNewToolStripMenuItem1});
-            this.architectureToolStripMenuItem.Name = "architectureToolStripMenuItem";
-            this.architectureToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
-            this.architectureToolStripMenuItem.Text = "Architecture";
+            this.fileToolStripMenuItem1.Name = "fileToolStripMenuItem1";
+            this.fileToolStripMenuItem1.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
+            this.fileToolStripMenuItem1.Size = new System.Drawing.Size(186, 22);
+            this.fileToolStripMenuItem1.Text = "File";
             // 
-            // LoadArcToolStripMenuItem
+            // openToolStripMenuItem
             // 
-            this.LoadArcToolStripMenuItem.Name = "LoadArcToolStripMenuItem";
-            this.LoadArcToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
-            this.LoadArcToolStripMenuItem.Text = "Load from file";
-            this.LoadArcToolStripMenuItem.Click += new System.EventHandler(this.LoadArcToolStripMenuItem_Click);
+            this.openToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.projectToolStripMenuItem1,
+            this.fileToolStripMenuItem2});
+            this.openToolStripMenuItem.Name = "openToolStripMenuItem";
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
+            this.openToolStripMenuItem.Text = "Open";
             // 
-            // createNewToolStripMenuItem1
+            // projectToolStripMenuItem1
             // 
-            this.createNewToolStripMenuItem1.Name = "createNewToolStripMenuItem1";
-            this.createNewToolStripMenuItem1.Size = new System.Drawing.Size(148, 22);
-            this.createNewToolStripMenuItem1.Text = "Create new";
-            this.createNewToolStripMenuItem1.Click += new System.EventHandler(this.createNewToolStripMenuItem1_Click);
+            this.projectToolStripMenuItem1.Name = "projectToolStripMenuItem1";
+            this.projectToolStripMenuItem1.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift)
+                        | System.Windows.Forms.Keys.O)));
+            this.projectToolStripMenuItem1.Size = new System.Drawing.Size(186, 22);
+            this.projectToolStripMenuItem1.Text = "Project";
+            // 
+            // fileToolStripMenuItem2
+            // 
+            this.fileToolStripMenuItem2.Name = "fileToolStripMenuItem2";
+            this.fileToolStripMenuItem2.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
+            this.fileToolStripMenuItem2.Size = new System.Drawing.Size(186, 22);
+            this.fileToolStripMenuItem2.Text = "File";
+            this.fileToolStripMenuItem2.Click += new System.EventHandler(this.LoadFileBrowseButton_Click);
+            // 
+            // saveToolStripMenuItem
+            // 
+            this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
+            this.saveToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
+            this.saveToolStripMenuItem.Text = "Save";
+            this.saveToolStripMenuItem.Click += new System.EventHandler(this.SaveFileButton_Click);
+            // 
+            // saveAsToolStripMenuItem
+            // 
+            this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
+            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
+            this.saveAsToolStripMenuItem.Text = "Save as";
+            this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.SaveFileAsButton_Click);
+            // 
+            // exitToolStripMenuItem
+            // 
+            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
+            this.exitToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
+            this.exitToolStripMenuItem.Text = "Exit";
+            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
+            // 
+            // architectureToolStripMenuItem1
+            // 
+            this.architectureToolStripMenuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.loadToolStripMenuItem,
+            this.recompileCodeToolStripMenuItem});
+            this.architectureToolStripMenuItem1.Name = "architectureToolStripMenuItem1";
+            this.architectureToolStripMenuItem1.Size = new System.Drawing.Size(84, 20);
+            this.architectureToolStripMenuItem1.Text = "Architecture";
+            // 
+            // loadToolStripMenuItem
+            // 
+            this.loadToolStripMenuItem.Name = "loadToolStripMenuItem";
+            this.loadToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.L)));
+            this.loadToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
+            this.loadToolStripMenuItem.Text = "Load";
+            this.loadToolStripMenuItem.Click += new System.EventHandler(this.LoadArcToolStripMenuItem_Click);
+            // 
+            // recompileCodeToolStripMenuItem
+            // 
+            this.recompileCodeToolStripMenuItem.Name = "recompileCodeToolStripMenuItem";
+            this.recompileCodeToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F3;
+            this.recompileCodeToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
+            this.recompileCodeToolStripMenuItem.Text = "Recompile code";
             // 
             // viewToolStripMenuItem
             // 
@@ -360,16 +296,61 @@
             // memoryDumpToolStripMenuItem
             // 
             this.memoryDumpToolStripMenuItem.Name = "memoryDumpToolStripMenuItem";
-            this.memoryDumpToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
+            this.memoryDumpToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.M)));
+            this.memoryDumpToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
             this.memoryDumpToolStripMenuItem.Text = "Memory dump";
             this.memoryDumpToolStripMenuItem.Click += new System.EventHandler(this.memoryDumpToolStripMenuItem_Click);
             // 
             // registersToolStripMenuItem
             // 
             this.registersToolStripMenuItem.Name = "registersToolStripMenuItem";
-            this.registersToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
+            this.registersToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.R)));
+            this.registersToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
             this.registersToolStripMenuItem.Text = "Registers";
             this.registersToolStripMenuItem.Click += new System.EventHandler(this.registersToolStripMenuItem_Click);
+            // 
+            // debugToolStripMenuItem
+            // 
+            this.debugToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.assembleToolStripMenuItem,
+            this.executeToolStripMenuItem,
+            this.executeWithoutDebugToolStripMenuItem,
+            this.nextStepToolStripMenuItem});
+            this.debugToolStripMenuItem.Name = "debugToolStripMenuItem";
+            this.debugToolStripMenuItem.Size = new System.Drawing.Size(54, 20);
+            this.debugToolStripMenuItem.Text = "Debug";
+            // 
+            // assembleToolStripMenuItem
+            // 
+            this.assembleToolStripMenuItem.Name = "assembleToolStripMenuItem";
+            this.assembleToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F7;
+            this.assembleToolStripMenuItem.Size = new System.Drawing.Size(265, 22);
+            this.assembleToolStripMenuItem.Text = "Assemble ";
+            this.assembleToolStripMenuItem.Click += new System.EventHandler(this.AssemblyButton_Click);
+            // 
+            // executeToolStripMenuItem
+            // 
+            this.executeToolStripMenuItem.Name = "executeToolStripMenuItem";
+            this.executeToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F5;
+            this.executeToolStripMenuItem.Size = new System.Drawing.Size(265, 22);
+            this.executeToolStripMenuItem.Text = "Execute";
+            this.executeToolStripMenuItem.Click += new System.EventHandler(this.ExecuteButton_Click);
+            // 
+            // executeWithoutDebugToolStripMenuItem
+            // 
+            this.executeWithoutDebugToolStripMenuItem.Name = "executeWithoutDebugToolStripMenuItem";
+            this.executeWithoutDebugToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.F5)));
+            this.executeWithoutDebugToolStripMenuItem.Size = new System.Drawing.Size(265, 22);
+            this.executeWithoutDebugToolStripMenuItem.Text = "Execute without debugging";
+            this.executeWithoutDebugToolStripMenuItem.Click += new System.EventHandler(this.executeWithoutDebugToolStripMenuItem_Click);
+            // 
+            // nextStepToolStripMenuItem
+            // 
+            this.nextStepToolStripMenuItem.Name = "nextStepToolStripMenuItem";
+            this.nextStepToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F10;
+            this.nextStepToolStripMenuItem.Size = new System.Drawing.Size(265, 22);
+            this.nextStepToolStripMenuItem.Text = "Next step";
+            this.nextStepToolStripMenuItem.Click += new System.EventHandler(this.nextStepToolStripMenuItem_Click);
             // 
             // LoadArchitectureDialog
             // 
@@ -378,17 +359,17 @@
             // OutputBox
             // 
             this.OutputBox.BackColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.OutputBox.Location = new System.Drawing.Point(12, 528);
+            this.OutputBox.Location = new System.Drawing.Point(9, 424);
             this.OutputBox.Name = "OutputBox";
             this.OutputBox.ReadOnly = true;
-            this.OutputBox.Size = new System.Drawing.Size(822, 118);
+            this.OutputBox.Size = new System.Drawing.Size(807, 118);
             this.OutputBox.TabIndex = 24;
             this.OutputBox.Text = "";
             // 
             // outputLabel
             // 
             this.outputLabel.AutoSize = true;
-            this.outputLabel.Location = new System.Drawing.Point(12, 512);
+            this.outputLabel.Location = new System.Drawing.Point(12, 408);
             this.outputLabel.Name = "outputLabel";
             this.outputLabel.Size = new System.Drawing.Size(39, 13);
             this.outputLabel.TabIndex = 25;
@@ -399,7 +380,7 @@
             this.clearOutputButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.clearOutputButton.Image = ((System.Drawing.Image)(resources.GetObject("clearOutputButton.Image")));
             this.clearOutputButton.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.clearOutputButton.Location = new System.Drawing.Point(789, 507);
+            this.clearOutputButton.Location = new System.Drawing.Point(771, 403);
             this.clearOutputButton.Name = "clearOutputButton";
             this.clearOutputButton.Size = new System.Drawing.Size(45, 22);
             this.clearOutputButton.TabIndex = 26;
@@ -408,31 +389,131 @@
             this.clearOutputButton.UseVisualStyleBackColor = true;
             this.clearOutputButton.Click += new System.EventHandler(this.clearOutputButton_Click);
             // 
+            // NewProjectButton
+            // 
+            this.NewProjectButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.NewProjectButton.Image = ((System.Drawing.Image)(resources.GetObject("NewProjectButton.Image")));
+            this.NewProjectButton.Location = new System.Drawing.Point(12, 27);
+            this.NewProjectButton.Name = "NewProjectButton";
+            this.NewProjectButton.Size = new System.Drawing.Size(22, 22);
+            this.NewProjectButton.TabIndex = 28;
+            this.NewProjectTip.SetToolTip(this.NewProjectButton, "New project");
+            this.NewProjectButton.UseVisualStyleBackColor = true;
+            // 
+            // NewFileButton
+            // 
+            this.NewFileButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.NewFileButton.Image = ((System.Drawing.Image)(resources.GetObject("NewFileButton.Image")));
+            this.NewFileButton.Location = new System.Drawing.Point(40, 27);
+            this.NewFileButton.Name = "NewFileButton";
+            this.NewFileButton.Size = new System.Drawing.Size(22, 22);
+            this.NewFileButton.TabIndex = 29;
+            this.NewFileTip.SetToolTip(this.NewFileButton, "New file");
+            this.NewFileButton.UseVisualStyleBackColor = true;
+            // 
+            // OpenFileButton
+            // 
+            this.OpenFileButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.OpenFileButton.Image = ((System.Drawing.Image)(resources.GetObject("OpenFileButton.Image")));
+            this.OpenFileButton.Location = new System.Drawing.Point(69, 27);
+            this.OpenFileButton.Name = "OpenFileButton";
+            this.OpenFileButton.Size = new System.Drawing.Size(22, 22);
+            this.OpenFileButton.TabIndex = 30;
+            this.OpenFileTip.SetToolTip(this.OpenFileButton, "Open file");
+            this.OpenFileButton.UseVisualStyleBackColor = true;
+            this.OpenFileButton.Click += new System.EventHandler(this.LoadFileBrowseButton_Click);
+            // 
+            // SaveFileButton
+            // 
+            this.SaveFileButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.SaveFileButton.Image = ((System.Drawing.Image)(resources.GetObject("SaveFileButton.Image")));
+            this.SaveFileButton.Location = new System.Drawing.Point(98, 27);
+            this.SaveFileButton.Name = "SaveFileButton";
+            this.SaveFileButton.Size = new System.Drawing.Size(22, 22);
+            this.SaveFileButton.TabIndex = 31;
+            this.SaveFileTip.SetToolTip(this.SaveFileButton, "Save file");
+            this.SaveFileButton.UseVisualStyleBackColor = true;
+            this.SaveFileButton.Click += new System.EventHandler(this.SaveFileButton_Click);
+            // 
+            // LoadArcButton
+            // 
+            this.LoadArcButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.LoadArcButton.Image = ((System.Drawing.Image)(resources.GetObject("LoadArcButton.Image")));
+            this.LoadArcButton.Location = new System.Drawing.Point(127, 27);
+            this.LoadArcButton.Name = "LoadArcButton";
+            this.LoadArcButton.Size = new System.Drawing.Size(22, 22);
+            this.LoadArcButton.TabIndex = 32;
+            this.LoadArcTip.SetToolTip(this.LoadArcButton, "Load architecture");
+            this.LoadArcButton.UseVisualStyleBackColor = true;
+            this.LoadArcButton.Click += new System.EventHandler(this.LoadArcToolStripMenuItem_Click);
+            // 
+            // DebugButton
+            // 
+            this.DebugButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.DebugButton.Image = ((System.Drawing.Image)(resources.GetObject("DebugButton.Image")));
+            this.DebugButton.Location = new System.Drawing.Point(155, 27);
+            this.DebugButton.Name = "DebugButton";
+            this.DebugButton.Size = new System.Drawing.Size(22, 22);
+            this.DebugButton.TabIndex = 33;
+            this.DebugTip.SetToolTip(this.DebugButton, "Execute");
+            this.DebugButton.UseVisualStyleBackColor = true;
+            this.DebugButton.Click += new System.EventHandler(this.ExecuteButton_Click);
+            // 
+            // lineNumbers_For_RichTextBox1
+            // 
+            this.lineNumbers_For_RichTextBox1._SeeThroughMode_ = false;
+            this.lineNumbers_For_RichTextBox1.AutoSizing = true;
+            this.lineNumbers_For_RichTextBox1.BackgroundGradient_AlphaColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.lineNumbers_For_RichTextBox1.BackgroundGradient_BetaColor = System.Drawing.Color.LightSteelBlue;
+            this.lineNumbers_For_RichTextBox1.BackgroundGradient_Direction = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
+            this.lineNumbers_For_RichTextBox1.BorderLines_Color = System.Drawing.Color.SlateGray;
+            this.lineNumbers_For_RichTextBox1.BorderLines_Style = System.Drawing.Drawing2D.DashStyle.Dot;
+            this.lineNumbers_For_RichTextBox1.BorderLines_Thickness = 1F;
+            this.lineNumbers_For_RichTextBox1.DockSide = LineNumbers.LineNumbers_For_RichTextBox.LineNumberDockSide.Left;
+            this.lineNumbers_For_RichTextBox1.GridLines_Color = System.Drawing.Color.SlateGray;
+            this.lineNumbers_For_RichTextBox1.GridLines_Style = System.Drawing.Drawing2D.DashStyle.Dot;
+            this.lineNumbers_For_RichTextBox1.GridLines_Thickness = 1F;
+            this.lineNumbers_For_RichTextBox1.LineNrs_Alignment = System.Drawing.ContentAlignment.TopRight;
+            this.lineNumbers_For_RichTextBox1.LineNrs_AntiAlias = true;
+            this.lineNumbers_For_RichTextBox1.LineNrs_AsHexadecimal = false;
+            this.lineNumbers_For_RichTextBox1.LineNrs_ClippedByItemRectangle = true;
+            this.lineNumbers_For_RichTextBox1.LineNrs_LeadingZeroes = true;
+            this.lineNumbers_For_RichTextBox1.LineNrs_Offset = new System.Drawing.Size(0, 0);
+            this.lineNumbers_For_RichTextBox1.Location = new System.Drawing.Point(10, 78);
+            this.lineNumbers_For_RichTextBox1.Margin = new System.Windows.Forms.Padding(0);
+            this.lineNumbers_For_RichTextBox1.MarginLines_Color = System.Drawing.Color.SlateGray;
+            this.lineNumbers_For_RichTextBox1.MarginLines_Side = LineNumbers.LineNumbers_For_RichTextBox.LineNumberDockSide.Right;
+            this.lineNumbers_For_RichTextBox1.MarginLines_Style = System.Drawing.Drawing2D.DashStyle.Solid;
+            this.lineNumbers_For_RichTextBox1.MarginLines_Thickness = 1F;
+            this.lineNumbers_For_RichTextBox1.Name = "lineNumbers_For_RichTextBox1";
+            this.lineNumbers_For_RichTextBox1.Padding = new System.Windows.Forms.Padding(0, 0, 2, 0);
+            this.lineNumbers_For_RichTextBox1.ParentRichTextBox = this.CodeBox;
+            this.lineNumbers_For_RichTextBox1.Show_BackgroundGradient = true;
+            this.lineNumbers_For_RichTextBox1.Show_BorderLines = true;
+            this.lineNumbers_For_RichTextBox1.Show_GridLines = true;
+            this.lineNumbers_For_RichTextBox1.Show_LineNrs = true;
+            this.lineNumbers_For_RichTextBox1.Show_MarginLines = true;
+            this.lineNumbers_For_RichTextBox1.Size = new System.Drawing.Size(18, 310);
+            this.lineNumbers_For_RichTextBox1.TabIndex = 27;
+            this.lineNumbers_For_RichTextBox1.Click += new System.EventHandler(this.lineNumbers_For_RichTextBox1_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(846, 658);
+            this.ClientSize = new System.Drawing.Size(829, 553);
+            this.Controls.Add(this.DebugButton);
+            this.Controls.Add(this.LoadArcButton);
+            this.Controls.Add(this.SaveFileButton);
+            this.Controls.Add(this.OpenFileButton);
+            this.Controls.Add(this.NewFileButton);
+            this.Controls.Add(this.NewProjectButton);
+            this.Controls.Add(this.lineNumbers_For_RichTextBox1);
             this.Controls.Add(this.clearOutputButton);
             this.Controls.Add(this.outputLabel);
             this.Controls.Add(this.OutputBox);
-            this.Controls.Add(this.ByteCountBox);
             this.Controls.Add(this.BinFileNameLabel);
-            this.Controls.Add(this.BinSaveFileAsButton);
-            this.Controls.Add(this.BinSaveFileButton);
-            this.Controls.Add(this.BinFileLoadButton);
-            this.Controls.Add(this.BinFileBrowseButton);
-            this.Controls.Add(this.BinFilePathText);
-            this.Controls.Add(this.BinLoadFileLabel);
             this.Controls.Add(this.FileNameLabel);
-            this.Controls.Add(this.SaveFileAsButton);
-            this.Controls.Add(this.SaveFileButton);
-            this.Controls.Add(this.LoadFromFileButton);
-            this.Controls.Add(this.ChooseFileLabel);
-            this.Controls.Add(this.LoadFileBrowseButton);
-            this.Controls.Add(this.LoadFilePathText);
-            this.Controls.Add(this.ExecuteButton);
-            this.Controls.Add(this.AssemblyButton);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.BinaryCodeBox);
@@ -454,34 +535,16 @@
         private System.Windows.Forms.RichTextBox BinaryCodeBox;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Button AssemblyButton;
-        private System.Windows.Forms.Button ExecuteButton;
         private System.Windows.Forms.OpenFileDialog LoadFileDialog;
-        private System.Windows.Forms.TextBox LoadFilePathText;
-        private System.Windows.Forms.Button LoadFileBrowseButton;
-        private System.Windows.Forms.Label ChooseFileLabel;
-        private System.Windows.Forms.Button LoadFromFileButton;
-        private System.Windows.Forms.Button SaveFileButton;
-        private System.Windows.Forms.Button SaveFileAsButton;
         private System.Windows.Forms.SaveFileDialog SaveFileDialog;
         private System.Windows.Forms.Label FileNameLabel;
-        private System.Windows.Forms.Label BinLoadFileLabel;
-        private System.Windows.Forms.TextBox BinFilePathText;
-        private System.Windows.Forms.Button BinFileBrowseButton;
-        private System.Windows.Forms.Button BinSaveFileAsButton;
-        private System.Windows.Forms.Button BinSaveFileButton;
-        private System.Windows.Forms.Button BinFileLoadButton;
         private System.Windows.Forms.SaveFileDialog BinSaveFileDialog;
         private System.Windows.Forms.OpenFileDialog BinLoadFileDialog;
         private System.Windows.Forms.Label BinFileNameLabel;
-        private System.Windows.Forms.RichTextBox ByteCountBox;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem newToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem projectToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem architectureToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem LoadArcToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem createNewToolStripMenuItem1;
         private System.Windows.Forms.OpenFileDialog LoadArchitectureDialog;
         private System.Windows.Forms.ToolStripMenuItem viewToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem memoryDumpToolStripMenuItem;
@@ -489,6 +552,34 @@
         private System.Windows.Forms.RichTextBox OutputBox;
         private System.Windows.Forms.Label outputLabel;
         private System.Windows.Forms.Button clearOutputButton;
+        private System.Windows.Forms.ToolStripMenuItem debugToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem executeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem nextStepToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem assembleToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem executeWithoutDebugToolStripMenuItem;
+        private LineNumbers.LineNumbers_For_RichTextBox lineNumbers_For_RichTextBox1;
+        private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem projectToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem2;
+        private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem architectureToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem loadToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem recompileCodeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem saveAsToolStripMenuItem;
+        private System.Windows.Forms.Button NewProjectButton;
+        private System.Windows.Forms.ToolTip NewProjectTip;
+        private System.Windows.Forms.Button NewFileButton;
+        private System.Windows.Forms.ToolTip NewFileTip;
+        private System.Windows.Forms.Button OpenFileButton;
+        private System.Windows.Forms.ToolTip OpenFileTip;
+        private System.Windows.Forms.Button SaveFileButton;
+        private System.Windows.Forms.ToolTip SaveFileTip;
+        private System.Windows.Forms.Button LoadArcButton;
+        private System.Windows.Forms.ToolTip LoadArcTip;
+        private System.Windows.Forms.Button DebugButton;
+        private System.Windows.Forms.ToolTip DebugTip;
 
     }
 }

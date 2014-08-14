@@ -13,6 +13,7 @@ using System.Reflection;
 using Microsoft.CSharp;
 using System.CodeDom;
 using System.CodeDom.Compiler;
+using System.Windows.Forms;
 
 namespace MultiArc_Compiler
 {
@@ -114,6 +115,10 @@ namespace MultiArc_Compiler
             }
         }
 
+        /// <summary>
+        /// Results of the compiled code for this addressing mode.
+        /// </summary>
+        private CompilerResults results;
 
         /// <summary>
         /// Adds new expression to expressions list.
@@ -294,6 +299,9 @@ namespace MultiArc_Compiler
         /// <param name="constants">
         /// Constants representing current architecture.
         /// </param>
+        /// <param name="variables">
+        /// User variables.
+        /// </param>
         /// <param name="startBit">
         /// Start bit of the operand in instruction code.
         /// </param>
@@ -303,74 +311,42 @@ namespace MultiArc_Compiler
         /// <returns>
         /// Wanted data.
         /// </returns>
-        public int GetData(InstructionRegister ir, ArchConstants constants, int startBit, int endBit)
+        public int GetData(InstructionRegister ir, ArchConstants constants, Variables variables, int startBit, int endBit)
         {
-            var provider = CSharpCodeProvider.CreateProvider("c#");
-            var options = new CompilerParameters();
-            var assemblyContainingNotDynamicClass = Path.GetFileName(Assembly.GetExecutingAssembly().Location);
-            options.ReferencedAssemblies.Add(assemblyContainingNotDynamicClass);
-            string code = @"
-
-using System;
-using System.IO;
-using MultiArc_Compiler;
-
-public class DynamicClassAM
-{
-";
-            code += executionCode;
-            code += "}";
-            var results = provider.CompileAssemblyFromSource(options, new[] { code });
-            if (results.Errors.Count > 0)
-            {
-                foreach (var error in results.Errors)
-                {
-                    File.AppendAllText("error.txt", this.name + ": " + error + "\n");
-                }
-                return 0;
-            }
-            else
-            {
-                var t = results.CompiledAssembly.GetType("DynamicClassAM");
-                int result = 0;
-                object[] parameters = new object[] { ir, Program.Mem, constants, startBit, endBit, result};
-                t.GetMethod("getAddrData_" + this.name).Invoke(null, parameters);
-                result = (int)(parameters[5]);
-                return result;
-            }
+            var t = results.CompiledAssembly.GetType("DynamicClass" + name);
+            int result = 0;
+            object[] parameters = new object[] { ir, Program.Mem, constants, variables, startBit, endBit, result };
+            t.GetMethod("getAddrData_" + this.name).Invoke(null, parameters);
+            result = (int)(parameters[6]);
+            return result;
         }
 
-        public void SetData(InstructionRegister ir, ArchConstants constants, int startBit, int endBit, int data)
+        /// <summary>
+        /// Sets address and data for this addressing mode.
+        /// </summary>
+        /// <param name="ir">
+        /// Binary code of the instruction represented with InstructionRegister object.
+        /// </param>
+        /// <param name="constants">
+        /// Constants representing current architecture.
+        /// </param>
+        /// <param name="variables">
+        /// User variables.
+        /// </param>
+        /// <param name="startBit">
+        /// Start bit of the operand in instruction code.
+        /// </param>
+        /// <param name="endBit">
+        /// End bit of the operand in instruction code.
+        /// </param>
+        /// <param name="data">
+        /// Data to be set.
+        /// </param>
+        public void SetData(InstructionRegister ir, ArchConstants constants, Variables variables, int startBit, int endBit, int data)
         {
-            var provider = CSharpCodeProvider.CreateProvider("c#");
-            var options = new CompilerParameters();
-            var assemblyContainingNotDynamicClass = Path.GetFileName(Assembly.GetExecutingAssembly().Location);
-            options.ReferencedAssemblies.Add(assemblyContainingNotDynamicClass);
-            string code = @"
-
-using System;
-using System.IO;
-using MultiArc_Compiler;
-
-public class DynamicClassAM
-{
-";
-            code += executionCode;
-            code += "}";
-            var results = provider.CompileAssemblyFromSource(options, new[] { code });
-            if (results.Errors.Count > 0)
-            {
-                foreach (var error in results.Errors)
-                {
-                    File.AppendAllText("error.txt", this.name + ": " + error + "\n");
-                }
-            }
-            else
-            {
-                var t = results.CompiledAssembly.GetType("DynamicClassAM");
-                object[] parameters = new object[] { ir, Program.Mem, constants, startBit, endBit, data };
-                t.GetMethod("setAddrData_" + this.name).Invoke(null, parameters);
-            }
+            var t = results.CompiledAssembly.GetType("DynamicClass" + name);
+            object[] parameters = new object[] { ir, Program.Mem, constants, variables, startBit, endBit, data };
+            t.GetMethod("setAddrData_" + this.name).Invoke(null, parameters);
         }
 
         /// <summary>
@@ -387,6 +363,25 @@ public class DynamicClassAM
         /// </returns>
         public int GetOperandValue(string image, int currentLocation, int relativeValue, int absoluteValue)
         {
+            var t = results.CompiledAssembly.GetType("DynamicClass" + name);
+            int operand = 0;
+            object[] parameters = new object[] { image, currentLocation, relativeValue, absoluteValue, operand };
+            t.GetMethod("getOperand_" + this.name).Invoke(null, parameters);
+            operand = (int)parameters[4];
+            return operand;
+        }
+
+        /// <summary>
+        /// Compiles execution code of this addressing mode.
+        /// </summary>
+        /// <param name="output">
+        /// Output where compile errors will be written.
+        /// </param>
+        /// <returns>
+        /// Bool value indicating whether compile was successful or not.
+        /// </returns>
+        public bool CompileCode(TextBoxBase output)
+        {
             var provider = CSharpCodeProvider.CreateProvider("c#");
             var options = new CompilerParameters();
             var assemblyContainingNotDynamicClass = Path.GetFileName(Assembly.GetExecutingAssembly().Location);
@@ -397,29 +392,21 @@ using System;
 using System.IO;
 using MultiArc_Compiler;
 
-public class DynamicClassAM
+public class DynamicClass" + name + @" 
 {
 ";
             code += executionCode;
             code += "}";
-            var results = provider.CompileAssemblyFromSource(options, new[] { code });
+            results = provider.CompileAssemblyFromSource(options, new[] { code });
             if (results.Errors.Count > 0)
             {
-                foreach (var error in results.Errors)
+                foreach (CompilerError error in results.Errors)
                 {
-                    File.AppendAllText("error.txt", this.name + ": " + error + "\n");
+                    output.AppendText(DateTime.Now.ToString() + " Error in " + fileName + ": " + error.ErrorText + " in line " + (error.Line - 8) + ".\n");
                 }
-                return 0;
+                return false;
             }
-            else
-            {
-                var t = results.CompiledAssembly.GetType("DynamicClassAM");
-                int operand = 0;
-                object[] parameters = new object[] { image, currentLocation, relativeValue, absoluteValue, operand };
-                t.GetMethod("getOperand_" + this.name).Invoke(null, parameters);
-                operand = (int)parameters[4];
-                return operand;
-            }
+            return true;
         }
     }
 }

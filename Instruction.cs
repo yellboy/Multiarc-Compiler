@@ -13,6 +13,7 @@ using System.CodeDom.Compiler;
 using System.CodeDom;
 using Microsoft.CSharp;
 using System.IO;
+using System.Windows.Forms;
 
 namespace MultiArc_Compiler
 {
@@ -182,6 +183,11 @@ namespace MultiArc_Compiler
         }
 
         /// <summary>
+        /// Results of the execution code compile.
+        /// </summary>
+        private CompilerResults results;
+
+        /// <summary>
         /// Adds one argument to the list of arguments.
         /// </summary>
         /// <param name="a">
@@ -219,6 +225,10 @@ namespace MultiArc_Compiler
                     retVal += " COMMA ";
                 }
             }
+            if (arguments.Count == 0)
+            {
+                retVal += ";";
+            }
             return retVal;
         }
 
@@ -231,47 +241,23 @@ namespace MultiArc_Compiler
         /// <param name="constants">
         /// Constants for current architecture.
         /// </param>
+        /// <param name="variables">
+        /// User variables.
+        /// </param>
         /// <param name="operands">
         /// Operands needed for operation.
         /// </param>
         /// <returns>
         /// Result of instruction execution.
         /// </returns>
-        public int[] Execute(InstructionRegister ir, ArchConstants constants, int[] operands)
+        public int[] Execute(InstructionRegister ir, ArchConstants constants, Variables variables, int[] operands)
         {
-            var provider = CSharpCodeProvider.CreateProvider("c#");
-            var options = new CompilerParameters();
-            var assemblyContainingNotDynamicClass = Path.GetFileName(Assembly.GetExecutingAssembly().Location);
-            options.ReferencedAssemblies.Add(assemblyContainingNotDynamicClass);
-            string code = @"
-
-using System;
-using System.IO;
-using MultiArc_Compiler;
-
-public class DynamicClassEX
-{
-";
-            code += executionCode;
-            code += "}";
-            var results = provider.CompileAssemblyFromSource(options, new[] { code });
-            if (results.Errors.Count > 0)
-            {
-                foreach (var error in results.Errors)
-                {
-                    File.AppendAllText("error.txt", this.name + ": " + error + "\n");
-                }
-                return null;
-            }
-            else
-            {
-                int[] result = null;
-                var t = results.CompiledAssembly.GetType("DynamicClassEX");
-                object[] parameters = new object[] { ir, Program.Mem, constants, operands, result };
-                t.GetMethod("execute_" + this.mnemonic.ToLower()).Invoke(null, parameters);
-                result = (int[])(parameters[4]);
-                return result;
-            }
+            int[] result = null;
+            var t = results.CompiledAssembly.GetType("DynamicClass" + name);
+            object[] parameters = new object[] { ir, Program.Mem, constants, variables, operands, result };
+            t.GetMethod("execute_" + this.mnemonic.ToLower()).Invoke(null, parameters);
+            result = (int[])(parameters[5]);
+            return result;
         }
 
         /// <summary>
@@ -335,17 +321,20 @@ public class DynamicClassEX
         /// <param name="constants">
         /// Architecture constants of the curent architecture.
         /// </param>
+        /// <param name="variables">
+        /// User variables.
+        /// </param>
         /// <returns>
         /// Array containing fetched operands.
         /// </returns>
-        public int[] FetchOperands(InstructionRegister ir, ArchConstants constants)
+        public int[] FetchOperands(InstructionRegister ir, ArchConstants constants, Variables variables)
         {
             LinkedList<int> operands = new LinkedList<int>();
             foreach (Argument arg in arguments)
             {
                 if (arg.Type.ToLower().Equals("src"))
                 {
-                    int result = arg.SelectedAddressingMode.GetData(ir, constants, arg.OperandStarts[arg.SelectedAddressingMode.Name], arg.OperandEnds[arg.SelectedAddressingMode.Name]);
+                    int result = arg.SelectedAddressingMode.GetData(ir, constants, variables, arg.OperandStarts[arg.SelectedAddressingMode.Name], arg.OperandEnds[arg.SelectedAddressingMode.Name]);
                     operands.AddLast(result);
                 }
             }
@@ -361,19 +350,60 @@ public class DynamicClassEX
         /// <param name="constants">
         /// Architecture constants.
         /// </param>
+        /// <param name="variables">
+        /// User variables.
+        /// </param>
         /// <param name="dataToStore">
         /// Result of the instruction execution.
         /// </param>
-        public void StoreResult(InstructionRegister ir, ArchConstants constants, int[] dataToStore)
+        public void StoreResult(InstructionRegister ir, ArchConstants constants, Variables variables, int[] dataToStore)
         {
             int argCount = 0;
             foreach (Argument arg in arguments)
             {
                 if (arg.Type.ToLower().Equals("dst"))
                 {
-                    arg.SelectedAddressingMode.SetData(ir, constants, arg.OperandStarts[arg.SelectedAddressingMode.Name], arg.OperandEnds[arg.SelectedAddressingMode.Name], dataToStore[argCount++]);
+                    arg.SelectedAddressingMode.SetData(ir, constants, variables, arg.OperandStarts[arg.SelectedAddressingMode.Name], arg.OperandEnds[arg.SelectedAddressingMode.Name], dataToStore[argCount++]);
                 }
             }
+        }
+
+        /// <summary>
+        /// Compiles execution code of this instruction.
+        /// </summary>
+        /// <param name="output">
+        /// Output where compile errors will be written.
+        /// </param>
+        /// <returns>
+        /// Bool value indicating whether compile was successful or not.
+        /// </returns>
+        public bool CompileCode(TextBoxBase output)
+        {
+            var provider = CSharpCodeProvider.CreateProvider("c#");
+            var options = new CompilerParameters();
+            var assemblyContainingNotDynamicClass = Path.GetFileName(Assembly.GetExecutingAssembly().Location);
+            options.ReferencedAssemblies.Add(assemblyContainingNotDynamicClass);
+            string code = @"
+
+using System;
+using System.IO;
+using MultiArc_Compiler;
+
+public class DynamicClass" + name + @"
+{
+";
+            code += executionCode;
+            code += "}";
+            results = provider.CompileAssemblyFromSource(options, new[] { code });
+            if (results.Errors.Count > 0)
+            {
+                foreach (CompilerError error in results.Errors)
+                {
+                    output.AppendText(DateTime.Now.ToString() + "Error in " + fileName + ": " + error.ErrorText + " in line " + (error.Line - 8) + ".\n");
+                }
+                return false;
+            }
+            return true;
         }
     }
 }

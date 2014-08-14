@@ -325,6 +325,13 @@ namespace MultiArc_Compiler {
             pattern.AddAlternative(alt);
             AddPattern(pattern);
 
+            pattern = new ProductionPattern((int) Arch4Constants.HALT1,
+                                            "halt1");
+            alt = new ProductionPatternAlternative();
+            alt.AddToken((int) Arch4Constants.HALT, 1, 1);
+            pattern.AddAlternative(alt);
+            AddPattern(pattern);
+
             pattern = new ProductionPattern((int) Arch4Constants.INSTRUCTION,
                                             "Instruction");
             alt = new ProductionPatternAlternative();
@@ -335,6 +342,9 @@ namespace MultiArc_Compiler {
             pattern.AddAlternative(alt);
             alt = new ProductionPatternAlternative();
             alt.AddProduction((int) Arch4Constants.JMP1, 1, 1);
+            pattern.AddAlternative(alt);
+            alt = new ProductionPatternAlternative();
+            alt.AddProduction((int) Arch4Constants.HALT1, 1, 1);
             pattern.AddAlternative(alt);
             AddPattern(pattern);
 

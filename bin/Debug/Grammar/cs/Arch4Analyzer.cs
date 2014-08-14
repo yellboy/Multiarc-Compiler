@@ -180,6 +180,9 @@ namespace MultiArc_Compiler {
             case (int) Arch4Constants.JMP1:
                 EnterJmp1((Production) node);
                 break;
+            case (int) Arch4Constants.HALT1:
+                EnterHalt1((Production) node);
+                break;
             case (int) Arch4Constants.INSTRUCTION:
                 EnterInstruction((Production) node);
                 break;
@@ -303,6 +306,8 @@ namespace MultiArc_Compiler {
                 return ExitLd2((Production) node);
             case (int) Arch4Constants.JMP1:
                 return ExitJmp1((Production) node);
+            case (int) Arch4Constants.HALT1:
+                return ExitHalt1((Production) node);
             case (int) Arch4Constants.INSTRUCTION:
                 return ExitInstruction((Production) node);
             }
@@ -359,6 +364,9 @@ namespace MultiArc_Compiler {
                 break;
             case (int) Arch4Constants.JMP1:
                 ChildJmp1(node, child);
+                break;
+            case (int) Arch4Constants.HALT1:
+                ChildHalt1(node, child);
                 break;
             case (int) Arch4Constants.INSTRUCTION:
                 ChildInstruction(node, child);
@@ -1897,6 +1905,46 @@ namespace MultiArc_Compiler {
          * discovered errors</exception>
          */
         public virtual void ChildJmp1(Production node, Node child) {
+            node.AddChild(child);
+        }
+
+        /**
+         * <summary>Called when entering a parse tree node.</summary>
+         *
+         * <param name='node'>the node being entered</param>
+         *
+         * <exception cref='ParseException'>if the node analysis
+         * discovered errors</exception>
+         */
+        public virtual void EnterHalt1(Production node) {
+        }
+
+        /**
+         * <summary>Called when exiting a parse tree node.</summary>
+         *
+         * <param name='node'>the node being exited</param>
+         *
+         * <returns>the node to add to the parse tree, or
+         *          null if no parse tree should be created</returns>
+         *
+         * <exception cref='ParseException'>if the node analysis
+         * discovered errors</exception>
+         */
+        public virtual Node ExitHalt1(Production node) {
+            return node;
+        }
+
+        /**
+         * <summary>Called when adding a child to a parse tree
+         * node.</summary>
+         *
+         * <param name='node'>the parent node</param>
+         * <param name='child'>the child node, or null</param>
+         *
+         * <exception cref='ParseException'>if the node analysis
+         * discovered errors</exception>
+         */
+        public virtual void ChildHalt1(Production node, Node child) {
             node.AddChild(child);
         }
 

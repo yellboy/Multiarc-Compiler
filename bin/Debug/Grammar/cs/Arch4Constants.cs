@@ -65,6 +65,7 @@ namespace MultiArc_Compiler {
         LD1 = 2011,
         LD2 = 2012,
         JMP1 = 2013,
-        INSTRUCTION = 2014
+        HALT1 = 2014,
+        INSTRUCTION = 2015
     }
 }

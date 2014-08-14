@@ -599,10 +599,14 @@ namespace MultiArc_Compiler
                             }
                             count += inst.Size;
                         }
-                        //File.WriteAllText("output.txt", "Compile successfull.");
                         output.Text += DateTime.Now.ToString() + " Compile successfull.\n";
                         output.ScrollToCaret();
-                        return binaryCode;
+                        byte[] ret = new byte[count];
+                        for (int i = 0; i < count; i++)
+                        {
+                            ret[i] = binaryCode[i];
+                        }
+                        return ret;
                     }
                     catch (ParserLogException ex)
                     {

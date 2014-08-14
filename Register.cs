@@ -260,5 +260,56 @@ namespace MultiArc_Compiler
                 }
             }
         }
+
+        /// <summary>
+        /// Gets bit sequence from register.
+        /// </summary>
+        /// <param name="startBit">
+        /// Start bit of the sequence.
+        /// </param>
+        /// <param name="endBit">
+        /// End bit of the sequence.
+        /// </param>
+        /// <returns>
+        /// Value of wanted sequence.
+        /// </returns>
+        public int GetBits(int startBit, int endBit)
+        {
+            int mask = 0;
+            for (int i = 0; i < size; i++)
+            {
+                if ((startBit >= endBit && i <= startBit && i >= endBit) || (startBit < endBit && i >= startBit && i <= endBit))
+                {
+                    mask |= 1 << i;
+                }
+            }
+            return val & mask;
+        }
+
+        /// <summary>
+        /// Sets bit sequence in register.
+        /// </summary>
+        /// <param name="startBit">
+        /// Start bit of the sequence.
+        /// </param>
+        /// <param name="endBit">
+        /// End bit of the sequence.
+        /// </param>
+        /// <param name="value">
+        /// Value to be set.
+        /// </param>
+        public void SetBits(int startBit, int endBit, int value)
+        {
+            int mask = 0;
+            for (int i = 0; i < size; i++)
+            {
+                if (!((startBit >= endBit && i <= startBit && i >= endBit) || (startBit < endBit && i >= startBit && i <= endBit)))
+                {
+                    mask |= 1 << i;
+                }
+            }
+            val &= mask; 
+            val |= value;
+        }
     }
 }

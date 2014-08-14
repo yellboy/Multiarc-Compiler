@@ -15,6 +15,8 @@ using System.Reflection;
 using System.CodeDom.Compiler;
 using System.CodeDom;
 using Microsoft.CSharp;
+using System.Threading;
+using System.Runtime.InteropServices;
 
 namespace MultiArc_Compiler
 {
@@ -54,10 +56,14 @@ namespace MultiArc_Compiler
 
         public static Form1 Instance = null;
 
+        private LinkedList<int> breakPoints = new LinkedList<int>();
+
         public Form1()
         {
             InitializeComponent();
             Instance = this;
+            CodeBox.AppendText("  ");
+            CodeBox.Clear();
         }
 
         private void AssemblyButton_Click(object sender, EventArgs e)
@@ -68,15 +74,23 @@ namespace MultiArc_Compiler
             {
                 BinaryCodeBox.Text = "";
                 separators = asm.Separators;
-                ByteCountBox.Text = "00:\n";
+                //BinaryCodeBox.Text = "00: ";
+                //BinaryCodeBox.Select(0, 3);
+                //BinaryCodeBox.SelectionBackColor = Color.LightGray;
+                //BinaryCodeBox.DeselectAll();
                 for (int i = 0; i < asm.Count; i++)
                 {
                     if (separators.Contains(i) && i != 0)
                     {
-                        ByteCountBox.Text += i.ToString().PadLeft(2, '0') + ":\n";
+                        //BinaryCodeBox.Text += "\n" + i.ToString().PadLeft(2, '0') + ": ";
                         BinaryCodeBox.Text += "\n";
                     }
-                    BinaryCodeBox.Text += BitConverter.ToString(binary, i, 1); // Convert byte to hex string and write it to binary code box.
+                    string toAdd = BitConverter.ToString(binary, i, 1);
+                    //int start = BinaryCodeBox.Text.Length;
+                    BinaryCodeBox.Text += toAdd; // Convert byte to hex string and write it to binary code box.
+                    //BinaryCodeBox.Select(start, toAdd.Length);
+                    //BinaryCodeBox.SelectionBackColor = Color.White;
+                    //BinaryCodeBox.DeselectAll();
                 }
             }
         }
@@ -86,9 +100,9 @@ namespace MultiArc_Compiler
             openedFileName = LoadFileDialog.FileName;
             string[] code;
             code = File.ReadAllLines(LoadFileDialog.FileName);
-            LoadFilePathText.Text = LoadFileDialog.FileName;
-            FileNameLabel.Text = "File: " + LoadFileDialog.FileName;
+            //LoadFilePathText.Text = LoadFileDialog.FileName;
             CodeBox.Text = "";
+            breakPoints.Clear();
             for (int i = 0; i < code.Length; i++)
             {
                 CodeBox.Text += code[i] + '\n';
@@ -104,9 +118,10 @@ namespace MultiArc_Compiler
         {
             try
             {
-                string[] code;
-                code = File.ReadAllLines(LoadFilePathText.Text);
-                openedFileName = LoadFilePathText.Text;
+                string[] code = new string[3];
+                //code = File.ReadAllLines(LoadFilePathText.Text);
+                //openedFileName = LoadFilePathText.Text;
+                breakPoints.Clear();
                 CodeBox.Text = "";
                 for (int i = 0; i < code.Length; i++)
                 {
@@ -148,7 +163,6 @@ namespace MultiArc_Compiler
             binary = File.ReadAllBytes(BinLoadFileDialog.FileName);
             openedBinFileName = BinLoadFileDialog.FileName;
             BinFileNameLabel.Text = openedBinFileName;
-            ByteCountBox.Text = "00:\n";
             BinaryCodeBox.Text = "";
             int byteCount = 0;
             for (int i = 0; i < binary.Length; i++)
@@ -156,7 +170,6 @@ namespace MultiArc_Compiler
                 if (binary[i] == (byte)('\n'))
                 {
                     BinaryCodeBox.Text += "\n";
-                    ByteCountBox.Text += byteCount.ToString().PadLeft(2, '0') + ":\n";
                 }
                 else
                 {
@@ -199,10 +212,9 @@ namespace MultiArc_Compiler
         {
             try
             {
-                binary = File.ReadAllBytes(BinFilePathText.Text);
-                openedBinFileName = BinFilePathText.Text;
+                //binary = File.ReadAllBytes(BinFilePathText.Text);
+                //openedBinFileName = BinFilePathText.Text;
                 BinFileNameLabel.Text = openedBinFileName;
-                ByteCountBox.Text = "00:\n";
                 BinaryCodeBox.Text = "";
                 int byteCount = 0;
                 for (int i = 0; i < binary.Length; i++)
@@ -210,7 +222,6 @@ namespace MultiArc_Compiler
                     if (binary[i] == (byte)('\n'))
                     {
                         BinaryCodeBox.Text += "\n";
-                        ByteCountBox.Text += byteCount.ToString().PadLeft(2, '0') + ":\n";
                     }
                     else
                     {
@@ -1076,16 +1087,6 @@ namespace MultiArc_Compiler
                     OutputBox.ScrollToCaret();
                     errorCount++;
                 }
-                if (errorCount == 0)
-                {
-                    OutputBox.Text += DateTime.Now.ToString() + " Architecture loaded successfully.\n";
-                    OutputBox.ScrollToCaret();
-                }
-                else
-                {
-                    OutputBox.Text += DateTime.Now.ToString() + " Architecture could not be loadded. " + errorCount + " error(s) existed.\n";
-                    OutputBox.ScrollToCaret();
-                }
             }
             catch (Exception ex)
             {
@@ -1122,7 +1123,30 @@ namespace MultiArc_Compiler
                         OutputBox.Text += DateTime.Now.ToString() + " Error in grammar: " + line + "\n";
                         OutputBox.ScrollToCaret();
                     }
-                    File.WriteAllText("cmderr.txt", line);
+                    else
+                    {
+                        File.WriteAllText("cmderr.txt", line);
+                        bool compileSuccessful = true;
+                        foreach (AddressingMode am in constants.AllAddressingModes)
+                        {
+                            if (am.CompileCode(OutputBox) == false)
+                            {
+                                compileSuccessful = false;
+                            }
+                        }
+                        foreach (Instruction i in constants.InstructionSet)
+                        {
+                            if (i.CompileCode(OutputBox) == false)
+                            {
+                                compileSuccessful = false;
+                            }
+                        }
+                        if (compileSuccessful == true)
+                        {
+                            OutputBox.AppendText(DateTime.Now.ToString() + " Architecture loaded successfully. \n");
+                            OutputBox.ScrollToCaret();
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -1133,8 +1157,54 @@ namespace MultiArc_Compiler
 
         private void ExecuteButton_Click(object sender, EventArgs e)
         {
-            Executor ex = new Executor(constants, binary, separators, OutputBox);
-            ex.Execute();
+            if (ex == null || ex.Executing == false)
+            {
+                ex = new Executor(constants, binary, separators, breakPoints, OutputBox);
+                ex.Debug();
+                ex.WaitUntilBreakpointOrEnd();
+                if (ex.Executing == true)
+                {
+                    markInstruction(ex.Next, Color.Yellow);
+                }
+                else
+                {
+                    deselectAllLines();
+                }
+            }
+            else
+            {
+                markInstruction(ex.Next, Color.Red);
+                ex.Continue();
+                ex.WaitUntilBreakpointOrEnd();
+                if (ex.Executing == true)
+                {
+                    markInstruction(ex.Next, Color.Yellow);
+                }
+                else
+                {
+                    deselectAllLines();
+                }
+            }
+        }
+
+        private void markInstruction(int number, Color color)
+        {
+            string[] lines = CodeBox.Lines;
+            int start = 0;
+            for (int i = 0; i <= number; i++)
+            {
+                if (String.IsNullOrWhiteSpace(lines[i]) || String.IsNullOrEmpty(lines[i]))
+                {
+                    number++;
+                }
+                if (i != number)
+                {
+                    start += lines[i].Length + 1;
+                }
+            }
+            int length = lines[number].Length;
+            CodeBox.Select(start, length);
+            CodeBox.SelectionBackColor = color;
         }
 
         private void memoryDumpToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1283,5 +1353,167 @@ Line = [IDENTIFIER "":""] Instruction Separator ;
             OutputBox.Text = "";
         }
 
+        Executor ex;
+
+        private void nextStepToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (ex == null || ex.Executing == false)
+            {
+                ex = new Executor(constants, binary, separators, breakPoints, OutputBox);
+                ex.EnterStepByStep();
+                deselectAllLines();
+                selectLine(ex.Next);
+            }
+            else
+            {
+                ex.ExecuteNextStep();
+                ex.WaitForOneInstruction();
+                if (ex.Executing == true)
+                {
+                    deselectAllLines();
+                    selectLine(ex.Next);
+                }
+                else
+                {
+                    deselectAllLines();
+                }
+            }
+
+        }
+
+        private int start, length;
+
+        private void selectLine(int number)
+        {
+            /*int prev = CodeBox.GetLineFromCharIndex(start);
+            CodeBox.Select(start, length);
+            if (breakPoints.Contains(prev))
+            {
+                CodeBox.SelectionBackColor = Color.Red;
+            }
+            else
+            {
+                CodeBox.SelectionBackColor = Color.White;
+            }
+            CodeBox.DeselectAll();
+            */
+            string[] lines = CodeBox.Lines;
+            start = 0;
+            for (int i = 0; i <= number; i++)
+            {
+                if (String.IsNullOrWhiteSpace(lines[i]) || String.IsNullOrEmpty(lines[i]))
+                {
+                    number++;
+                }
+                if (i != number)
+                {
+                    start += lines[i].Length + 1;
+                }
+            }
+            length = lines[number].Length;
+            CodeBox.Select(start, length);
+            CodeBox.SelectionBackColor = Color.Yellow;
+        }
+
+
+        private void deselectAllLines()
+        {
+            string[] lines = CodeBox.Lines;
+            int start = 0;
+            int emptyCount = 0;
+            for (int i = 0; i < lines.Length; i++)
+            {
+                if (String.IsNullOrWhiteSpace(lines[i]) || String.IsNullOrEmpty(lines[i]))
+                {
+                    emptyCount++;
+                }
+                if (breakPoints.Contains(i - emptyCount))
+                {
+                    CodeBox.Select(start, lines[i].Length);
+                    CodeBox.SelectionBackColor = Color.Red;
+                }
+                else
+                {
+                    CodeBox.Select(start, lines[i].Length);
+                    CodeBox.SelectionBackColor = Color.White;
+                }
+                start += lines[i].Length + 1;
+            }
+            CodeBox.Select(start, length);
+            CodeBox.SelectionBackColor = Color.White;
+            CodeBox.DeselectAll();
+        }
+
+        [DllImport("user32.dll")]
+        private static extern bool GetScrollRange(IntPtr hWnd, int nBar, out int lpMinPos, out int lpMaxPos);
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr SendMessage(IntPtr hWnd, Int32 wMsg, Int32 wParam, ref Point lParam);
+
+
+        private void lineNumbers_For_RichTextBox1_Click(object sender, EventArgs e)
+        {
+            int minScroll;
+            int maxScroll;
+            GetScrollRange(CodeBox.Handle, 1, out minScroll, out maxScroll);
+            Point rtfPoint = Point.Empty;
+            SendMessage(CodeBox.Handle, 0x400 + 221, 0, ref rtfPoint);
+            Point screenPos = new Point(MousePosition.X, MousePosition.Y);
+            Point myPos = lineNumbers_For_RichTextBox1.PointToClient(screenPos);
+            double height = (double)CodeBox.Height / 19.0;
+            int line = (int)(Math.Truncate((myPos.Y + rtfPoint.Y) / height));
+            if (line < CodeBox.Lines.Length - 1)
+            {
+                toggleBreakpoint(line);
+            }
+        }
+
+        private void toggleBreakpoint(int line)
+        {
+            string[] lines = CodeBox.Lines;
+            if (!(String.IsNullOrWhiteSpace(lines[line]) || String.IsNullOrEmpty(lines[line])))
+            {
+                int start = 0;
+                for (int i = 0; i < line; i++)
+                {
+                    start += lines[i].Length + 1;
+                }
+                int length = lines[line].Length;
+                CodeBox.Select(start, length);
+                for (int i = 0; i < line; i++)
+                {
+                    if (String.IsNullOrWhiteSpace(lines[i]) || String.IsNullOrEmpty(lines[i]))
+                    {
+                        line--;
+                    }
+                }
+                if (breakPoints.Contains(line))
+                {
+                    breakPoints.Remove(line);
+                    CodeBox.SelectionBackColor = Color.White;
+                    CodeBox.DeselectAll();
+                }
+                else
+                {
+                    breakPoints.AddLast(line);
+                    CodeBox.SelectionBackColor = Color.Red;
+                    CodeBox.DeselectAll();
+                }
+            }
+        }
+
+        private void executeWithoutDebugToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (ex == null || ex.Executing == false)
+            {
+                ex = new Executor(constants, binary, separators, breakPoints, OutputBox);
+                ex.Execute();
+            }
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Dispose();
+        }
     }
 }
