@@ -20,6 +20,7 @@
 			<number>16</number>
 			<size>16</size>
 			<prefix>R</prefix>
+			<name>gen_r</name>
 		</general_purpose>
 		<bx>
 			<size>16</size>
@@ -73,7 +74,7 @@
 			<file>regdir.cs</file>
 			<result>w</result>
 			<expression>
-				<registers_group>general_purpose</registers_group>
+				<registers_group>gen_r</registers_group> | <registers_group>gen_f</registers_group>
 			</expression>
 			<expression_value>
 				<expression>"R0"</expression>
@@ -92,7 +93,7 @@
 			<file>regind.cs</file>
 			<result>w</result>
 			<expression>
-				"(" <registers_group>general_purpose</registers_group> ")"
+				"(" <registers_group>gen_r</registers_group> ")"
 			</expression>
 			<expression_value>
 				<expression>"(R0)"</expression>

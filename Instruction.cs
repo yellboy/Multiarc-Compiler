@@ -111,10 +111,6 @@ namespace MultiArc_Compiler
             set
             {
                 fileName = value;
-                if (fileName != null)
-                {
-                    executionCode = File.ReadAllText(fileName);
-                }
             }
         }
 
@@ -379,6 +375,7 @@ namespace MultiArc_Compiler
         /// </returns>
         public bool CompileCode(TextBoxBase output)
         {
+            executionCode = File.ReadAllText(fileName);
             var provider = CSharpCodeProvider.CreateProvider("c#");
             var options = new CompilerParameters();
             var assemblyContainingNotDynamicClass = Path.GetFileName(Assembly.GetExecutingAssembly().Location);

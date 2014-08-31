@@ -130,7 +130,7 @@ namespace MultiArc_Compiler
         /// <param name="output">
         /// Text box representing output.
         /// </param>
-        public Executor(ArchConstants constants, byte[] binaryCode, LinkedList<int> separators, LinkedList<int> breakPoints, TextBoxBase output,  Int16 entryPoint = 0) 
+        public Executor(ArchConstants constants, byte[] binaryCode, LinkedList<int> separators, LinkedList<int> breakPoints, TextBoxBase output,  int entryPoint = 0) 
         {
             this.constants = constants;
             this.binaryCode = binaryCode;
@@ -216,7 +216,7 @@ namespace MultiArc_Compiler
                 while (true)
                 {
                     int pc = constants.GetRegister("pc").Val;
-                    if (separators.Contains(pc) && pc != entryPoint)
+                    if (separators.Contains(pc - entryPoint) && pc != entryPoint)
                     {
                         Thread.BeginCriticalRegion();
                         bool temp = stepByStepMode;
@@ -237,11 +237,11 @@ namespace MultiArc_Compiler
                         inst.StoreResult(ir, constants, vars, result);
                         binary.Clear();
                         pc = constants.GetRegister("pc").Val;
-                        if (separators.Contains(pc))
+                        if (separators.Contains(pc - entryPoint))
                         {
                             for (int i = 0; i < separators.Count - 1; i++)
                             {
-                                if (separators.ElementAt(i) == pc)
+                                if (separators.ElementAt(i) == pc - entryPoint)
                                 {
                                     Thread.BeginCriticalRegion();
                                     next = i;
@@ -249,7 +249,7 @@ namespace MultiArc_Compiler
                                 }   
                             }
                         }
-                        if (pc >= binaryCode.Length || (bool)vars.GetVariable("working") == false)
+                        if (pc - entryPoint >= binaryCode.Length || (bool)vars.GetVariable("working") == false)
                         {
 
                             Thread.BeginCriticalRegion();
@@ -268,7 +268,13 @@ namespace MultiArc_Compiler
                             Thread.Yield();
                         }
                     }
-                    binary.AddLast(binaryCode[pc++]);
+                    byte[] readFromMemory = Program.Mem[(uint)pc];
+                    pc++;
+                    for (int k = 0; k < readFromMemory.Length; k++)
+                    {
+                        binary.AddLast(readFromMemory[k]);
+                    }
+                    //binary.AddLast(binaryCode[pc++]);
                     constants.GetRegister("pc").Val = pc;
                 }
                 breakSem.Release();
@@ -304,7 +310,7 @@ namespace MultiArc_Compiler
             }
             else
             {
-                output.Text += DateTime.Now.ToString() + " Code executed successfully\n";
+                output.Text += DateTime.Now.ToString() + " Code executed successfully.\n";
                 output.ScrollToCaret();
             }
         }
@@ -316,7 +322,7 @@ namespace MultiArc_Compiler
         {
             constants.GetRegister("pc").Val = entryPoint;
             Thread.BeginCriticalRegion();
-            next = entryPoint;
+            next = 0;
             Thread.EndCriticalRegion();
             Thread.BeginCriticalRegion();
             stepByStepMode = true;
@@ -365,7 +371,7 @@ namespace MultiArc_Compiler
         {
             constants.GetRegister("pc").Val = entryPoint;
             Thread.BeginCriticalRegion();
-            next = entryPoint;
+            next = 0;
             Thread.EndCriticalRegion();
             Thread.BeginCriticalRegion();
             stepByStepMode = false;

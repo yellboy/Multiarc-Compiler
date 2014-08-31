@@ -82,6 +82,8 @@
             this.LoadArcTip = new System.Windows.Forms.ToolTip(this.components);
             this.DebugButton = new System.Windows.Forms.Button();
             this.DebugTip = new System.Windows.Forms.ToolTip(this.components);
+            this.NewProjectDialog = new System.Windows.Forms.SaveFileDialog();
+            this.OpenProjectDialog = new System.Windows.Forms.OpenFileDialog();
             this.lineNumbers_For_RichTextBox1 = new LineNumbers.LineNumbers_For_RichTextBox();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -96,6 +98,7 @@
             this.CodeBox.TabIndex = 1;
             this.CodeBox.TabStop = false;
             this.CodeBox.Text = "   ";
+            this.CodeBox.TextChanged += new System.EventHandler(this.CodeBox_TextChanged);
             // 
             // BinaryCodeBox
             // 
@@ -131,11 +134,13 @@
             // LoadFileDialog
             // 
             this.LoadFileDialog.DefaultExt = "as";
+            this.LoadFileDialog.Filter = "as files|*.as; *.asm|all files|*.*";
             this.LoadFileDialog.FileOk += new System.ComponentModel.CancelEventHandler(this.LoadFileDialog_FileOk);
             // 
             // SaveFileDialog
             // 
             this.SaveFileDialog.DefaultExt = "as";
+            this.SaveFileDialog.Filter = "|as files|*.as|asm files|*.asm|";
             this.SaveFileDialog.FileOk += new System.ComponentModel.CancelEventHandler(this.SaveFileDialog_FileOk);
             // 
             // FileNameLabel
@@ -204,6 +209,7 @@
                         | System.Windows.Forms.Keys.N)));
             this.projectToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
             this.projectToolStripMenuItem.Text = "Project";
+            this.projectToolStripMenuItem.Click += new System.EventHandler(this.projectToolStripMenuItem_Click);
             // 
             // fileToolStripMenuItem1
             // 
@@ -211,6 +217,7 @@
             this.fileToolStripMenuItem1.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
             this.fileToolStripMenuItem1.Size = new System.Drawing.Size(186, 22);
             this.fileToolStripMenuItem1.Text = "File";
+            this.fileToolStripMenuItem1.Click += new System.EventHandler(this.fileToolStripMenuItem1_Click);
             // 
             // openToolStripMenuItem
             // 
@@ -228,6 +235,7 @@
                         | System.Windows.Forms.Keys.O)));
             this.projectToolStripMenuItem1.Size = new System.Drawing.Size(186, 22);
             this.projectToolStripMenuItem1.Text = "Project";
+            this.projectToolStripMenuItem1.Click += new System.EventHandler(this.projectToolStripMenuItem1_Click);
             // 
             // fileToolStripMenuItem2
             // 
@@ -283,6 +291,7 @@
             this.recompileCodeToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F3;
             this.recompileCodeToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
             this.recompileCodeToolStripMenuItem.Text = "Recompile code";
+            this.recompileCodeToolStripMenuItem.Click += new System.EventHandler(this.recompileCodeToolStripMenuItem_Click);
             // 
             // viewToolStripMenuItem
             // 
@@ -354,6 +363,8 @@
             // 
             // LoadArchitectureDialog
             // 
+            this.LoadArchitectureDialog.DefaultExt = "arc";
+            this.LoadArchitectureDialog.Filter = "arc files|*.arc|all files|*.*";
             this.LoadArchitectureDialog.FileOk += new System.ComponentModel.CancelEventHandler(this.LoadArchitectureDialog_FileOk);
             // 
             // OutputBox
@@ -458,6 +469,21 @@
             this.DebugTip.SetToolTip(this.DebugButton, "Execute");
             this.DebugButton.UseVisualStyleBackColor = true;
             this.DebugButton.Click += new System.EventHandler(this.ExecuteButton_Click);
+            // 
+            // NewProjectDialog
+            // 
+            this.NewProjectDialog.DefaultExt = "prj";
+            this.NewProjectDialog.Filter = "prj files|*.prj";
+            this.NewProjectDialog.InitialDirectory = "\\Projects";
+            this.NewProjectDialog.RestoreDirectory = true;
+            this.NewProjectDialog.Title = "Create new project";
+            this.NewProjectDialog.FileOk += new System.ComponentModel.CancelEventHandler(this.NewProjectDialog_FileOk);
+            // 
+            // OpenProjectDialog
+            // 
+            this.OpenProjectDialog.DefaultExt = "prj";
+            this.OpenProjectDialog.Filter = "prj files|*.prj|all files|*.*";
+            this.OpenProjectDialog.FileOk += new System.ComponentModel.CancelEventHandler(this.OpenProjectDialog_FileOk);
             // 
             // lineNumbers_For_RichTextBox1
             // 
@@ -580,6 +606,8 @@
         private System.Windows.Forms.ToolTip LoadArcTip;
         private System.Windows.Forms.Button DebugButton;
         private System.Windows.Forms.ToolTip DebugTip;
+        private System.Windows.Forms.SaveFileDialog NewProjectDialog;
+        private System.Windows.Forms.OpenFileDialog OpenProjectDialog;
 
     }
 }

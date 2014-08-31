@@ -58,18 +58,39 @@ namespace MultiArc_Compiler
 
         private LinkedList<int> breakPoints = new LinkedList<int>();
 
+        private bool compiled = false;
+
+        private Form registersForm;
+
+        private Form memoryForm; 
+
         public Form1()
         {
             InitializeComponent();
             Instance = this;
             CodeBox.AppendText("  ");
             CodeBox.Clear();
+            loadToolStripMenuItem.Enabled = false;
+            recompileCodeToolStripMenuItem.Enabled = false;
+            registersToolStripMenuItem.Enabled = false;
+            memoryDumpToolStripMenuItem.Enabled = false;
+            executeToolStripMenuItem.Enabled = false;
+            executeWithoutDebugToolStripMenuItem.Enabled = false;
+            nextStepToolStripMenuItem.Enabled = false;
+            LoadArcButton.Enabled = false;
+            assembleToolStripMenuItem.Enabled = false;
+            DebugButton.Enabled = false;
+            fileChanged = false;
+            compiled = false;
         }
+
+        private int entryPoint;
 
         private void AssemblyButton_Click(object sender, EventArgs e)
         {
             Assembler asm = new Assembler(CodeBox.Text, constants, Program.Mem, OutputBox);
             binary = asm.Assemble();
+            entryPoint = asm.Origin;
             if (binary != null)
             {
                 BinaryCodeBox.Text = "";
@@ -92,21 +113,26 @@ namespace MultiArc_Compiler
                     //BinaryCodeBox.SelectionBackColor = Color.White;
                     //BinaryCodeBox.DeselectAll();
                 }
+                compiled = true;
             }
         }
+
+        private bool fileChanged;
 
         private void LoadFileDialog_FileOk(object sender, CancelEventArgs e)
         {
             openedFileName = LoadFileDialog.FileName;
+            fileChanged = false;
+            compiled = false;
             string[] code;
             code = File.ReadAllLines(LoadFileDialog.FileName);
-            //LoadFilePathText.Text = LoadFileDialog.FileName;
             CodeBox.Text = "";
             breakPoints.Clear();
             for (int i = 0; i < code.Length; i++)
             {
                 CodeBox.Text += code[i] + '\n';
             }
+            fileChanged = false;
         }
 
         private void LoadFileBrowseButton_Click(object sender, EventArgs e)
@@ -119,8 +145,6 @@ namespace MultiArc_Compiler
             try
             {
                 string[] code = new string[3];
-                //code = File.ReadAllLines(LoadFilePathText.Text);
-                //openedFileName = LoadFilePathText.Text;
                 breakPoints.Clear();
                 CodeBox.Text = "";
                 for (int i = 0; i < code.Length; i++)
@@ -307,11 +331,20 @@ namespace MultiArc_Compiler
 
         private void LoadArchitectureDialog_FileOk(object sender, CancelEventArgs e)
         {
+            recompileCodeToolStripMenuItem.Enabled = true;
             int errorCount = 0;
+            string fileName;
+            if (arcFileName == null || projectOpenning == false)
+            {
+                fileName = LoadArchitectureDialog.FileName;
+            }
+            else
+            {
+                fileName = arcFileName;
+            }
+            string content = File.ReadAllText(fileName);
             try
             {
-                string fileName = LoadArchitectureDialog.FileName;
-                string content = File.ReadAllText(fileName);
                 SaveArchitecture();
                 constants.RemoveAllInstructions();
                 constants.RemoveAllAddressingModes();
@@ -321,6 +354,8 @@ namespace MultiArc_Compiler
                 XmlReader xmlReader = XmlReader.Create(new StringReader(content));
                 XmlDocument doc = new XmlDocument();
                 XmlNode head = doc.ReadNode(xmlReader);
+                registersForm = null;
+                memoryForm = null;
                 bool registersSpecified = false;
                 foreach (XmlNode node in head.ChildNodes)
                 {
@@ -366,10 +401,10 @@ namespace MultiArc_Compiler
                                         Program.Mem.RomEnd = Convert.ToUInt32(n.InnerText);
                                         break;
                                     case "init_file":
-                                        Program.Mem.InitFile = n.InnerText;
+                                        Program.Mem.InitFile = dataFolder + n.InnerText;
                                         break;
                                     case "storage_file":
-                                        Program.Mem.StorageFile = n.InnerText;
+                                        Program.Mem.StorageFile = dataFolder + n.InnerText;
                                         break;
                                     default:
                                         break;
@@ -414,6 +449,7 @@ namespace MultiArc_Compiler
                                     case "general_purpose":
                                         {
                                             string prefix = "R";
+                                            string group = "";
                                             int size = 0;
                                             int number = 0;
                                             int value = 0;
@@ -434,9 +470,18 @@ namespace MultiArc_Compiler
                                                     case "value":
                                                         value = Convert.ToInt32(child.InnerText);
                                                         break;
+                                                    case "name":
+                                                        group = child.InnerText;
+                                                        break;
                                                     default:
                                                         break;
                                                 }
+                                            }
+                                            if (group == "")
+                                            {
+                                                OutputBox.Text += DateTime.Now.ToString() + " ERROR: General purpose registers' group name must be specified.\n";
+                                                OutputBox.ScrollToCaret();
+                                                registerErrorCount++;
                                             }
                                             if (number == 0)
                                             {
@@ -454,11 +499,11 @@ namespace MultiArc_Compiler
                                             {
                                                 for (int i = 0; i < number; i++)
                                                 {
-                                                    Register r = new Register(size);
+                                                    Register r = new Register(size, (IRegistersObserver)registersForm);
                                                     r.Size = size;
-                                                    r.Val = value;
-                                                    r.Group = "general_purpose";
                                                     r.AddName(prefix + i);
+                                                    r.Val = value;
+                                                    r.Group = group;
                                                     constants.AddRegister(r);
                                                 }
                                             }
@@ -468,7 +513,7 @@ namespace MultiArc_Compiler
                                         break;
                                     default:
                                         {
-                                            Register r = new Register(0);
+                                            Register r = new Register(0, (IRegistersObserver)registersForm);
                                             r.Size = 0;
                                             r.Val = 0;
                                             r.Group = null;
@@ -491,7 +536,7 @@ namespace MultiArc_Compiler
                                                         break;
                                                     case "part":
                                                         XmlNodeList part = child.ChildNodes;
-                                                        Register partReg = new Register(0);
+                                                        Register partReg = new Register(0, (IRegistersObserver)registersForm);
                                                         partReg.Size = 0;
                                                         partReg.BaseReg = r;
                                                         partReg.Group = null;
@@ -587,7 +632,7 @@ namespace MultiArc_Compiler
                                                     am.Name = child.InnerText;
                                                     break;
                                                 case "file":
-                                                    am.FileName = child.InnerText;
+                                                    am.FileName = dataFolder + child.InnerText;
                                                     break;
                                                 case "result":
                                                     am.Result = constants.GetDataType(child.InnerText);
@@ -642,7 +687,7 @@ namespace MultiArc_Compiler
                                                     if (child.HasChildNodes)
                                                     {
                                                         string exp = "";
-                                                        string group = "";
+                                                        LinkedList<string> groups = new LinkedList<string>();
                                                         XmlNodeList expressions = child.ChildNodes;
                                                         foreach (XmlNode expression in expressions)
                                                         {
@@ -651,8 +696,8 @@ namespace MultiArc_Compiler
                                                                 case "registers_group":
                                                                     am.OperandReadFromExpression = false;
                                                                     am.OperandInValues = true;
-                                                                    group = expression.InnerText;
-                                                                    exp += group;
+                                                                    groups.AddLast(expression.InnerText);
+                                                                    exp += expression.InnerText;
                                                                     break;
                                                                 case "#whitespace":
                                                                     break;
@@ -677,34 +722,37 @@ namespace MultiArc_Compiler
                                                             }
                                                         }
                                                         int lastVal = 0;
-                                                        if (!group.Equals(""))
+                                                        if (groups.Count != 0)
                                                         {
-                                                            for (int i = 0; i < constants.NUM_OF_REGISTERS; i++)
+                                                            foreach (string group in groups)
                                                             {
-                                                                Register r = constants.GetRegister(i);
-                                                                if (r.Group != null && r.Group.ToLower().Equals(group.ToLower()))
+                                                                for (int i = 0; i < constants.NUM_OF_REGISTERS; i++)
                                                                 {
-
-                                                                    while (am.Values.ContainsValue(lastVal))
-                                                                        lastVal++;
-                                                                    for (int j = 0; j < r.Names.Count; j++)
+                                                                    Register r = constants.GetRegister(i);
+                                                                    if (r.Group != null && r.Group.ToLower().Equals(group.ToLower()))
                                                                     {
-                                                                        string expToAdd = "";
-                                                                        int ind = exp.IndexOf(group);
-                                                                        expToAdd = exp.Replace(group, r.Names.ElementAt(j));
-                                                                        am.AddExpression(expToAdd);
-                                                                        string[] expParts = expToAdd.Split('"', ' ');
-                                                                        expToAdd = "";
-                                                                        for (int c = 0; c < expParts.Length; c++)
+
+                                                                        while (am.Values.ContainsValue(lastVal))
+                                                                            lastVal++;
+                                                                        for (int j = 0; j < r.Names.Count; j++)
                                                                         {
-                                                                            expToAdd += expParts[c];
+                                                                            string expToAdd = "";
+                                                                            int ind = exp.IndexOf(r.Group);
+                                                                            expToAdd = exp.Replace(r.Group, r.Names.ElementAt(j));
+                                                                            am.AddExpression(expToAdd);
+                                                                            string[] expParts = expToAdd.Split('"', ' ');
+                                                                            expToAdd = "";
+                                                                            for (int c = 0; c < expParts.Length; c++)
+                                                                            {
+                                                                                expToAdd += expParts[c];
+                                                                            }
+                                                                            if (!am.Values.ContainsKey(expToAdd.ToLower()))
+                                                                            {
+                                                                                am.Values.Add(expToAdd.ToLower(), lastVal);
+                                                                            }
                                                                         }
-                                                                        if (!am.Values.ContainsKey(expToAdd.ToLower()))
-                                                                        {
-                                                                            am.Values.Add(expToAdd.ToLower(), lastVal);
-                                                                        }
+                                                                        lastVal++;
                                                                     }
-                                                                    lastVal++;
                                                                 }
                                                             }
                                                         }
@@ -758,6 +806,38 @@ namespace MultiArc_Compiler
                                         {
                                             constants.AddAddressingMode(am);
                                             appendAMToGrammarFile(am);
+                                        }
+                                        if (amErrorCount == 0)
+                                        {
+                                            string contents =
+@"/* 
+ *This is auto-generated text. 
+ *Please, edit only method bodies. 
+ */
+
+public static void getAddrData_" + am.Name + @"(InstructionRegister ir, Memory memory, ArchConstants constants, Variables variables, int startBit, int endBit, ref int result)
+{
+	// TODO Write how this addressing mode gets operand here.
+	// It this method is not necessary, just leave it like this.
+}
+
+public static void setAddrData_" + am.Name + @"(InstructionRegister ir, Memory memory, ArchConstants constants, Variables variables, int startBit, int endBit, int data)
+{
+	// TODO Write how this addressing mode stores operand here.
+	// It this method is not necessary, just leave it like this.
+}
+
+public static void getOperand_" + am.Name + @"(string image, int currentLocation, int relativeValue, int absoluteValue, ref int operand)
+{
+	// TODO Write how this addressing mode gets operand value from instruction assembly code here.
+	// If this method is not necessary, just leave it like this.
+}";
+                                            if (!File.Exists(am.FileName))
+                                            {
+                                                var file = File.Create(am.FileName);
+                                                file.Close();
+                                                File.WriteAllText(am.FileName, contents);
+                                            }
                                         }
                                         errorCount += amErrorCount;
                                     }
@@ -851,7 +931,7 @@ namespace MultiArc_Compiler
                                                     i.Mnemonic = child.InnerText;
                                                     break;
                                                 case "file":
-                                                    i.FileName = child.InnerText;
+                                                    i.FileName = dataFolder + child.InnerText;
                                                     break;
                                                 case "arguments":
                                                     {
@@ -1053,8 +1133,27 @@ namespace MultiArc_Compiler
                                         }
                                         constants.AddInstruction(i);
                                         apendInstructionToGrammarFile(i);
-                                    }
+                                        if (instErrorCount == 0)
+                                        {
+                                            string contents =
+@"/* 
+ *This is auto-generated text. 
+ *Please, edit only method bodies. 
+ */
 
+public static void execute_" + i.Mnemonic.ToLower() + @"(InstructionRegister ir, Memory memory, ArchConstants constants, Variables variables, int[] operands, ref int[] result)
+{	
+	// TODO Write how this instruction executes here.
+	// If this method is not necessary just leave it like this.
+}";
+                                            if (!File.Exists(i.FileName))
+                                            {
+                                                var file = File.Create(i.FileName);
+                                                file.Close();
+                                                File.WriteAllText(i.FileName, contents);
+                                            }
+                                        }
+                                    }
                                 }
                                 errorCount += instErrorCount;
                             }
@@ -1093,6 +1192,7 @@ namespace MultiArc_Compiler
                 OutputBox.Text += DateTime.Now.ToString() + " Error in architecture file: " + ex.Message + "\n";
                 OutputBox.ScrollToCaret();
                 File.AppendAllText("error.txt", ex.ToString());
+                projectOpenning = false;
                 return;
             }
             if (errorCount == 0)
@@ -1109,23 +1209,34 @@ namespace MultiArc_Compiler
                     proc.StartInfo.RedirectStandardError = true;
                     proc.Start();
                     string line = "";
-                    while (!proc.StandardOutput.EndOfStream)
-                        line += proc.StandardOutput.ReadLine() + "\n";
-                    File.WriteAllText("cmdout.txt", line);
-                    line = "";
+                    int count = 30;
                     while (!proc.StandardError.EndOfStream)
                     {
                         string l = proc.StandardError.ReadLine();
                         line += l + "\n";
+                        count--;
+                        if (count == 0)
+                            break;
                     }
                     if (!line.Equals(""))
                     {
+                        projectOpenning = false;
+                        memoryDumpToolStripMenuItem.Enabled = false;
+                        registersToolStripMenuItem.Enabled = false;
+                        assembleToolStripMenuItem.Enabled = false;
+                        executeToolStripMenuItem.Enabled = false;
+                        nextStepToolStripMenuItem.Enabled = false;
+                        executeWithoutDebugToolStripMenuItem.Enabled = false;
+                        DebugButton.Enabled = false;
+                        recompileCodeToolStripMenuItem.Enabled = false;
                         OutputBox.Text += DateTime.Now.ToString() + " Error in grammar: " + line + "\n";
                         OutputBox.ScrollToCaret();
                     }
                     else
                     {
-                        File.WriteAllText("cmderr.txt", line);
+                        string grammar = File.ReadAllText(constants.Name + ".grammar");
+                        File.Delete(constants.Name + ".grammar");
+                        File.WriteAllText(dataFolder + constants.Name + ".grammar", grammar);
                         bool compileSuccessful = true;
                         foreach (AddressingMode am in constants.AllAddressingModes)
                         {
@@ -1143,47 +1254,112 @@ namespace MultiArc_Compiler
                         }
                         if (compileSuccessful == true)
                         {
+                            if (projectOpenning == false)
+                            {
+                                if (!File.Exists(dataFolder + fileName))
+                                {
+                                    var file = File.Create(dataFolder + fileName.Substring(fileName.LastIndexOf('\\')));
+                                    file.Close();
+                                }
+                                File.WriteAllText(dataFolder + fileName.Substring(fileName.LastIndexOf('\\')), content);
+                            }
+                            arcFileName = dataFolder + fileName;
+                            projectOpenning = false;
                             OutputBox.AppendText(DateTime.Now.ToString() + " Architecture loaded successfully. \n");
                             OutputBox.ScrollToCaret();
+                            registersForm = new RegistersForm(constants);
+                            memoryForm = new MemoryDumpForm();
+                            memoryDumpToolStripMenuItem.Enabled = true;
+                            registersToolStripMenuItem.Enabled = true;
+                            assembleToolStripMenuItem.Enabled = true;
+                            executeToolStripMenuItem.Enabled = true;
+                            nextStepToolStripMenuItem.Enabled = true;
+                            executeWithoutDebugToolStripMenuItem.Enabled = true;
+                            DebugButton.Enabled = true;
+                            recompileCodeToolStripMenuItem.Enabled = true;
+                            compiled = false;
+                        }
+                        else
+                        {
+                            projectOpenning = false;
+                            memoryDumpToolStripMenuItem.Enabled = false;
+                            registersToolStripMenuItem.Enabled = false;
+                            assembleToolStripMenuItem.Enabled = false;
+                            executeToolStripMenuItem.Enabled = false;
+                            nextStepToolStripMenuItem.Enabled = false;
+                            executeWithoutDebugToolStripMenuItem.Enabled = false;
+                            DebugButton.Enabled = false;
+                            recompileCodeToolStripMenuItem.Enabled = false;
                         }
                     }
                 }
                 catch (Exception ex)
                 {
+                    projectOpenning = false;
+                    memoryDumpToolStripMenuItem.Enabled = false;
+                    registersToolStripMenuItem.Enabled = false;
+                    assembleToolStripMenuItem.Enabled = false;
+                    executeToolStripMenuItem.Enabled = false;
+                    nextStepToolStripMenuItem.Enabled = false;
+                    executeWithoutDebugToolStripMenuItem.Enabled = false;
+                    DebugButton.Enabled = false;
+                    recompileCodeToolStripMenuItem.Enabled = false;
                     File.AppendAllText("error.txt", ex.ToString());
                 }
+            }
+            else
+            {
+                memoryDumpToolStripMenuItem.Enabled = false;
+                registersToolStripMenuItem.Enabled = false;
+                assembleToolStripMenuItem.Enabled = false;
+                executeToolStripMenuItem.Enabled = false;
+                nextStepToolStripMenuItem.Enabled = false;
+                executeWithoutDebugToolStripMenuItem.Enabled = false;
+                DebugButton.Enabled = false;
+                recompileCodeToolStripMenuItem.Enabled = false;
+                projectOpenning = false;
             }
         }
 
         private void ExecuteButton_Click(object sender, EventArgs e)
         {
-            if (ex == null || ex.Executing == false)
+            if (compiled == false)
             {
-                ex = new Executor(constants, binary, separators, breakPoints, OutputBox);
-                ex.Debug();
-                ex.WaitUntilBreakpointOrEnd();
-                if (ex.Executing == true)
-                {
-                    markInstruction(ex.Next, Color.Yellow);
-                }
-                else
-                {
-                    deselectAllLines();
-                }
+                this.AssemblyButton_Click(sender, e);
             }
-            else
+            if (compiled == true)
             {
-                markInstruction(ex.Next, Color.Red);
-                ex.Continue();
-                ex.WaitUntilBreakpointOrEnd();
-                if (ex.Executing == true)
+                if (ex == null || ex.Executing == false)
                 {
-                    markInstruction(ex.Next, Color.Yellow);
+                    ex = new Executor(constants, binary, separators, breakPoints, OutputBox, entryPoint);
+                    assembleToolStripMenuItem.Enabled = false;
+                    ex.Debug();
+                    ex.WaitUntilBreakpointOrEnd();
+                    if (ex.Executing == true)
+                    {
+                        markInstruction(ex.Next, Color.Yellow);
+                    }
+                    else
+                    {
+                        deselectAllLines();
+                        assembleToolStripMenuItem.Enabled = true;
+                    }
                 }
                 else
                 {
-                    deselectAllLines();
-                }
+                    markInstruction(ex.Next, Color.Red);
+                    ex.Continue();
+                    ex.WaitUntilBreakpointOrEnd();
+                    if (ex.Executing == true)
+                    {
+                        markInstruction(ex.Next, Color.Yellow);
+                    }
+                    else
+                    {
+                        deselectAllLines();
+                        assembleToolStripMenuItem.Enabled = true;
+                    }
+                }    
             }
         }
 
@@ -1193,7 +1369,26 @@ namespace MultiArc_Compiler
             int start = 0;
             for (int i = 0; i <= number; i++)
             {
-                if (String.IsNullOrWhiteSpace(lines[i]) || String.IsNullOrEmpty(lines[i]))
+                string temp = "";
+                if (lines[i].Contains(";") && (lines[i].StartsWith(" ") || lines[i].StartsWith("\t") || lines[i].StartsWith(";")))
+                {
+                    int count;
+                    for (count = 0; lines[i][count] != ';'; count++);
+                    for (int j = count; j < lines[i].Length; j++)
+                    {
+                        temp += lines[i][j];
+                    }
+                }
+                bool originFound = false;
+                string[] words = lines[i].Split(' ', '\t');
+                for (int k = 0; k < words.Length; k++)
+                {
+                    if (words[k].ToLower().Equals("org"))
+                    {
+                        originFound = true;
+                    }
+                }
+                if (String.IsNullOrWhiteSpace(lines[i]) || String.IsNullOrEmpty(lines[i]) || temp.StartsWith(";") || originFound)
                 {
                     number++;
                 }
@@ -1204,17 +1399,24 @@ namespace MultiArc_Compiler
             }
             int length = lines[number].Length;
             CodeBox.Select(start, length);
+            bool compiledOld = compiled;
+            bool fileChangedOld = fileChanged;
             CodeBox.SelectionBackColor = color;
+            compiled = compiledOld;
+            fileChanged = fileChangedOld;
         }
 
         private void memoryDumpToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            new MemoryDumpForm();
+            memoryForm.Visible = true;
         }
 
         private void registersToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            new RegistersForm(constants);
+            if (registersForm != null)
+            {
+                registersForm.Visible = true;
+            }
         }
 
         private void prepareGrammarFile()
@@ -1254,6 +1456,7 @@ RIGHT_PAREN = "")""
 HASH = ""#""
 COLON = "":""
 COMMA = "",""
+ORG = ""org""
 
 SIGN = <<[+-]>>
 DEC_NUMBER = <<[0-9]+>>
@@ -1265,7 +1468,6 @@ IDENTIFIER = <<[a-z][a-z0-9_]*>>
 ENTER = <<[\n\r]+>>
 SINGLE_LINE_COMMENT = <<;.*>> %ignore%
 WHITESPACE = <<[ \t]+>> %ignore%
-ORG = ""org""
 
 %productions%
 
@@ -1357,51 +1559,66 @@ Line = [IDENTIFIER "":""] Instruction Separator ;
 
         private void nextStepToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (ex == null || ex.Executing == false)
+            if (compiled == false)
             {
-                ex = new Executor(constants, binary, separators, breakPoints, OutputBox);
-                ex.EnterStepByStep();
-                deselectAllLines();
-                selectLine(ex.Next);
+                AssemblyButton_Click(sender, e);
             }
-            else
+            if (compiled == true)
             {
-                ex.ExecuteNextStep();
-                ex.WaitForOneInstruction();
-                if (ex.Executing == true)
+                if (ex == null || ex.Executing == false)
                 {
+                    ex = new Executor(constants, binary, separators, breakPoints, OutputBox, entryPoint);
+                    ex.EnterStepByStep();
                     deselectAllLines();
                     selectLine(ex.Next);
+                    assembleToolStripMenuItem.Enabled = false;
                 }
                 else
                 {
-                    deselectAllLines();
+                    ex.ExecuteNextStep();
+                    ex.WaitForOneInstruction();
+                    if (ex.Executing == true)
+                    {
+                        deselectAllLines();
+                        selectLine(ex.Next);
+                    }
+                    else
+                    {
+                        deselectAllLines();
+                        assembleToolStripMenuItem.Enabled = true;
+                    }
                 }
             }
-
         }
 
         private int start, length;
 
         private void selectLine(int number)
         {
-            /*int prev = CodeBox.GetLineFromCharIndex(start);
-            CodeBox.Select(start, length);
-            if (breakPoints.Contains(prev))
-            {
-                CodeBox.SelectionBackColor = Color.Red;
-            }
-            else
-            {
-                CodeBox.SelectionBackColor = Color.White;
-            }
-            CodeBox.DeselectAll();
-            */
             string[] lines = CodeBox.Lines;
             start = 0;
             for (int i = 0; i <= number; i++)
             {
-                if (String.IsNullOrWhiteSpace(lines[i]) || String.IsNullOrEmpty(lines[i]))
+                string temp = "";
+                if (lines[i].Contains(";") && (lines[i].StartsWith(" ") || lines[i].StartsWith("\t") || lines[i].StartsWith(";")))
+                {
+                    int count;
+                    for (count = 0; lines[i][count] != ';'; count++) ;
+                    for (int j = count; j < lines[i].Length; j++)
+                    {
+                        temp += lines[i][j];
+                    }
+                }
+                bool originFound = false;
+                string[] words = lines[i].Split(' ', '\t');
+                for (int k = 0; k < words.Length; k++)
+                {
+                    if (words[k].ToLower().Equals("org"))
+                    {
+                        originFound = true;
+                    }
+                }
+                if (String.IsNullOrWhiteSpace(lines[i]) || String.IsNullOrEmpty(lines[i]) || temp.StartsWith(";") || originFound)
                 {
                     number++;
                 }
@@ -1412,35 +1629,74 @@ Line = [IDENTIFIER "":""] Instruction Separator ;
             }
             length = lines[number].Length;
             CodeBox.Select(start, length);
+            bool compiledOld = compiled;
+            bool fileChangedOld = fileChanged;
             CodeBox.SelectionBackColor = Color.Yellow;
+            compiled = compiledOld;
+            fileChanged = fileChangedOld;
         }
-
 
         private void deselectAllLines()
         {
+            bool compiledOld;
+            bool fileChangedOld;
             string[] lines = CodeBox.Lines;
             int start = 0;
             int emptyCount = 0;
             for (int i = 0; i < lines.Length; i++)
             {
-                if (String.IsNullOrWhiteSpace(lines[i]) || String.IsNullOrEmpty(lines[i]))
+                string temp = "";
+                if (lines[i].Contains(";") && (lines[i].StartsWith(" ") || lines[i].StartsWith("\t") || lines[i].StartsWith(";")))
+                {
+                    int count;
+                    for (count = 0; lines[i][count] != ';'; count++);
+                    for (int j = count; j < lines[i].Length; j++)
+                    {
+                        temp += lines[i][j];
+                    }
+                }
+                bool originFound = false;
+                string[] words = lines[i].Split(' ', '\t');
+                for (int k = 0; k < words.Length; k++)
+                {
+                    if (words[k].ToLower().Equals("org"))
+                    {
+                        originFound = true;
+                    }
+                }
+                if (String.IsNullOrWhiteSpace(lines[i]) || String.IsNullOrEmpty(lines[i]) || temp.StartsWith(";") || originFound)
                 {
                     emptyCount++;
                 }
-                if (breakPoints.Contains(i - emptyCount))
-                {
-                    CodeBox.Select(start, lines[i].Length);
-                    CodeBox.SelectionBackColor = Color.Red;
-                }
                 else
                 {
-                    CodeBox.Select(start, lines[i].Length);
-                    CodeBox.SelectionBackColor = Color.White;
+                    if (breakPoints.Contains(i - emptyCount))
+                    {
+                        CodeBox.Select(start, lines[i].Length);
+                        compiledOld = compiled;
+                        fileChangedOld = fileChanged;
+                        CodeBox.SelectionBackColor = Color.Red;
+                        compiled = compiledOld;
+                        fileChanged = fileChangedOld;
+                    }
+                    else
+                    {
+                        CodeBox.Select(start, lines[i].Length);
+                        compiledOld = compiled;
+                        fileChangedOld = fileChanged;
+                        CodeBox.SelectionBackColor = Color.White;
+                        compiled = compiledOld;
+                        fileChanged = fileChangedOld;
+                    }
                 }
                 start += lines[i].Length + 1;
             }
             CodeBox.Select(start, length);
+            compiledOld = compiled;
+            fileChangedOld = fileChanged;
             CodeBox.SelectionBackColor = Color.White;
+            compiled = compiledOld;
+            fileChanged = fileChangedOld;
             CodeBox.DeselectAll();
         }
 
@@ -1470,8 +1726,27 @@ Line = [IDENTIFIER "":""] Instruction Separator ;
 
         private void toggleBreakpoint(int line)
         {
-            string[] lines = CodeBox.Lines;
-            if (!(String.IsNullOrWhiteSpace(lines[line]) || String.IsNullOrEmpty(lines[line])))
+            string[] lines = CodeBox.Lines; 
+            string temp = "";
+            if (lines[line].Contains(";") && (lines[line].StartsWith(" ") || lines[line].StartsWith("\t") || lines[line].StartsWith(";")))
+            {
+                int count;
+                for (count = 0; lines[line][count] != ';'; count++) ;
+                for (int j = count; j < lines[line].Length; j++)
+                {
+                    temp += lines[line][j];
+                }
+            }
+            bool originFound = false;
+            string[] words = lines[line].Split(' ', '\t');
+            for (int k = 0; k < words.Length; k++)
+            {
+                if (words[k].ToLower().Equals("org"))
+                {
+                    originFound = true;
+                }
+            }
+            if (!(String.IsNullOrWhiteSpace(lines[line]) || String.IsNullOrEmpty(lines[line]) || temp.StartsWith(";") || originFound))
             {
                 int start = 0;
                 for (int i = 0; i < line; i++)
@@ -1482,38 +1757,231 @@ Line = [IDENTIFIER "":""] Instruction Separator ;
                 CodeBox.Select(start, length);
                 for (int i = 0; i < line; i++)
                 {
-                    if (String.IsNullOrWhiteSpace(lines[i]) || String.IsNullOrEmpty(lines[i]))
+                    string t = "";
+                    if (lines[i].Contains(";") && (lines[i].StartsWith(" ") || lines[i].StartsWith("\t") || lines[i].StartsWith(";")))
+                    {
+                        int count;
+                        for (count = 0; lines[i][count] != ';'; count++) ;
+                        for (int j = count; j < lines[i].Length; j++)
+                        {
+                            t += lines[i][j];
+                        }
+                    } 
+                    bool orgFound = false;
+                    string[] w = lines[i].Split(' ', '\t');
+                    for (int k = 0; k < w.Length; k++)
+                    {
+                        if (w[k].ToLower().Equals("org"))
+                        {
+                            orgFound = true;
+                        }
+                    }
+                    if (String.IsNullOrWhiteSpace(lines[i]) || String.IsNullOrEmpty(lines[i]) || lines[i].StartsWith(";") || t.StartsWith(";") || orgFound)
                     {
                         line--;
                     }
                 }
                 if (breakPoints.Contains(line))
                 {
+                    bool compiledOld = compiled;
+                    bool fileChangedOld = fileChanged;
                     breakPoints.Remove(line);
                     CodeBox.SelectionBackColor = Color.White;
                     CodeBox.DeselectAll();
+                    compiled = compiledOld;
+                    fileChanged = fileChangedOld;
                 }
                 else
                 {
+                    bool compiledOld = compiled;
+                    bool fileChangedOld = fileChanged;
                     breakPoints.AddLast(line);
                     CodeBox.SelectionBackColor = Color.Red;
                     CodeBox.DeselectAll();
+                    compiled = compiledOld;
+                    fileChanged = fileChangedOld;
                 }
             }
         }
 
         private void executeWithoutDebugToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (ex == null || ex.Executing == false)
+            if (compiled == false)
             {
-                ex = new Executor(constants, binary, separators, breakPoints, OutputBox);
-                ex.Execute();
+                AssemblyButton_Click(sender, e);
+            }
+            if (compiled == true)
+            {
+                if (ex == null || ex.Executing == false)
+                {
+                    ex = new Executor(constants, binary, separators, breakPoints, OutputBox, entryPoint);
+                    ex.Execute();
+                }
             }
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             this.Dispose();
+        }
+
+        private void projectToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            NewProjectDialog.InitialDirectory = Application.StartupPath + "\\Projects";
+            NewProjectDialog.ShowDialog();
+        }
+
+        private string projectPath = null;
+
+        private string projectName = null;
+
+        private string dataFolder = null;
+
+        private void NewProjectDialog_FileOk(object sender, CancelEventArgs e)
+        {
+            int lastIndex = NewProjectDialog.FileName.LastIndexOf('\\');
+            projectPath = NewProjectDialog.FileName.Substring(0, lastIndex + 1);
+            projectName = NewProjectDialog.FileName.Substring(lastIndex + 1);
+            dataFolder = projectPath + "Data\\";
+            string content = @"Time: " + DateTime.Now.ToString() + @"
+Name: " + projectName + @"
+";
+            File.WriteAllText(NewProjectDialog.FileName, content);
+            if (Directory.Exists(dataFolder))
+            {
+                Directory.Delete(dataFolder, true);
+            }
+            Directory.CreateDirectory(dataFolder);
+            LoadArchitectureDialog.InitialDirectory = dataFolder;
+            LoadFileDialog.InitialDirectory = dataFolder;
+            loadToolStripMenuItem.Enabled = true;
+            LoadArcButton.Enabled = true;
+        }
+
+        private void CodeBox_TextChanged(object sender, EventArgs e)
+        {
+            fileChanged = true;
+            compiled = false;
+        }
+
+        private void fileToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            if (fileChanged == true)
+            {
+                new SaveOldFileForm(openedFileName, CodeBox);
+            }
+            else
+            {
+                ClearCode();
+            }
+        }
+
+        public void ClearCode()
+        {
+            CodeBox.Clear();
+            breakPoints.Clear();
+            compiled = false;
+            fileChanged = false;
+        }
+
+        private void projectToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            OpenProjectDialog.InitialDirectory = Application.StartupPath + "\\Projects";
+            OpenProjectDialog.ShowDialog();
+        }
+
+        private bool projectOpenning = false;
+
+        private void OpenProjectDialog_FileOk(object sender, CancelEventArgs e)
+        {
+            int lastIndex = OpenProjectDialog.FileName.LastIndexOf('\\');
+            projectPath = OpenProjectDialog.FileName.Substring(0, lastIndex + 1);
+            projectName = OpenProjectDialog.FileName.Substring(lastIndex + 1);
+            dataFolder = projectPath + "Data\\";
+            LoadArchitectureDialog.InitialDirectory = dataFolder;
+            LoadFileDialog.InitialDirectory = dataFolder;
+            loadToolStripMenuItem.Enabled = true;
+            LoadArcButton.Enabled = true;
+            string[] names = Directory.GetFiles(dataFolder);
+            foreach (string n in names)
+            {
+                if (n.ToLower().EndsWith(".arc"))
+                {
+                    arcFileName = n;
+                    projectOpenning = true;
+                    LoadArchitectureDialog_FileOk(sender, e);
+                }
+            }
+        }
+
+        private void recompileCodeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                string contents = File.ReadAllText(dataFolder + constants.Name + ".grammar");
+                File.WriteAllText(constants.Name + ".grammar", contents);
+                string command = "/C java -jar Grammar//grammatica-1.5.jar " + constants.Name + ".grammar --csoutput grammar//cs --csnamespace MultiArc_Compiler --cspublic";
+                Process proc = new Process();
+                proc.StartInfo.FileName = "CMD.exe";
+                proc.StartInfo.Arguments = command;
+                proc.StartInfo.UseShellExecute = false;
+                proc.StartInfo.RedirectStandardOutput = true;
+                proc.StartInfo.RedirectStandardError = true;
+                proc.Start();
+                string line = "";
+                while (!proc.StandardOutput.EndOfStream)
+                    line += proc.StandardOutput.ReadLine() + "\n";
+                File.WriteAllText("cmdout.txt", line);
+                line = "";
+                while (!proc.StandardError.EndOfStream)
+                {
+                    string l = proc.StandardError.ReadLine();
+                    line += l + "\n";
+                }
+                if (!line.Equals(""))
+                {
+                    OutputBox.Text += DateTime.Now.ToString() + " Error in grammar: " + line + "\n";
+                    OutputBox.ScrollToCaret();
+                }
+                else
+                {
+                    string grammar = File.ReadAllText(constants.Name + ".grammar");
+                    File.Delete(constants.Name + ".grammar");
+                    File.WriteAllText(dataFolder + constants.Name + ".grammar", grammar);
+                    bool compileSuccessful = true;
+                    foreach (AddressingMode am in constants.AllAddressingModes)
+                    {
+                        if (am.CompileCode(OutputBox) == false)
+                        {
+                            compileSuccessful = false;
+                        }
+                    }
+                    foreach (Instruction i in constants.InstructionSet)
+                    {
+                        if (i.CompileCode(OutputBox) == false)
+                        {
+                            compileSuccessful = false;
+                        }
+                    }
+                    if (compileSuccessful == true)
+                    {
+                        OutputBox.AppendText(DateTime.Now.ToString() + " Architecture loaded successfully. \n");
+                        OutputBox.ScrollToCaret();
+                        memoryDumpToolStripMenuItem.Enabled = true;
+                        registersToolStripMenuItem.Enabled = true;
+                        assembleToolStripMenuItem.Enabled = true;
+                        executeToolStripMenuItem.Enabled = true;
+                        nextStepToolStripMenuItem.Enabled = true;
+                        executeWithoutDebugToolStripMenuItem.Enabled = true;
+                        DebugButton.Enabled = true;
+                        compiled = false;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                File.AppendAllText("error.txt", ex.ToString());
+            }
         }
     }
 }

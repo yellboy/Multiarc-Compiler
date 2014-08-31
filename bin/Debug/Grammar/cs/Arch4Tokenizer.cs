@@ -226,6 +226,12 @@ namespace MultiArc_Compiler {
                                        ",");
             AddPattern(pattern);
 
+            pattern = new TokenPattern((int) Arch4Constants.ORG,
+                                       "ORG",
+                                       TokenPattern.PatternType.STRING,
+                                       "org");
+            AddPattern(pattern);
+
             pattern = new TokenPattern((int) Arch4Constants.SIGN,
                                        "SIGN",
                                        TokenPattern.PatternType.REGEXP,
@@ -280,12 +286,6 @@ namespace MultiArc_Compiler {
                                        TokenPattern.PatternType.REGEXP,
                                        "[ \\t]+");
             pattern.Ignore = true;
-            AddPattern(pattern);
-
-            pattern = new TokenPattern((int) Arch4Constants.ORG,
-                                       "ORG",
-                                       TokenPattern.PatternType.STRING,
-                                       "org");
             AddPattern(pattern);
         }
     }

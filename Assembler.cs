@@ -136,7 +136,24 @@ namespace MultiArc_Compiler
                 return separators;
             }
         }
-       
+
+        private int origin;
+
+        /// <summary>
+        /// Entry point of the program.
+        /// </summary>
+        public int Origin
+        {
+            get
+            {
+                return origin;
+            }
+            set
+            {
+                origin = value;
+            }
+        }
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -231,7 +248,8 @@ namespace MultiArc_Compiler
                         labels.Clear();
                         symbolTable.Clear();
                         getInstructionsFromTree(n);
-                        binaryCode = new byte[instructions.Count * constants.MAX_BYTES];
+                        getOriginFromTree(n);
+                        binaryCode = new byte[instructions.Count * constants.MAX_BYTES]; // THIS MUST BE TESTED.
                         count = 0;
                         separators.Clear();
                         separators = new LinkedList<int>();
@@ -526,8 +544,14 @@ namespace MultiArc_Compiler
                                         }
                                         if (found == false)
                                         {
-                                            operandValue = Program.Mem.firstFree(Program.Mem.AuSize);
-                                            Program.Mem.allocate(operandValue, Program.Mem.AuSize); // This must be improved.
+                                            operandValue = Program.Mem.FirstFreeInRAM(am.Result.Size / 8);
+                                            if (operandValue == -1)
+                                            {
+                                                throw new Exception("Memory full");
+                                            }
+                                            Symbol newSymbol = new Symbol(label, 0, operandValue, true);
+                                            symbolTable.AddLast(newSymbol);
+                                            Program.Mem.Allocate(operandValue, am.Result.Size / 8);
                                         }
                                         
                                     }
@@ -565,8 +589,8 @@ namespace MultiArc_Compiler
                                         }
                                         if (found == false)
                                         {
-                                            operandValue = Program.Mem.firstFree(Program.Mem.AuSize);
-                                            Program.Mem.allocate(operandValue, Program.Mem.AuSize); // This must be improved.
+                                            operandValue = Program.Mem.FirstFree(Program.Mem.AuSize);
+                                            Program.Mem.Allocate(operandValue, Program.Mem.AuSize); // This must be improved.
                                         }
                                     }
                                     int relativeOperandValue = operandValue - inst.Size - count;
@@ -606,6 +630,15 @@ namespace MultiArc_Compiler
                         {
                             ret[i] = binaryCode[i];
                         }
+                        for (int i = 0; i < count; i += Program.Mem.AuSize)
+                        {
+                            byte[] toWrite = new byte[Program.Mem.AuSize];
+                            for (int j = 0; j < Program.Mem.AuSize && i + j < count; j++)
+                            {
+                                toWrite[j] = ret[j + i];
+                            }
+                            Program.Mem[(uint)(i + origin)] = toWrite;
+                        }
                         return ret;
                     }
                     catch (ParserLogException ex)
@@ -628,6 +661,28 @@ namespace MultiArc_Compiler
                 return null;
             }
         }
+
+        /// <summary>
+        /// Gets origin (entry point) from parse tree, if it exists.
+        /// </summary>
+        /// <param name="n">
+        /// Root node of the tree.
+        /// </param>
+        private void getOriginFromTree(Node n)
+        {
+            if (n.Name.ToLower().Equals("origin"))
+            {
+                origin = Convert.ToInt32(((Token)n.GetChildAt(1)).Image);
+            }
+            else
+            {
+                for (int i = 0; i < n.GetChildCount(); i++)
+                {
+                    getOriginFromTree(n.GetChildAt(i));
+                }
+            }
+        }
+
 
         /// <summary>
         /// Recursive method that creates expression from node.
@@ -658,7 +713,7 @@ namespace MultiArc_Compiler
         }
 
         /// <summary>
-        /// Tests if input is any kind of jump or branch operation code.
+        /// Tests if input is any kind of jump or branch operation code. OBSOLETE
         /// </summary>
         /// <param name="input">
         /// String with operation code to be tested.
@@ -704,7 +759,7 @@ namespace MultiArc_Compiler
         }
 
         /// <summary>
-        /// Checks if input string can reference any register.
+        /// Checks if input string can reference any register. OBSOLETE
         /// </summary>
         /// <param name="input">
         /// String to be checked.
@@ -731,7 +786,7 @@ namespace MultiArc_Compiler
         }
 
         /// <summary>
-        /// Checks if input string can be literal.
+        /// Checks if input string can be literal. OBSOLETE
         /// </summary>
         /// <param name="input">
         /// Input string.
@@ -786,7 +841,7 @@ namespace MultiArc_Compiler
         }
 
         /// <summary>
-        /// Checks if current instruction is jump instruction.
+        /// Checks if current instruction is jump instruction. OBSOLETE
         /// </summary>
         /// <param name="opCode">
         /// Operation code of current instruction.
@@ -807,7 +862,7 @@ namespace MultiArc_Compiler
         }
 
         /// <summary>
-        /// Adds given literal to literals table, if it is not already there.
+        /// Adds given literal to literals table, if it is not already there. OBSOLETE
         /// </summary>
         /// <param name="literal">
         /// Literal to be added.
@@ -857,7 +912,7 @@ namespace MultiArc_Compiler
         }
 
         /// <summary>
-        /// Checks if literal is in literal table.
+        /// Checks if literal is in literal table. OBSOLETE
         /// </summary>
         /// <param name="name">
         /// Name of the literal.

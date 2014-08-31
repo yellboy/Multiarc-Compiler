@@ -6,10 +6,11 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using System.Text.RegularExpressions;
 
 namespace MultiArc_Compiler
 {
-    public partial class MemoryDumpForm : Form
+    public partial class MemoryDumpForm : Form, IMemoryObserver
     {
         private Label[] labels;
 
@@ -19,6 +20,8 @@ namespace MultiArc_Compiler
 
         private uint endAddress;
 
+        private long gotoAddress;
+
         public MemoryDumpForm()
         {
             InitializeComponent();
@@ -27,7 +30,6 @@ namespace MultiArc_Compiler
             labels = new Label[endAddress / 10];
             values = new TextBox[endAddress];
             readNewValues();
-            this.Visible = true;
             prevButton.Enabled = false;
         }
 
@@ -59,9 +61,11 @@ namespace MultiArc_Compiler
                                 valueToWrite |= (int)memValue[k] << (int)(k * 8);
                             }
                             values[j + 10 * i].Text = "" + valueToWrite;
+                            values[j + 10 * i].BackColor = Color.White;
                             values[j + 10 * i].Location = new System.Drawing.Point(xText, yText);
                             xText += values[j + 10 * i].Width;
                             this.Controls.Add(values[j + 10 * i]);
+                            values[j + 10 * i].Click += valueClick;
                         }
                     }
                     xText = 80;
@@ -125,6 +129,87 @@ namespace MultiArc_Compiler
                     }
                 }
             }
+        }
+
+        void IMemoryObserver.LocationChanged(uint address, byte[] newValue)
+        {
+            beginAddress = (address / 100) * 100;
+            endAddress = beginAddress + 100;
+            if (endAddress >= Program.Mem.Size)
+            {
+                nextButton.Enabled = false;
+            }
+            else
+            {
+                nextButton.Enabled = true;
+            }
+            if (beginAddress <= 0)
+            {
+                prevButton.Enabled = false;
+            }
+            else
+            {
+                prevButton.Enabled = true;
+            }
+            readNewValues();
+            values[address - beginAddress].BackColor = Color.Yellow;
+        }
+
+        private void AddressBox_TextChanged(object sender, EventArgs e)
+        {
+            Regex regexDec = new Regex("^[0-9]+$");
+            Regex regexHex = new Regex("^0x[0-9a-fA-F]+$");
+            if (regexDec.IsMatch(((TextBox)sender).Text))
+            {
+                GotoButton.Enabled = true;
+                gotoAddress = Convert.ToInt64(((TextBox)sender).Text, 10);
+                if (gotoAddress >= Program.Mem.Size)
+                {
+                    gotoAddress = Program.Mem.Size - 1;
+                }
+            }
+            else if (regexHex.IsMatch(((TextBox)sender).Text))
+            {
+                GotoButton.Enabled = true;
+                gotoAddress = Convert.ToInt64(((TextBox)sender).Text.Substring(2), 16);
+                if (gotoAddress >= Program.Mem.Size)
+                {
+                    gotoAddress = Program.Mem.Size - 1;
+                }
+            }
+            else
+            {
+                GotoButton.Enabled = false;
+            }
+        }
+
+        private void GotoButton_Click(object sender, EventArgs e)
+        {
+            beginAddress = (uint)((gotoAddress / 100) * 100);
+            endAddress = beginAddress + 100;
+            if (endAddress >= Program.Mem.Size)
+            {
+                nextButton.Enabled = false;
+            }
+            else
+            {
+                nextButton.Enabled = true;
+            }
+            if (beginAddress <= 0)
+            {
+                prevButton.Enabled = false;
+            }
+            else
+            {
+                prevButton.Enabled = true;
+            }
+            readNewValues();
+            values[gotoAddress - beginAddress].BackColor = Color.Yellow;
+        }
+
+        private void valueClick(object sender, EventArgs e)
+        {
+            ((TextBox)sender).BackColor = Color.White;
         }
     }
 }

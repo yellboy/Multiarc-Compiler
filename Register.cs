@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.IO;
 
 namespace MultiArc_Compiler
 {
@@ -140,7 +141,34 @@ namespace MultiArc_Compiler
                     {
                         baseReg.PartValueChanged(val, this); 
                     }
+                    if (observer != null)
+                    {
+                        signalToObserver(this.names.ElementAt(0), val);
+                    }
                 }
+            }
+        }
+
+        private delegate void registerChanged(string name, int value);
+
+        private void signalToObserver(string name, int value)
+        {
+            try
+            {
+                if (((RegistersForm)observer).InvokeRequired)
+                {
+                    registerChanged d = new registerChanged(signalToObserver);
+                    ((RegistersForm)observer).BeginInvoke(d, new object[] { name, value });
+                    //((RegistersForm)observer).Invoke(d, new object[] { name, value });
+                }
+                else
+                {
+                    observer.RegisterChanged(name, value);
+                }
+            }
+            catch (Exception ex)
+            {
+                File.WriteAllText("error.txt", ex.ToString());
             }
         }
 
@@ -178,11 +206,29 @@ namespace MultiArc_Compiler
             }
         }
 
-        public Register(int size, int val = 0)
+        private IRegistersObserver observer;
+
+        /// <summary> 
+        /// Observer that follows every change of value of the register. 
+        /// </summary>
+        public IRegistersObserver Observer
+        {
+            get
+            {
+                return observer;
+            }
+            set
+            {
+                observer = value;
+            }
+        }
+
+        public Register(int size, IRegistersObserver observer, int val = 0)
         {
             this.val = val;
             this.size = size;
             this.group = null;
+            this.observer = observer;
             parts = new LinkedList<Register>();
             names = new LinkedList<string>();
         }

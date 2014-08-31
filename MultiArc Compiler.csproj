@@ -37,6 +37,7 @@
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Messaging" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -63,8 +64,10 @@
       <DependentUpon>FinishArcForm.cs</DependentUpon>
     </Compile>
     <Compile Include="ILiteral.cs" />
+    <Compile Include="IMemoryObserver.cs" />
     <Compile Include="Instruction.cs" />
     <Compile Include="InstructionRegister.cs" />
+    <Compile Include="IRegistersObserver.cs" />
     <Compile Include="LengthsForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -126,6 +129,12 @@
     <Compile Include="RegistersForm.Designer.cs">
       <DependentUpon>RegistersForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="SaveOldFileForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SaveOldFileForm.Designer.cs">
+      <DependentUpon>SaveOldFileForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Settings.cs" />
     <Compile Include="Symbol.cs" />
     <Compile Include="Variables.cs" />
@@ -153,6 +162,9 @@
     </Compile>
     <EmbeddedResource Include="RegistersForm.resx">
       <DependentUpon>RegistersForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SaveOldFileForm.resx">
+      <DependentUpon>SaveOldFileForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="ClassDiagram1.cd" />
     <None Include="Properties\Settings.settings">

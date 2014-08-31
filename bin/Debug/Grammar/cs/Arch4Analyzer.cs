@@ -117,6 +117,9 @@ namespace MultiArc_Compiler {
             case (int) Arch4Constants.COMMA:
                 EnterComma((Token) node);
                 break;
+            case (int) Arch4Constants.ORG:
+                EnterOrg((Token) node);
+                break;
             case (int) Arch4Constants.SIGN:
                 EnterSign((Token) node);
                 break;
@@ -137,9 +140,6 @@ namespace MultiArc_Compiler {
                 break;
             case (int) Arch4Constants.ENTER:
                 EnterEnter((Token) node);
-                break;
-            case (int) Arch4Constants.ORG:
-                EnterOrg((Token) node);
                 break;
             case (int) Arch4Constants.PROGRAM:
                 EnterProgram((Production) node);
@@ -264,6 +264,8 @@ namespace MultiArc_Compiler {
                 return ExitColon((Token) node);
             case (int) Arch4Constants.COMMA:
                 return ExitComma((Token) node);
+            case (int) Arch4Constants.ORG:
+                return ExitOrg((Token) node);
             case (int) Arch4Constants.SIGN:
                 return ExitSign((Token) node);
             case (int) Arch4Constants.DEC_NUMBER:
@@ -278,8 +280,6 @@ namespace MultiArc_Compiler {
                 return ExitIdentifier((Token) node);
             case (int) Arch4Constants.ENTER:
                 return ExitEnter((Token) node);
-            case (int) Arch4Constants.ORG:
-                return ExitOrg((Token) node);
             case (int) Arch4Constants.PROGRAM:
                 return ExitProgram((Production) node);
             case (int) Arch4Constants.SEPARATOR:
@@ -1188,6 +1188,32 @@ namespace MultiArc_Compiler {
          * <exception cref='ParseException'>if the node analysis
          * discovered errors</exception>
          */
+        public virtual void EnterOrg(Token node) {
+        }
+
+        /**
+         * <summary>Called when exiting a parse tree node.</summary>
+         *
+         * <param name='node'>the node being exited</param>
+         *
+         * <returns>the node to add to the parse tree, or
+         *          null if no parse tree should be created</returns>
+         *
+         * <exception cref='ParseException'>if the node analysis
+         * discovered errors</exception>
+         */
+        public virtual Node ExitOrg(Token node) {
+            return node;
+        }
+
+        /**
+         * <summary>Called when entering a parse tree node.</summary>
+         *
+         * <param name='node'>the node being entered</param>
+         *
+         * <exception cref='ParseException'>if the node analysis
+         * discovered errors</exception>
+         */
         public virtual void EnterSign(Token node) {
         }
 
@@ -1359,32 +1385,6 @@ namespace MultiArc_Compiler {
          * discovered errors</exception>
          */
         public virtual Node ExitEnter(Token node) {
-            return node;
-        }
-
-        /**
-         * <summary>Called when entering a parse tree node.</summary>
-         *
-         * <param name='node'>the node being entered</param>
-         *
-         * <exception cref='ParseException'>if the node analysis
-         * discovered errors</exception>
-         */
-        public virtual void EnterOrg(Token node) {
-        }
-
-        /**
-         * <summary>Called when exiting a parse tree node.</summary>
-         *
-         * <param name='node'>the node being exited</param>
-         *
-         * <returns>the node to add to the parse tree, or
-         *          null if no parse tree should be created</returns>
-         *
-         * <exception cref='ParseException'>if the node analysis
-         * discovered errors</exception>
-         */
-        public virtual Node ExitOrg(Token node) {
             return node;
         }
 

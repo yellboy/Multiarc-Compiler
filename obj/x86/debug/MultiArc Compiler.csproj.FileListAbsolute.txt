@@ -33,4 +33,4 @@ C:\Boki diplomski\MultiArc Compiler\MultiArc Compiler\obj\x86\Debug\MultiArc_Com
 C:\Boki diplomski\MultiArc Compiler\MultiArc Compiler\obj\x86\Debug\MultiArc_Compiler.RegistersForm.resources
 C:\Boki diplomski\MultiArc Compiler\MultiArc Compiler\obj\x86\Debug\MultiArc Compiler.csproj.GenerateResource.Cache
 D:\Bojan\MultiArc Compiler\MultiArc Compiler\bin\Debug\testApp.exe
-D:\Bojan\MultiArc Compiler\MultiArc Compiler\obj\x86\Debug\MultiArc Compiler.csprojResolveAssemblyReference.cache
+D:\Bojan\MultiArc Compiler\MultiArc Compiler\obj\x86\Debug\MultiArc_Compiler.SaveOldFileForm.resources

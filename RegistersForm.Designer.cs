@@ -17,7 +17,8 @@
             {
                 components.Dispose();
             }
-            base.Dispose(disposing);
+            //base.Dispose(disposing);
+            this.Visible = false;
         }
 
         #region Windows Form Designer generated code
@@ -47,6 +48,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(227, 56);
             this.Controls.Add(this.updateButton);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Name = "RegistersForm";
             this.Text = "RegistersForm";
             this.ResumeLayout(false);

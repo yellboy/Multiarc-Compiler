@@ -9,7 +9,7 @@ using System.Windows.Forms;
 
 namespace MultiArc_Compiler
 {
-    public partial class RegistersForm : Form
+    public partial class RegistersForm : Form, IRegistersObserver
     {
 
         private Label[] registersNames;
@@ -22,6 +22,10 @@ namespace MultiArc_Compiler
         {
             InitializeComponent();
             this.constants = constants;
+            for (int i = 0; i < constants.NUM_OF_REGISTERS; i++)
+            {
+                constants.GetRegister(i).Observer = this;
+            }
             registersNames = new Label[this.constants.NUM_OF_REGISTERS];
             registersValues = new TextBox[this.constants.NUM_OF_REGISTERS];
             this.Height = 31 * (this.constants.NUM_OF_REGISTERS >= 10 ? 10 : this.constants.NUM_OF_REGISTERS);
@@ -56,7 +60,10 @@ namespace MultiArc_Compiler
             updateButton.Location = new System.Drawing.Point(xText, yText);
             updateButton.Size = new Size(52, 20);
             this.Height += updateButton.Height;
-            this.Visible = true;
+            for (int i = 0; i < registersValues.Length; i++)
+            {
+                registersValues[i].Click += new EventHandler(RegisterValueClick);
+            }
         }
 
         private void updateButton_Click(object sender, EventArgs e)
@@ -65,7 +72,27 @@ namespace MultiArc_Compiler
             {
                 constants.GetRegister(registersNames[i].Text).Val = Convert.ToInt32(registersValues[i].Text);
             }
+        }
+    
+        void  IRegistersObserver.RegisterChanged(string name, int newValue)
+        {
+            for (int i = 0; i < constants.NUM_OF_REGISTERS; i++)
+            {
+                if (constants.GetRegister(i).Names.Contains(name))
+                {
+                    registersValues[i].Text = constants.GetRegister(i).Val.ToString();
+                    registersValues[i].BackColor = Color.Yellow;
+                }
+                else if (name != "pc" && name != "PC")
+                {
+                    registersValues[i].BackColor = Color.White;
+                }
+            }
+        }
 
+        public void RegisterValueClick(object sender, EventArgs e)
+        {
+            ((TextBox)sender).BackColor = Color.White;
         }
     }
 }
