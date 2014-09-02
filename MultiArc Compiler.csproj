@@ -57,12 +57,6 @@
     <Compile Include="Assembler.cs" />
     <Compile Include="Data.cs" />
     <Compile Include="Executor.cs" />
-    <Compile Include="FinishArcForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="FinishArcForm.Designer.cs">
-      <DependentUpon>FinishArcForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="ILiteral.cs" />
     <Compile Include="IMemoryObserver.cs" />
     <Compile Include="Instruction.cs" />
@@ -138,9 +132,6 @@
     <Compile Include="Settings.cs" />
     <Compile Include="Symbol.cs" />
     <Compile Include="Variables.cs" />
-    <EmbeddedResource Include="FinishArcForm.resx">
-      <DependentUpon>FinishArcForm.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>

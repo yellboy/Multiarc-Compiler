@@ -37,7 +37,7 @@
             this.CodeBox = new System.Windows.Forms.RichTextBox();
             this.BinaryCodeBox = new System.Windows.Forms.RichTextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
+            this.BinaryCodeLabel = new System.Windows.Forms.Label();
             this.LoadFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.SaveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.FileNameLabel = new System.Windows.Forms.Label();
@@ -84,6 +84,7 @@
             this.DebugTip = new System.Windows.Forms.ToolTip(this.components);
             this.NewProjectDialog = new System.Windows.Forms.SaveFileDialog();
             this.OpenProjectDialog = new System.Windows.Forms.OpenFileDialog();
+            this.stopDebuggingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.lineNumbers_For_RichTextBox1 = new LineNumbers.LineNumbers_For_RichTextBox();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -91,10 +92,11 @@
             // CodeBox
             // 
             this.CodeBox.AcceptsTab = true;
+            this.CodeBox.AutoWordSelection = true;
             this.CodeBox.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.CodeBox.Location = new System.Drawing.Point(29, 78);
             this.CodeBox.Name = "CodeBox";
-            this.CodeBox.Size = new System.Drawing.Size(413, 310);
+            this.CodeBox.Size = new System.Drawing.Size(386, 310);
             this.CodeBox.TabIndex = 1;
             this.CodeBox.TabStop = false;
             this.CodeBox.Text = "   ";
@@ -105,10 +107,10 @@
             this.BinaryCodeBox.AcceptsTab = true;
             this.BinaryCodeBox.BackColor = System.Drawing.SystemColors.Window;
             this.BinaryCodeBox.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.BinaryCodeBox.Location = new System.Drawing.Point(458, 78);
+            this.BinaryCodeBox.Location = new System.Drawing.Point(431, 78);
             this.BinaryCodeBox.Name = "BinaryCodeBox";
             this.BinaryCodeBox.ReadOnly = true;
-            this.BinaryCodeBox.Size = new System.Drawing.Size(358, 310);
+            this.BinaryCodeBox.Size = new System.Drawing.Size(385, 310);
             this.BinaryCodeBox.TabIndex = 2;
             this.BinaryCodeBox.TabStop = false;
             this.BinaryCodeBox.Text = "";
@@ -122,14 +124,14 @@
             this.label1.TabIndex = 3;
             this.label1.Text = "Code";
             // 
-            // label2
+            // BinaryCodeLabel
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(455, 62);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(64, 13);
-            this.label2.TabIndex = 4;
-            this.label2.Text = "Binary Code";
+            this.BinaryCodeLabel.AutoSize = true;
+            this.BinaryCodeLabel.Location = new System.Drawing.Point(428, 62);
+            this.BinaryCodeLabel.Name = "BinaryCodeLabel";
+            this.BinaryCodeLabel.Size = new System.Drawing.Size(64, 13);
+            this.BinaryCodeLabel.TabIndex = 4;
+            this.BinaryCodeLabel.Text = "Binary Code";
             // 
             // LoadFileDialog
             // 
@@ -324,7 +326,8 @@
             this.assembleToolStripMenuItem,
             this.executeToolStripMenuItem,
             this.executeWithoutDebugToolStripMenuItem,
-            this.nextStepToolStripMenuItem});
+            this.nextStepToolStripMenuItem,
+            this.stopDebuggingToolStripMenuItem});
             this.debugToolStripMenuItem.Name = "debugToolStripMenuItem";
             this.debugToolStripMenuItem.Size = new System.Drawing.Size(54, 20);
             this.debugToolStripMenuItem.Text = "Debug";
@@ -380,7 +383,7 @@
             // outputLabel
             // 
             this.outputLabel.AutoSize = true;
-            this.outputLabel.Location = new System.Drawing.Point(12, 408);
+            this.outputLabel.Location = new System.Drawing.Point(9, 408);
             this.outputLabel.Name = "outputLabel";
             this.outputLabel.Size = new System.Drawing.Size(39, 13);
             this.outputLabel.TabIndex = 25;
@@ -485,6 +488,14 @@
             this.OpenProjectDialog.Filter = "prj files|*.prj|all files|*.*";
             this.OpenProjectDialog.FileOk += new System.ComponentModel.CancelEventHandler(this.OpenProjectDialog_FileOk);
             // 
+            // stopDebuggingToolStripMenuItem
+            // 
+            this.stopDebuggingToolStripMenuItem.Name = "stopDebuggingToolStripMenuItem";
+            this.stopDebuggingToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Shift | System.Windows.Forms.Keys.F5)));
+            this.stopDebuggingToolStripMenuItem.Size = new System.Drawing.Size(265, 22);
+            this.stopDebuggingToolStripMenuItem.Text = "Stop debugging";
+            this.stopDebuggingToolStripMenuItem.Click += new System.EventHandler(this.stopDebuggingToolStripMenuItem_Click);
+            // 
             // lineNumbers_For_RichTextBox1
             // 
             this.lineNumbers_For_RichTextBox1._SeeThroughMode_ = false;
@@ -540,7 +551,7 @@
             this.Controls.Add(this.OutputBox);
             this.Controls.Add(this.BinFileNameLabel);
             this.Controls.Add(this.FileNameLabel);
-            this.Controls.Add(this.label2);
+            this.Controls.Add(this.BinaryCodeLabel);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.BinaryCodeBox);
             this.Controls.Add(this.CodeBox);
@@ -548,6 +559,7 @@
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "Form1";
             this.Text = "MultiArc Compiler";
+            this.Resize += new System.EventHandler(this.Form1_Resize);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
@@ -560,7 +572,7 @@
         private System.Windows.Forms.RichTextBox CodeBox;
         private System.Windows.Forms.RichTextBox BinaryCodeBox;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label BinaryCodeLabel;
         private System.Windows.Forms.OpenFileDialog LoadFileDialog;
         private System.Windows.Forms.SaveFileDialog SaveFileDialog;
         private System.Windows.Forms.Label FileNameLabel;
@@ -608,6 +620,7 @@
         private System.Windows.Forms.ToolTip DebugTip;
         private System.Windows.Forms.SaveFileDialog NewProjectDialog;
         private System.Windows.Forms.OpenFileDialog OpenProjectDialog;
+        private System.Windows.Forms.ToolStripMenuItem stopDebuggingToolStripMenuItem;
 
     }
 }

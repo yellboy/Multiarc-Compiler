@@ -223,7 +223,7 @@ namespace MultiArc_Compiler
             }
             if (arguments.Count == 0)
             {
-                retVal += ";";
+                retVal += " ;";
             }
             return retVal;
         }

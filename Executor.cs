@@ -278,10 +278,11 @@ namespace MultiArc_Compiler
                     constants.GetRegister("pc").Val = pc;
                 }
                 breakSem.Release();
-                writeToOutput("Code executed successfully.");;
+                writeToOutput(" Code executed successfully.");;
             }
             catch (Exception ex)
             {
+                writeToOutput(DateTime.Now + " Execution error: " + ex.Message + "\n");
                 File.AppendAllText("error.txt", ex.ToString());
             }
         }
@@ -306,11 +307,11 @@ namespace MultiArc_Compiler
             if (output.InvokeRequired)
             {
                 SetTextCallback d = new SetTextCallback(writeToOutput);
-                Form1.Instance.Invoke(d, new object[] { text });
+                Form1.Instance.BeginInvoke(d, new object[] { text });
             }
             else
             {
-                output.Text += DateTime.Now.ToString() + " Code executed successfully.\n";
+                output.Text += DateTime.Now.ToString() + text;
                 output.ScrollToCaret();
             }
         }

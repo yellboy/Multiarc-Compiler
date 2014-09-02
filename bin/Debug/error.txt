@@ -1,0 +1,13 @@
+System.Threading.ThreadAbortException: Thread was being aborted.
+   at System.Threading.WaitHandle.WaitOneNative(SafeHandle waitableSafeHandle, UInt32 millisecondsTimeout, Boolean hasThreadAffinity, Boolean exitContext)
+   at System.Threading.WaitHandle.InternalWaitOne(SafeHandle waitableSafeHandle, Int64 millisecondsTimeout, Boolean hasThreadAffinity, Boolean exitContext)
+   at System.Threading.WaitHandle.WaitOne(Int32 millisecondsTimeout, Boolean exitContext)
+   at System.Threading.WaitHandle.WaitOne()
+   at MultiArc_Compiler.Executor.executeStepByStep() in D:\Bojan\MultiArc Compiler\MultiArc Compiler\Executor.cs:line 230System.Threading.ThreadAbortException: Thread was being aborted.
+   at System.Threading.WaitHandle.WaitOneNative(SafeHandle waitableSafeHandle, UInt32 millisecondsTimeout, Boolean hasThreadAffinity, Boolean exitContext)
+   at System.Threading.WaitHandle.InternalWaitOne(SafeHandle waitableSafeHandle, Int64 millisecondsTimeout, Boolean hasThreadAffinity, Boolean exitContext)
+   at System.Threading.WaitHandle.WaitOne(Int32 millisecondsTimeout, Boolean exitContext)
+   at System.Threading.WaitHandle.WaitOne()
+   at MultiArc_Compiler.Executor.executeStepByStep() in D:\Bojan\MultiArc Compiler\MultiArc Compiler\Executor.cs:line 230System.IndexOutOfRangeException: Index was outside the bounds of the array.
+   at MultiArc_Compiler.ArchConstants.MatchInstruction(Byte[] binary) in D:\Bojan\MultiArc Compiler\MultiArc Compiler\ArchConstants.cs:line 949
+   at MultiArc_Compiler.Executor.executeStepByStep() in D:\Bojan\MultiArc Compiler\MultiArc Compiler\Executor.cs:line 232

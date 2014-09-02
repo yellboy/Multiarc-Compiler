@@ -274,6 +274,19 @@ namespace MultiArc_Compiler
             }
         }
 
+        private Dictionary<string, string> tokens;
+
+        /// <summary>
+        /// Map of pairs of user defined tokens and its names.
+        /// </summary>
+        public Dictionary<string, string> Tokens
+        {
+            get
+            {
+                return tokens;
+            }
+        }
+
         /// <summary>
         /// Adds new instruction to instruction set, if it is not already in the set.
         /// </summary>
@@ -575,6 +588,7 @@ namespace MultiArc_Compiler
             dataTypes = new LinkedList<Data>();
             registers = new LinkedList<Register>();
             mnemonics = new LinkedList<string>();
+            tokens = new Dictionary<string, string>();
         }
 
         public object Clone()
@@ -961,7 +975,29 @@ namespace MultiArc_Compiler
         /// </returns>
         public ushort InstructionSize(byte opCode, byte addrMode)
         {
-                        return (ushort)maxBytes;
+            return (ushort)maxBytes;
+        }
+
+        /// <summary>
+        /// Adds new token to tokens map.
+        /// </summary>
+        /// <param name="name">
+        /// Name of the token.
+        /// </param>
+        /// <param name="value">
+        /// Value of the token.
+        /// </param>
+        public void AddToken(string name, string value)
+        {
+            tokens.Add(name, value);
+        }
+
+        /// <summary>
+        /// Clears all user defined tokens.
+        /// </summary>
+        public void ClearTokens()
+        {
+            tokens.Clear();
         }
     }
 }

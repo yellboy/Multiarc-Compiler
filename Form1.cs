@@ -95,24 +95,24 @@ namespace MultiArc_Compiler
             {
                 BinaryCodeBox.Text = "";
                 separators = asm.Separators;
-                //BinaryCodeBox.Text = "00: ";
-                //BinaryCodeBox.Select(0, 3);
-                //BinaryCodeBox.SelectionBackColor = Color.LightGray;
-                //BinaryCodeBox.DeselectAll();
+                long maxB = binary.Length / Program.Mem.AuSize + entryPoint;
+                int count = 0;
+                while (maxB != 0)
+                {
+                    count++;
+                    maxB /= 10;
+                }
+                BinaryCodeBox.Text = String.Format("{0:D" + count + "}", entryPoint) + ":\t";
                 for (int i = 0; i < asm.Count; i++)
                 {
                     if (separators.Contains(i) && i != 0)
                     {
-                        //BinaryCodeBox.Text += "\n" + i.ToString().PadLeft(2, '0') + ": ";
-                        BinaryCodeBox.Text += "\n";
+                        BinaryCodeBox.Text += "\n" + String.Format("{0:D" + count + "}", (i / Program.Mem.AuSize + entryPoint)) + ":\t";
                     }
                     string toAdd = BitConverter.ToString(binary, i, 1);
-                    //int start = BinaryCodeBox.Text.Length;
                     BinaryCodeBox.Text += toAdd; // Convert byte to hex string and write it to binary code box.
-                    //BinaryCodeBox.Select(start, toAdd.Length);
-                    //BinaryCodeBox.SelectionBackColor = Color.White;
-                    //BinaryCodeBox.DeselectAll();
-                }
+                } 
+                BinaryCodeBox.Text += "\n" + String.Format("{0:D" + count + "}", (asm.Count / Program.Mem.AuSize + entryPoint)) + ":\t";
                 compiled = true;
             }
         }
@@ -278,52 +278,6 @@ namespace MultiArc_Compiler
             constants = savedConstants;
         }
 
-        private void createNewToolStripMenuItem1_Click(object sender, EventArgs e)
-        {
-            this.Enabled = false;
-            new LengthsForm();
-            SaveArchitecture();
-        }
-
-        // THIS METHOD MUST BE REWRITEN
-        public void WriteArchitectureToFile(string fileName)
-        {
-            //Program.Mem = new Memory(constants.MEM_SIZE, constants.ADDR_UNIT_SIZE);
-            StringBuilder content = new StringBuilder();
-            content.Append(constants.WORD_LENGTH);
-            content.Append("\n");
-            content.Append(constants.PC_LENGTH);
-            content.Append("\n");
-            content.Append(constants.NUM_OF_REGISTERS);
-            content.Append("\n");
-            content.Append(constants.MEM_SIZE);
-            content.Append("\n");
-            content.Append(constants.ADDR_UNIT_SIZE);
-            content.Append("\n");
-            content.Append(constants.MAX_BYTES);
-            content.Append("\n");
-            content.Append("AddrModes:\n");
-            for (int i = 0; i < constants.AllAddressingModes.Count; i++)
-            {
-                AddressingMode am = constants.AllAddressingModes.ElementAt(i);
-                //content.Append(am.Name + " " + am.Size + " " + am.Code + "\n");
-            }
-            content.Append("InstructionSet:\n");
-            for (int i = 0; i < constants.InstructionSet.Count; i++)
-            {
-                Instruction inst = constants.InstructionSet.ElementAt(i);
-                content.Append(inst.Name + " " + inst.OpCode + "\n");
-                content.Append("AM: ");
-              //  for (int j = 0; j < inst.AddressingModes.Count; j++)
-               // {
-                //    content.Append(inst.AddressingModes.ElementAt(j).Name + " ");
-               // }
-                content.Append("\n");
-            }
-            content.Append("END");
-            File.WriteAllText(fileName, content.ToString());
-        }
-
         private void LoadArcToolStripMenuItem_Click(object sender, EventArgs e)
         {
             LoadArchitectureDialog.ShowDialog();
@@ -351,6 +305,7 @@ namespace MultiArc_Compiler
                 constants.RemoveAllDataTypes();
                 constants.RemoveAllMnemonics();
                 constants.RemoveAllRegisters();
+                constants.ClearTokens();
                 XmlReader xmlReader = XmlReader.Create(new StringReader(content));
                 XmlDocument doc = new XmlDocument();
                 XmlNode head = doc.ReadNode(xmlReader);
@@ -369,7 +324,15 @@ namespace MultiArc_Compiler
                             foreach (XmlNode name in node.ChildNodes)
                                 if (name.Name.Equals("name"))
                                     constants.AddMnemonic(name.InnerText);
-                            prepareGrammarFile();
+                            break;
+                        case "user_tokens":
+                            foreach (XmlNode token in node.ChildNodes)
+                            {
+                                if (!token.Name.Equals("#whitespace"))
+                                {
+                                    constants.AddToken(token.Name, token.InnerText);
+                                }
+                            }
                             break;
                         case "memory":
                             int memoryErrorCount = 0;
@@ -805,7 +768,6 @@ namespace MultiArc_Compiler
                                         if (amErrorCount == 0)
                                         {
                                             constants.AddAddressingMode(am);
-                                            appendAMToGrammarFile(am);
                                         }
                                         if (amErrorCount == 0)
                                         {
@@ -1132,7 +1094,6 @@ public static void getOperand_" + am.Name + @"(string image, int currentLocation
                                             instErrorCount++;
                                         }
                                         constants.AddInstruction(i);
-                                        apendInstructionToGrammarFile(i);
                                         if (instErrorCount == 0)
                                         {
                                             string contents =
@@ -1197,6 +1158,15 @@ public static void execute_" + i.Mnemonic.ToLower() + @"(InstructionRegister ir,
             }
             if (errorCount == 0)
             {
+                prepareGrammarFile();
+                foreach (AddressingMode am in constants.AllAddressingModes)
+                {
+                    appendAMToGrammarFile(am);
+                }
+                foreach (Instruction inst in constants.InstructionSet)
+                {
+                    apendInstructionToGrammarFile(inst);
+                }
                 addAllInstructionsToGrammarFile();
                 try
                 {
@@ -1331,6 +1301,7 @@ public static void execute_" + i.Mnemonic.ToLower() + @"(InstructionRegister ir,
             {
                 if (ex == null || ex.Executing == false)
                 {
+                    stopDebuggingToolStripMenuItem.Enabled = true;
                     ex = new Executor(constants, binary, separators, breakPoints, OutputBox, entryPoint);
                     assembleToolStripMenuItem.Enabled = false;
                     ex.Debug();
@@ -1343,6 +1314,7 @@ public static void execute_" + i.Mnemonic.ToLower() + @"(InstructionRegister ir,
                     {
                         deselectAllLines();
                         assembleToolStripMenuItem.Enabled = true;
+                        stopDebuggingToolStripMenuItem.Enabled = false;
                     }
                 }
                 else
@@ -1435,7 +1407,10 @@ CASESENSITIVE = ""false""
 
 ";
 
-
+                for (int i = 0; i < constants.Tokens.Count; i++)
+                {
+                    content += constants.Tokens.ElementAt(i).Key + " = " + '"' + constants.Tokens.ElementAt(i).Value + '"' + '\n'; 
+                }
                 for (int i = 0; i < constants.Mnemonics.Count; i++)
                 {
                     string token = constants.GetMnemonic(i);
@@ -1523,17 +1498,17 @@ Line = [IDENTIFIER "":""] Instruction Separator ;
         {
             try
             {
-                string toAppend = "Instruction = ";
+                string toAppend = "Instruction = ( ";
                 for (int i = 0; i < constants.InstructionSet.Count; i++)
                 {
                     toAppend += constants.InstructionSet.ElementAt(i).Name;
                     if (i == constants.InstructionSet.Count - 1)
                     {
-                        toAppend += " ;";
+                        toAppend += " ) ;";
                     }
                     else
                     {
-                        toAppend += " | ";
+                        toAppend += " ) | ( ";
                     }
                 }
                 File.AppendAllText(constants.Name + ".grammar", toAppend);
@@ -1572,6 +1547,7 @@ Line = [IDENTIFIER "":""] Instruction Separator ;
                     deselectAllLines();
                     selectLine(ex.Next);
                     assembleToolStripMenuItem.Enabled = false;
+                    stopDebuggingToolStripMenuItem.Enabled = true;
                 }
                 else
                 {
@@ -1586,6 +1562,7 @@ Line = [IDENTIFIER "":""] Instruction Separator ;
                     {
                         deselectAllLines();
                         assembleToolStripMenuItem.Enabled = true;
+                        stopDebuggingToolStripMenuItem.Enabled = false;
                     }
                 }
             }
@@ -1814,8 +1791,10 @@ Line = [IDENTIFIER "":""] Instruction Separator ;
             {
                 if (ex == null || ex.Executing == false)
                 {
+                    stopDebuggingToolStripMenuItem.Enabled = true;
                     ex = new Executor(constants, binary, separators, breakPoints, OutputBox, entryPoint);
                     ex.Execute();
+                    stopDebuggingToolStripMenuItem.Enabled = false;
                 }
             }
         }
@@ -1982,6 +1961,26 @@ Name: " + projectName + @"
             {
                 File.AppendAllText("error.txt", ex.ToString());
             }
+        }
+
+        private void Form1_Resize(object sender, EventArgs e)
+        {
+            CodeBox.Size = new Size((int)(Math.Round((this.Size.Width - 16 - 2 * 29) / 1.9974)), (int)(Math.Round((this.Size.Height - 78 - 36 - 25) / 1.4581)));
+            BinaryCodeBox.Size = new Size((int)(Math.Round((this.Size.Width - 16 - 2 * 29) / 2.0026)), (int)(Math.Round((this.Size.Height - 78 - 36 - 25) / 1.4581)));
+            BinaryCodeBox.Location = new Point(CodeBox.Location.X + CodeBox.Size.Width + 16, CodeBox.Location.Y);
+            BinaryCodeLabel.Location = new Point(BinaryCodeBox.Location.X - 3, BinaryCodeLabel.Location.Y);
+            OutputBox.Size = new Size((int)(this.Size.Width - 29 - 9), (int)(Math.Round((this.Size.Height - 78 - 36 - 25) / 3.8305)));
+            OutputBox.Location = new Point(9, CodeBox.Location.Y + CodeBox.Size.Height + 36);
+            outputLabel.Location = new Point(9, OutputBox.Location.Y - 16);
+            clearOutputButton.Location = new Point(9 + OutputBox.Size.Width - 45, OutputBox.Location.Y - 22);
+        }
+
+        private void stopDebuggingToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ex.Abort();
+            deselectAllLines();
+            stopDebuggingToolStripMenuItem.Enabled = false;
+            OutputBox.AppendText(DateTime.Now + " Code stopped. \n");
         }
     }
 }
