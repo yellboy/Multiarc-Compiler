@@ -16,11 +16,12 @@ namespace MultiArc_Compiler
     /// </summary>
     public class Argument
     {
+
+        private string type;
+
         /// <summary>
         /// Type of the argument.
         /// </summary>
-        private string type;
-
         public string Type
         {
             get
@@ -33,11 +34,11 @@ namespace MultiArc_Compiler
             }
         }
 
+        private LinkedList<AddressingMode> addressingModes;
+
         /// <summary>
         /// List of all addressing modes possible for this argument.
         /// </summary>
-        private LinkedList<AddressingMode> addressingModes;
-
         public LinkedList<AddressingMode> AddressingModes
         {
             get
@@ -90,11 +91,11 @@ namespace MultiArc_Compiler
             this.operandEnds.Add(am.Name, operandEnds);
         }
 
+        private Dictionary<string, int> codeStarts;
+
         /// <summary>
         /// Dictionary containing pairs of addressing mode names and start bits of the opcode for that addressing mode.
         /// </summary>
-        private Dictionary<string, int> codeStarts;
-
         public Dictionary<string, int> CodeStarts
         {
             get
@@ -103,11 +104,11 @@ namespace MultiArc_Compiler
             }
         }
 
+        private Dictionary<string, int> codeEnds;
+
         /// <summary>
         /// Dictionary containing pairs of addressing mode names and end bits of the opcode for that addressing mode.
         /// </summary>
-        private Dictionary<string, int> codeEnds;
-
         public Dictionary<string, int> CodeEnds
         {
             get
@@ -116,11 +117,11 @@ namespace MultiArc_Compiler
             }
         }   
 
+        private Dictionary<string, int> operandStarts;
+
         /// <summary>
         /// Dictionary containing pairs of addressing mode names and start bits of the operand for that addressing mode.
         /// </summary>
-        private Dictionary<string, int> operandStarts;
-
         public Dictionary<string, int> OperandStarts
         {
             get
@@ -129,16 +130,24 @@ namespace MultiArc_Compiler
             }
         }
 
+        private Dictionary<string, int> operandEnds;
+
         /// <summary>
         /// Dictionary containing pairs of addressing mode names and end bits of the operand for that addressing mode.
         /// </summary>
-        private Dictionary<string, int> operandEnds;
+        public Dictionary<string, int> OperandEnds
+        {
+            get
+            {
+                return operandEnds;
+            }
+        }
+
+        private AddressingMode selectedAddressingMode;
 
         /// <summary>
         /// Addressing mode selected with binary code.
         /// </summary>
-        private AddressingMode selectedAddressingMode;
-
         public AddressingMode SelectedAddressingMode
         {
             get
@@ -151,13 +160,6 @@ namespace MultiArc_Compiler
             }
         }
 
-        public Dictionary<string, int> OperandEnds
-        {
-            get
-            {
-                return operandEnds;
-            }
-        }
 
         /// <summary>
         /// Constructor.

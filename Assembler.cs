@@ -85,8 +85,6 @@ namespace MultiArc_Compiler
         /// </summary>
         private LinkedList<Symbol> symbolTable;
 
-        private LinkedList<ILiteral> literalTable;
-
         private LinkedList<Node> instructions = new LinkedList<Node>();
 
         private Dictionary<Node, string> labels = new Dictionary<Node, string>();
@@ -173,7 +171,6 @@ namespace MultiArc_Compiler
             this.code = File.ReadAllText(codePath);
             this.output = output;
             symbolTable = new LinkedList<Symbol>(); // Creates empty symbol table.
-            literalTable = new LinkedList<ILiteral>(); // Creates empty literal table.
             separators = new LinkedList<int>();
         }
 
@@ -197,7 +194,6 @@ namespace MultiArc_Compiler
             this.codePath = "NO PATH";
             this.output = output;
             symbolTable = new LinkedList<Symbol>(); // Creates emtpy symbol table.
-            literalTable = new LinkedList<ILiteral>();
             separators = new LinkedList<int>();
         }
 
@@ -840,95 +836,6 @@ namespace MultiArc_Compiler
             return null;
         }
 
-        /// <summary>
-        /// Checks if current instruction is jump instruction. OBSOLETE
-        /// </summary>
-        /// <param name="opCode">
-        /// Operation code of current instruction.
-        /// </param>
-        /// <returns>
-        /// True if current instruction is jump instruction or false if it is not.
-        /// </returns>
-        private bool IsJumpInstruction(byte opCode)
-        {
-            string[] names = { "jmp", "jgr", "jls", "jle", "jge", "jeq" };
-            for (int i = 0; i < names.Length; i++)
-            {
-                Instruction inst = constants.GetInstruction(names[i]);
-                if (inst != null && inst.OpCode == opCode)
-                    return true;
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Adds given literal to literals table, if it is not already there. OBSOLETE
-        /// </summary>
-        /// <param name="literal">
-        /// Literal to be added.
-        /// </param>
-        /// <param name="val">
-        /// Value of literal to be added.
-        /// </param>
-        /// <typeparam name="T">
-        /// Type of literal to be added.
-        /// </typeparam>
-        private void AddToLiteralsTable<T>(string literal, T val)
-        {
-            bool contains = false;
-            if (literalTable.Count == 0)
-            {
-                literalTable.AddLast(new Literal<T>(literal, val));
-            }
-            foreach (Literal<T> l in literalTable)
-            {
-                if (l.Name.Equals(literal))
-                {
-                    if (l.Value.GetType() == val.GetType())
-                    {
-                        contains = true;
-                        l.Value = val;
-                    }
-                    else
-                    {
-                        literalTable.Remove(l);
-                    }
-                }
-            }
-            if (!contains)
-            {
-                literalTable.AddLast(new Literal<T>(literal, val));
-            }
-        }
-
-        private ILiteral GetFromLiteralTable(string name)
-        {
-            foreach (ILiteral l in literalTable)
-            {
-                if (l.GetName().ToLower().Equals(name.ToLower()))
-                    return l;
-            }
-            return null;
-        }
-
-        /// <summary>
-        /// Checks if literal is in literal table. OBSOLETE
-        /// </summary>
-        /// <param name="name">
-        /// Name of the literal.
-        /// </param>
-        /// <returns>
-        /// True if it is in the literal talbe and false if it is not.
-        /// </returns>
-        private bool InLiteralTable(string name)
-        {
-            foreach (ILiteral l in literalTable)
-            {
-                if (l.GetName().ToLower().Equals(name.ToLower()))
-                    return true;
-            }
-            return false;
-        }
 
         /// <summary>
         /// Detects all the instruction nodes in parse tree and puts them into the instructions list.

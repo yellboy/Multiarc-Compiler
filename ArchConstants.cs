@@ -95,40 +95,6 @@ namespace MultiArc_Compiler
         }
 
         /// <summary>
-        /// Length of PC in bytes.
-        /// </summary>
-        private int pcLength = 2;
-
-        public int PC_LENGTH
-        {
-            get
-            {
-                return pcLength;
-            }
-            set
-            {
-                pcLength = value;
-            }
-        }
-
-        /// <summary>
-        /// Length of word in bytes.
-        /// </summary>
-        private int wordLength = 2;
-
-        public int WORD_LENGTH
-        {
-            get
-            {
-                return wordLength;
-            }
-            set
-            {
-                wordLength = value;
-            }
-        }
-
-        /// <summary>
         /// Number of cpu registers.
         /// </summary>
         private int numOfRegisters = 0;
@@ -142,105 +108,6 @@ namespace MultiArc_Compiler
             set
             {
                 numOfRegisters = value;
-            }
-        }
-
-        /// <summary>
-        /// Number of bytes in memory.
-        /// </summary>
-        private int memorySize = 4096;
-
-        public int MEM_SIZE
-        {
-            get
-            {
-                return memorySize;
-            }
-            set
-            {
-                memorySize = value;
-            }
-        }
-
-        /// <summary>
-        /// Starting address of ROM memory.
-        /// </summary>
-        private int romStart = 0;
-
-        public int ROM_START
-        {
-            get
-            {
-                return romStart;
-            }
-            set
-            {
-                romStart = value;
-            }
-        }
-
-        /// <summary>
-        /// Ending address of ROM memory. 
-        /// </summary>
-        private int romEnd = 2047;
-
-        public int ROM_END
-        {
-            get
-            {
-                return romEnd;
-            }
-            set
-            {
-                romEnd = value;
-            }
-        }
-
-        /// <summary>
-        /// Starting address of RAM memory.
-        /// </summary>
-        private int ramStart = 2048;
-
-        public int RAM_START
-        {
-            get
-            {
-                return ramStart;
-            }
-            set
-            {
-                ramStart = value;
-            }
-        }
-
-        private int ramEnd = 4096;
-
-        public int RAM_END
-        {
-            get
-            {
-                return ramEnd;
-            }
-            set
-            {
-                ramEnd = value;
-            }
-        }
-
-        /// <summary>
-        /// Size of addresible unit in bytes.
-        /// </summary>
-        private int addressibleUnitSize = 2;
-
-        public int ADDR_UNIT_SIZE
-        {
-            get
-            {
-                return addressibleUnitSize;
-            }
-            set
-            {
-                addressibleUnitSize = value;
             }
         }
 
@@ -261,11 +128,11 @@ namespace MultiArc_Compiler
             }
         }
 
+        private LinkedList<Instruction> instructionSet;
+
         /// <summary>
         /// Instruction set for given architecture.
         /// </summary>
-        private LinkedList<Instruction> instructionSet;
-
         public LinkedList<Instruction> InstructionSet
         {
             get
@@ -326,22 +193,7 @@ namespace MultiArc_Compiler
             return null;
         }
 
-        /// <summary>
-        /// Gets the instruction from instruction set.
-        /// </summary>
-        /// <param name="opCode">
-        /// Operation code of instruction.
-        /// </param>
-        /// <returns></returns>
-        public Instruction GetInstruction(byte opCode)
-        {
-            foreach (Instruction i in instructionSet)
-            {
-                if (i.OpCode == opCode)
-                    return i;
-            }
-            return null;
-        }
+        
         
         /// <summary>
         /// Removes instruction from instruction set.
@@ -365,11 +217,11 @@ namespace MultiArc_Compiler
             return null;
         }
 
+        private LinkedList<AddressingMode> allAddressingModes;
+
         /// <summary>
         /// List of all addressing supported addressing modes.
         /// </summary>
-        private LinkedList<AddressingMode> allAddressingModes;
-
         public LinkedList<AddressingMode> AllAddressingModes
         {
             get
@@ -441,6 +293,9 @@ namespace MultiArc_Compiler
 
         private LinkedList<Data> dataTypes;
 
+        /// <summary>
+        /// Linked list containing all data types used in architecture.
+        /// </summary>
         public LinkedList<Data> DataTypes
         {
             get
@@ -509,9 +364,6 @@ namespace MultiArc_Compiler
                 dataTypes.RemoveLast();
         }
 
-        /// <summary>
-        /// Linked list of all available registers.
-        /// </summary>
         private LinkedList<Register> registers;
 
         /// <summary>
@@ -591,6 +443,10 @@ namespace MultiArc_Compiler
             tokens = new Dictionary<string, string>();
         }
 
+        /// <summary>
+        /// Method used for making copy of the architecture.
+        /// </summary>
+        /// <returns></returns>
         public object Clone()
         {
             ArchConstants clone = new ArchConstants();
@@ -598,278 +454,6 @@ namespace MultiArc_Compiler
             clone.allAddressingModes = new LinkedList<AddressingMode>(allAddressingModes);
             clone.dataTypes = new LinkedList<Data>(dataTypes);
             return clone;
-        }
-
-        /// <summary>
-        /// Constants for all operations.
-        /// </summary>
-        private byte ld = 0x10;
-
-        public byte LD
-        {
-            get
-            {
-                return ld;
-            }
-            set
-            {
-                ld = value;
-            }
-        }
-
-        private byte st = 0x20;
-
-        public byte ST
-        {
-            get
-            {
-                return st;
-            }
-            set
-            {
-                st = value;
-            }
-        }
-
-        private byte jmp = 0x30;
-
-        public byte JMP
-        {
-            get
-            {
-                return jmp;
-            }
-            set
-            {
-                jmp = value;
-            }
-        }
-
-        private byte add = 0x40;
-
-        public byte ADD
-        {
-            get
-            {
-                return add;
-            }
-            set
-            {
-                add = value;
-            }
-        }
-
-        private byte sub = 0x50;
-
-        public byte SUB
-        {
-            get
-            {
-                return sub;
-            }
-            set
-            {
-                sub = value;
-            }
-        }
-
-        private byte mul = 0x60;
-
-        public byte MUL
-        {
-            get
-            {
-                return mul;
-            }
-            set
-            {
-                mul = value;
-            }
-        }
-
-        private byte div = 0x70;
-
-        public byte DIV
-        {
-            get
-            {
-                return div;
-            }
-            set
-            {
-                div = value;
-            }
-        }
-
-        private byte jgr = 0x80;
-
-        public byte JGR
-        {
-            get
-            {
-                return jgr;
-            }
-            set
-            {
-                jgr = value;
-            }
-        }
-
-        private byte jeq = 0x90;
-
-        public byte JEQ
-        {
-            get
-            {
-                return jeq;
-            }
-            set
-            {
-                jeq = value;
-            }
-        }
-
-        private byte jls = 0xa0;
-
-        public byte JLS
-        {
-            get
-            {
-                return jls;
-            }
-            set
-            {
-                jls = value;
-            }
-        }
-
-        private byte jge = 0xb0;
-
-        public byte JGE
-        {
-            get
-            {
-                return jge;
-            }
-            set
-            {
-                jge = value;
-            }
-        }
-
-        private byte jle = 0xc0;
-
-        public byte JLE
-        {
-            get
-            {
-                return jle;
-            }
-            set
-            {
-                jle = value;
-            }
-        }
-
-        private byte push = 0xd0;
-
-        public byte PUSH
-        {
-            get
-            {
-                return push;
-            }
-            set
-            {
-                push = value;
-            }
-        }
-
-        private byte pop = 0xe0;
-
-        public byte POP
-        {
-            get
-            {
-                return pop;
-            }
-            set
-            {
-                pop = value;
-            }
-        }
-
-        private byte halt = 0xf0;
-
-        public byte HALT
-        {
-            get
-            {
-                return halt;
-            }
-            set
-            {
-                halt = value;
-            }
-        }
-
-        /// <summary>
-        /// Constants for address modes.
-        /// </summary>
-        private byte imm = 0x0f;
-
-        public byte IMM
-        {
-            get
-            {
-                return imm;
-            }
-            set
-            {
-                imm = value;
-            }
-        }
-
-        private byte regInd = 0x04;
-
-        public byte REGIND
-        {
-            get
-            {
-                return regInd;
-            }
-            set
-            {
-                regInd = value;
-            }
-        }
-
-        private byte memInd = 0x0a;
-
-        public byte MEMIND
-        {
-            get
-            {
-                return memInd;
-            }
-            set
-            {
-                memInd = value;
-            }
-        }
-
-        private byte memDir = 0x09;
-
-        public byte MEMDIR
-        {
-            get
-            {
-                return memDir;
-            }
-            set
-            {
-                memDir = value;
-            }
         }
 
         /// <summary>
@@ -889,31 +473,6 @@ namespace MultiArc_Compiler
                 {
                     continue;
                 }
-                /*
-                int size = 1;
-                for (int j = i.StartBit; j >= i.EndBit; j--)
-                {
-                    if (j % 8 == 0 && j != i.EndBit)
-                    {
-                        size++;
-                    }
-                }
-                int startBite = binary.Length - i.StartBit / 8 - 1;
-                int endBite = binary.Length - i.EndBit / 8 - 1;
-                int count = 0;
-                bool matched = true;
-                for (int j = startBite; j <= endBite; j++)
-                {
-                    if (!(((int)(i.Mask[count]) & (int)(binary[j])) == (int)(i.Mask[count])))
-                    {
-                        matched = false;
-                    }
-                    count++;
-                }
-                if (matched == true)
-                {
-                    return i;
-                }*/
                 int codeStarts = i.StartBit;
                 int codeEnds = i.EndBit;
                 int codeValue = 0;

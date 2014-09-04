@@ -79,6 +79,6 @@ ld2 = LD ( REGDIR ) COMMA ( REGIND ) ;
 
 jmp1 = JMP ( PCREL ) ;
 
-halt1 = HALT ;
+halt1 = HALT  ;
 
-Instruction = ld1 | ld2 | jmp1 | halt1 ;
+Instruction = ( ld1 ) | ( ld2 ) | ( jmp1 ) | ( halt1 ) ;

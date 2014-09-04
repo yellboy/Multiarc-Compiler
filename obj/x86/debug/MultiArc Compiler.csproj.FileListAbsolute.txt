@@ -15,7 +15,6 @@ D:\Bojan\MultiArc Compiler\MultiArc Compiler\obj\x86\Debug\MultiArc Compiler.pdb
 D:\Bojan\MultiArc Compiler\MultiArc Compiler\bin\Debug\MultiArc Compiler.exe
 D:\Bojan\MultiArc Compiler\MultiArc Compiler\bin\Debug\MultiArc Compiler.pdb
 D:\Bojan\MultiArc Compiler\MultiArc Compiler\obj\x86\Debug\MultiArc_Compiler.Form1.resources
-D:\Bojan\MultiArc Compiler\MultiArc Compiler\obj\x86\Debug\MultiArc_Compiler.LengthsForm.resources
 D:\Bojan\MultiArc Compiler\MultiArc Compiler\obj\x86\Debug\MultiArc_Compiler.Properties.Resources.resources
 D:\Bojan\MultiArc Compiler\MultiArc Compiler\obj\x86\Debug\MultiArc_Compiler.RegistersForm.resources
 D:\Bojan\MultiArc Compiler\MultiArc Compiler\obj\x86\Debug\MultiArc Compiler.csproj.GenerateResource.Cache
@@ -33,4 +32,3 @@ C:\Boki diplomski\MultiArc Compiler\MultiArc Compiler\obj\x86\Debug\MultiArc_Com
 C:\Boki diplomski\MultiArc Compiler\MultiArc Compiler\obj\x86\Debug\MultiArc Compiler.csproj.GenerateResource.Cache
 D:\Bojan\MultiArc Compiler\MultiArc Compiler\bin\Debug\testApp.exe
 D:\Bojan\MultiArc Compiler\MultiArc Compiler\obj\x86\Debug\MultiArc_Compiler.SaveOldFileForm.resources
-D:\Bojan\MultiArc Compiler\MultiArc Compiler\obj\x86\Debug\MultiArc Compiler.csprojResolveAssemblyReference.cache

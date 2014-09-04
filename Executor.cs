@@ -278,7 +278,7 @@ namespace MultiArc_Compiler
                     constants.GetRegister("pc").Val = pc;
                 }
                 breakSem.Release();
-                writeToOutput(" Code executed successfully.");;
+                writeToOutput(" Code executed successfully.\n");;
             }
             catch (Exception ex)
             {

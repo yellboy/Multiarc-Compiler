@@ -58,24 +58,6 @@ namespace MultiArc_Compiler
             }
         }
 
-
-        /// <summary>
-        /// Binary code of this addressing mode.
-        /// </summary>
-        private byte code;
-
-        public byte Code
-        {
-            get
-            {
-                return code;
-            }
-            set
-            {
-                code = value;
-            }
-        }
-
         /// <summary>
         /// Code to be executed when GetData method is called.
         /// </summary>
@@ -255,10 +237,9 @@ namespace MultiArc_Compiler
         /// <param name="fileName">
         /// Name of the file where the execution code for this addressing mode is.
         /// </param>
-        public AddressingMode(string name = null, byte code = 0, Data result = null, string fileName = null)
+        public AddressingMode(string name = null, Data result = null, string fileName = null)
         {
             this.name = name;
-            this.code = code;
             this.fileName = fileName;
             this.result = result;
             if (fileName == null)

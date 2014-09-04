@@ -80,22 +80,7 @@ namespace MultiArc_Compiler
             }
         }
 
-        /// <summary>
-        /// Operation code for instruction.
-        /// </summary>
-        private byte opCode;
-
-        public byte OpCode
-        {
-            get
-            {
-                return opCode;
-            }
-            set
-            {
-                opCode = value;
-            }
-        }
+        
 
         /// <summary>
         /// Name of the file with the execution code.
