@@ -55,16 +55,31 @@
     <Compile Include="ArchConstants.cs" />
     <Compile Include="Argument.cs" />
     <Compile Include="Assembler.cs" />
+    <Compile Include="Clipboard.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Clipboard.Designer.cs">
+      <DependentUpon>Clipboard.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ConversionHelper.cs" />
+    <Compile Include="CPU.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Data.cs" />
     <Compile Include="Executor.cs" />
     <Compile Include="IMemoryObserver.cs" />
     <Compile Include="Instruction.cs" />
     <Compile Include="InstructionRegister.cs" />
     <Compile Include="IRegistersObserver.cs" />
+    <Compile Include="Line.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="linenum_rtf.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Memory.cs" />
+    <Compile Include="Memory.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -76,6 +91,12 @@
     </Compile>
     <Compile Include="MemoryDumpForm.Designer.cs">
       <DependentUpon>MemoryDumpForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="NonCPUComponent.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="OtherComponent.cs">
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="PerCederberg.Grammatica.Runtime.RE\AlternativeElement.cs" />
     <Compile Include="PerCederberg.Grammatica.Runtime.RE\CharacterSetElement.cs" />
@@ -106,6 +127,10 @@
     <Compile Include="PerCederberg.Grammatica.Runtime\TokenPattern.cs" />
     <Compile Include="PerCederberg.Grammatica.Runtime\TokenRegExpParser.cs" />
     <Compile Include="PerCederberg.Grammatica.Runtime\TokenStringDFA.cs" />
+    <Compile Include="Pin.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Port.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Register.cs" />
@@ -122,10 +147,21 @@
       <DependentUpon>SaveOldFileForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Settings.cs" />
+    <Compile Include="Signal.cs" />
     <Compile Include="Symbol.cs" />
+    <Compile Include="SystemComponent.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UserSystem.cs" />
     <Compile Include="Variables.cs" />
+    <EmbeddedResource Include="Clipboard.resx">
+      <DependentUpon>Clipboard.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Line.resx">
+      <DependentUpon>Line.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MemoryDumpForm.resx">
       <DependentUpon>MemoryDumpForm.cs</DependentUpon>

@@ -27,17 +27,17 @@ namespace MultiArc_Compiler
         /// <summary>
         /// Contains binary constants that will be used to make binary code.
         /// </summary>
-        private ArchConstants constants;
+        private CPU cpu;
 
-        public ArchConstants Constants
+        public CPU Cpu
         {
             get
             {
-                return constants;
+                return cpu;
             }
             set
             {
-                constants = value;
+                cpu = value;
             }
         }
 
@@ -158,15 +158,15 @@ namespace MultiArc_Compiler
         /// <param name="codePath">
         /// String with full path of the file that contains assembly code.
         /// </param>
-        /// <param name="constants">
-        /// Object containing binary constants for used architecture.
+        /// <param name="cpu">
+        /// CPU for which code is written.
         /// </param>
         /// <param name="output">
         /// Output represented as TextBox.
         /// </param>
-        public Assembler(string codePath, ArchConstants constants, TextBoxBase output)
+        public Assembler(string codePath, CPU cpu, TextBoxBase output)
         {
-            this.constants = constants;
+            this.cpu = cpu;
             this.codePath = codePath;
             this.code = File.ReadAllText(codePath);
             this.output = output;
@@ -180,16 +180,16 @@ namespace MultiArc_Compiler
         /// <param name="code">
         /// String array that contains code.
         /// </param>
-        /// <param name="constants">
-        /// Object containing binary constants for used architecture.
+        /// <param name="cpu">
+        /// CPU for which code is written.
         /// </param>
         /// <param name="output">
         /// Output represented as TextBox.
         /// </param>
-        public Assembler(string code, ArchConstants constants, Memory memory, TextBoxBase output)
+        public Assembler(string code, CPU cpu, Memory memory, TextBoxBase output)
         {
             this.memory = memory;
-            this.constants = constants;
+            this.cpu = cpu;
             this.code = code;
             this.codePath = "NO PATH";
             this.output = output;
@@ -218,10 +218,10 @@ namespace MultiArc_Compiler
                 var options = new CompilerParameters();
                 var assemblyContainingNotDynamicClass = Path.GetFileName(Assembly.GetExecutingAssembly().Location);
                 options.ReferencedAssemblies.Add(assemblyContainingNotDynamicClass);
-                string parserCode = File.ReadAllText("Grammar/cs/" + constants.Name + "Parser.cs");
-                string constantsCode = File.ReadAllText("Grammar/cs/" + constants.Name + "Constants.cs");
-                string tokenizerCode = File.ReadAllText("Grammar/cs/" + constants.Name + "Tokenizer.cs");
-                string analyzerCode = File.ReadAllText("Grammar/cs/" + constants.Name + "Analyzer.cs");
+                string parserCode = File.ReadAllText("Grammar/cs/" + ((SystemComponent)cpu).Name + "Parser.cs");
+                string constantsCode = File.ReadAllText("Grammar/cs/" + ((SystemComponent)cpu).Name + "Constants.cs");
+                string tokenizerCode = File.ReadAllText("Grammar/cs/" + ((SystemComponent)cpu).Name + "Tokenizer.cs");
+                string analyzerCode = File.ReadAllText("Grammar/cs/" + ((SystemComponent)cpu).Name + "Analyzer.cs");
                 var results = provider.CompileAssemblyFromSource(options, new[] { parserCode, constantsCode, tokenizerCode, analyzerCode });
                 if (results.Errors.Count > 0)
                 {
@@ -234,7 +234,7 @@ namespace MultiArc_Compiler
                 else
                 {
                     Parser parser = null;
-                    var t = results.CompiledAssembly.GetType("MultiArc_Compiler." + constants.Name + "Parser", true);
+                    var t = results.CompiledAssembly.GetType("MultiArc_Compiler." + cpu.Name + "Parser", true);
                     object instance = Activator.CreateInstance(t, new[] { new StringReader(code) });
                     parser = (Parser)instance;
                     try
@@ -245,14 +245,14 @@ namespace MultiArc_Compiler
                         symbolTable.Clear();
                         getInstructionsFromTree(n);
                         getOriginFromTree(n);
-                        binaryCode = new byte[instructions.Count * constants.MAX_BYTES]; // THIS MUST BE TESTED.
+                        binaryCode = new byte[instructions.Count * cpu.Constants.MAX_BYTES]; // THIS MUST BE TESTED.
                         count = 0;
                         separators.Clear();
                         separators = new LinkedList<int>();
                         // First passing:
                         for (int i = 0; i < instructions.Count; i++)
                         {
-                            Instruction inst = constants.GetInstruction(instructions.ElementAt(i).GetName());
+                            Instruction inst = cpu.Constants.GetInstruction(instructions.ElementAt(i).GetName());
                             if (labels.ContainsKey(instructions.ElementAt(i)))
                             {
                                 Symbol symbol = new Symbol(labels[instructions.ElementAt(i)], 0, count, true);
@@ -274,7 +274,7 @@ namespace MultiArc_Compiler
                             for (int j = 0; j < instructions.ElementAt(i).GetChildCount(); j++)
                             {
                                 AddressingMode am = null;
-                                am = constants.GetAddressingMode(instructions.ElementAt(i).GetChildAt(j).Name);
+                                am = cpu.Constants.GetAddressingMode(instructions.ElementAt(i).GetChildAt(j).Name);
                                 if (!object.ReferenceEquals(am, null))
                                 {
                                     addrModes.AddLast(am);
@@ -491,13 +491,13 @@ namespace MultiArc_Compiler
                         // Second passing:
                         for (int i = 0; i < instructions.Count; i++)
                         {
-                            Instruction inst = constants.GetInstruction(instructions.ElementAt(i).GetName());
+                            Instruction inst = cpu.Constants.GetInstruction(instructions.ElementAt(i).GetName());
                             LinkedList<AddressingMode> addrModes = new LinkedList<AddressingMode>();
                             LinkedList<int> argumentsIndexes = new LinkedList<int>();
                             for (int j = 0; j < instructions.ElementAt(i).GetChildCount(); j++)
                             {
                                 AddressingMode am = null;
-                                am = constants.GetAddressingMode(instructions.ElementAt(i).GetChildAt(j).Name);
+                                am = cpu.Constants.GetAddressingMode(instructions.ElementAt(i).GetChildAt(j).Name);
                                 if (!object.ReferenceEquals(am, null))
                                 {
                                     addrModes.AddLast(am);
@@ -776,7 +776,7 @@ namespace MultiArc_Compiler
                     return false;
                 }
             }
-            if (Convert.ToInt64(input.Substring(1)) >= constants.NUM_OF_REGISTERS)
+            if (Convert.ToInt64(input.Substring(1)) >= cpu.Constants.NUM_OF_REGISTERS)
                 return false;
             return true;
         }

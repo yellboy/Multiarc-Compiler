@@ -109,6 +109,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Name = "MemoryDumpForm";
             this.Text = "MemoryDumpForm";
+            this.VisibleChanged += new System.EventHandler(this.MemoryDumpForm_VisibleChanged);
             this.ResumeLayout(false);
             this.PerformLayout();
 

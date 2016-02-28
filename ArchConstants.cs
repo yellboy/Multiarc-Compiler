@@ -19,23 +19,6 @@ namespace MultiArc_Compiler
     {
 
         /// <summary>
-        /// Name of the architecture.
-        /// </summary>
-        private string name = null;
-
-        public string Name
-        {
-            get
-            {
-                return name;
-            }
-            set
-            {
-                name = value;
-            }
-        }
-
-        /// <summary>
         /// List of strings that represents all the mnemonics for the instructions in architecture.
         /// </summary>
         private LinkedList<string> mnemonics;
@@ -498,8 +481,8 @@ namespace MultiArc_Compiler
                 int maskValue = 0;
                 if (i.Size != i.Mask.Length)
                 {
-                    codeStarts -= i.Mask.Length * 8;
-                    codeEnds -= i.Mask.Length * 8;
+                    codeStarts = i.Mask.Length * 8 - (i.Size * 8 - codeStarts);
+                    codeEnds = codeEnds % 8;
                 }
                 byteCount = codeSize - 1;
                 codeCount = codeStarts - codeEnds;

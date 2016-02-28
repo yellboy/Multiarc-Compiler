@@ -94,7 +94,8 @@ namespace MultiArc_Compiler
         }
 
         /// <summary>
-        /// Results of the compiled code for this addressing mode.
+        /// 
+        /// of the compiled code for this addressing mode.
         /// </summary>
         private CompilerResults results;
 
@@ -288,11 +289,11 @@ namespace MultiArc_Compiler
         /// <returns>
         /// Wanted data.
         /// </returns>
-        public int GetData(InstructionRegister ir, ArchConstants constants, Variables variables, int startBit, int endBit)
+        public int GetData(InstructionRegister ir, CPU cpu, Variables variables, int startBit, int endBit)
         {
             var t = results.CompiledAssembly.GetType("DynamicClass" + name);
             int result = 0;
-            object[] parameters = new object[] { ir, Program.Mem, constants, variables, startBit, endBit, result };
+            object[] parameters = new object[] { ir, Program.Mem, cpu, variables, startBit, endBit, result };
             t.GetMethod("getAddrData_" + this.name).Invoke(null, parameters);
             result = (int)(parameters[6]);
             return result;
@@ -319,10 +320,10 @@ namespace MultiArc_Compiler
         /// <param name="data">
         /// Data to be set.
         /// </param>
-        public void SetData(InstructionRegister ir, ArchConstants constants, Variables variables, int startBit, int endBit, int data)
+        public void SetData(InstructionRegister ir, CPU cpu, Variables variables, int startBit, int endBit, int data)
         {
             var t = results.CompiledAssembly.GetType("DynamicClass" + name);
-            object[] parameters = new object[] { ir, Program.Mem, constants, variables, startBit, endBit, data };
+            object[] parameters = new object[] { ir, Program.Mem, cpu, variables, startBit, endBit, data };
             t.GetMethod("setAddrData_" + this.name).Invoke(null, parameters);
         }
 
@@ -364,6 +365,10 @@ namespace MultiArc_Compiler
             var options = new CompilerParameters();
             var assemblyContainingNotDynamicClass = Path.GetFileName(Assembly.GetExecutingAssembly().Location);
             options.ReferencedAssemblies.Add(assemblyContainingNotDynamicClass);
+            var assemblyContaningForms = Assembly.GetAssembly(typeof(System.Windows.Forms.Control)).Location;
+            options.ReferencedAssemblies.Add(assemblyContaningForms);
+            var assemblyContainingComponent = Assembly.GetAssembly(typeof(System.ComponentModel.Component)).Location;
+            options.ReferencedAssemblies.Add(assemblyContainingComponent);
             string code = @"
 
 using System;

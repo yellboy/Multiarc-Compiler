@@ -38,6 +38,7 @@ RIGHT_PAREN = ")"
 HASH = "#"
 COLON = ":"
 COMMA = ","
+ORG = "org"
 
 SIGN = <<[+-]>>
 DEC_NUMBER = <<[0-9]+>>
@@ -49,7 +50,6 @@ IDENTIFIER = <<[a-z][a-z0-9_]*>>
 ENTER = <<[\n\r]+>>
 SINGLE_LINE_COMMENT = <<;.*>> %ignore%
 WHITESPACE = <<[ \t]+>> %ignore%
-ORG = "org"
 
 %productions%
 
@@ -79,6 +79,6 @@ ld2 = LD ( REGDIR ) COMMA ( REGIND ) ;
 
 jmp1 = JMP ( PCREL ) ;
 
-halt1 = HALT ;
+halt1 = HALT  ;
 
-Instruction = ld1 | ld2 | jmp1 | halt1 ;
+Instruction = ( ld1 ) | ( ld2 ) | ( jmp1 ) | ( halt1 ) ;

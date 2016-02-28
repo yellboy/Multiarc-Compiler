@@ -13,15 +13,16 @@
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
+            if (ex != null)
+            {
+                ex.StopDebugging();
+                ex.Abort();
+            }
             if (disposing && (components != null))
             {
                 components.Dispose();
             }
             base.Dispose(disposing);
-            if (ex != null)
-            {
-                ex.Abort();
-            }
         }
 
         #region Windows Form Designer generated code
@@ -34,10 +35,6 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
-            this.CodeBox = new System.Windows.Forms.RichTextBox();
-            this.BinaryCodeBox = new System.Windows.Forms.RichTextBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.BinaryCodeLabel = new System.Windows.Forms.Label();
             this.LoadFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.SaveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.FileNameLabel = new System.Windows.Forms.Label();
@@ -57,15 +54,19 @@
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.architectureToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.loadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.cPUToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.memoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.recompileCodeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.memoryDumpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.registersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.systemToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.debugToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.assembleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.executeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.executeWithoutDebugToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.nextStepToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.stopDebuggingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.LoadArchitectureDialog = new System.Windows.Forms.OpenFileDialog();
             this.OutputBox = new System.Windows.Forms.RichTextBox();
             this.outputLabel = new System.Windows.Forms.Label();
@@ -84,54 +85,18 @@
             this.DebugTip = new System.Windows.Forms.ToolTip(this.components);
             this.NewProjectDialog = new System.Windows.Forms.SaveFileDialog();
             this.OpenProjectDialog = new System.Windows.Forms.OpenFileDialog();
-            this.stopDebuggingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.lineNumbers_For_RichTextBox1 = new LineNumbers.LineNumbers_For_RichTextBox();
+            this.ClearOutputTip = new System.Windows.Forms.ToolTip(this.components);
+            this.ToggleBrekpointTip = new System.Windows.Forms.ToolTip(this.components);
+            this.LoadMemoryDialog = new System.Windows.Forms.OpenFileDialog();
+            this.CodeBox = new System.Windows.Forms.RichTextBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.BinaryCodeBox = new System.Windows.Forms.RichTextBox();
+            this.BinaryCodeLabel = new System.Windows.Forms.Label();
+            this.lineNumbers_For_RichTextBox2 = new LineNumbers.LineNumbers_For_RichTextBox();
+            this.otherComponentToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.LoadOtherComponentDialog = new System.Windows.Forms.OpenFileDialog();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // CodeBox
-            // 
-            this.CodeBox.AcceptsTab = true;
-            this.CodeBox.AutoWordSelection = true;
-            this.CodeBox.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.CodeBox.Location = new System.Drawing.Point(29, 78);
-            this.CodeBox.Name = "CodeBox";
-            this.CodeBox.Size = new System.Drawing.Size(386, 310);
-            this.CodeBox.TabIndex = 1;
-            this.CodeBox.TabStop = false;
-            this.CodeBox.Text = "   ";
-            this.CodeBox.TextChanged += new System.EventHandler(this.CodeBox_TextChanged);
-            // 
-            // BinaryCodeBox
-            // 
-            this.BinaryCodeBox.AcceptsTab = true;
-            this.BinaryCodeBox.BackColor = System.Drawing.SystemColors.Window;
-            this.BinaryCodeBox.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.BinaryCodeBox.Location = new System.Drawing.Point(431, 78);
-            this.BinaryCodeBox.Name = "BinaryCodeBox";
-            this.BinaryCodeBox.ReadOnly = true;
-            this.BinaryCodeBox.Size = new System.Drawing.Size(385, 310);
-            this.BinaryCodeBox.TabIndex = 2;
-            this.BinaryCodeBox.TabStop = false;
-            this.BinaryCodeBox.Text = "";
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 62);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(32, 13);
-            this.label1.TabIndex = 3;
-            this.label1.Text = "Code";
-            // 
-            // BinaryCodeLabel
-            // 
-            this.BinaryCodeLabel.AutoSize = true;
-            this.BinaryCodeLabel.Location = new System.Drawing.Point(428, 62);
-            this.BinaryCodeLabel.Name = "BinaryCodeLabel";
-            this.BinaryCodeLabel.Size = new System.Drawing.Size(64, 13);
-            this.BinaryCodeLabel.TabIndex = 4;
-            this.BinaryCodeLabel.Text = "Binary Code";
             // 
             // LoadFileDialog
             // 
@@ -153,14 +118,9 @@
             this.FileNameLabel.Size = new System.Drawing.Size(0, 13);
             this.FileNameLabel.TabIndex = 14;
             // 
-            // BinSaveFileDialog
-            // 
-            this.BinSaveFileDialog.FileOk += new System.ComponentModel.CancelEventHandler(this.BinSaveFileDialog_FileOk);
-            // 
             // BinLoadFileDialog
             // 
             this.BinLoadFileDialog.FileName = "openFileDialog1";
-            this.BinLoadFileDialog.FileOk += new System.ComponentModel.CancelEventHandler(this.BinLoadFileDialog_FileOk);
             // 
             // BinFileNameLabel
             // 
@@ -174,8 +134,8 @@
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
-            this.architectureToolStripMenuItem1,
             this.viewToolStripMenuItem,
+            this.architectureToolStripMenuItem1,
             this.debugToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
@@ -207,8 +167,8 @@
             // projectToolStripMenuItem
             // 
             this.projectToolStripMenuItem.Name = "projectToolStripMenuItem";
-            this.projectToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift)
-                        | System.Windows.Forms.Keys.N)));
+            this.projectToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.N)));
             this.projectToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
             this.projectToolStripMenuItem.Text = "Project";
             this.projectToolStripMenuItem.Click += new System.EventHandler(this.projectToolStripMenuItem_Click);
@@ -233,8 +193,8 @@
             // projectToolStripMenuItem1
             // 
             this.projectToolStripMenuItem1.Name = "projectToolStripMenuItem1";
-            this.projectToolStripMenuItem1.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift)
-                        | System.Windows.Forms.Keys.O)));
+            this.projectToolStripMenuItem1.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.O)));
             this.projectToolStripMenuItem1.Size = new System.Drawing.Size(186, 22);
             this.projectToolStripMenuItem1.Text = "Project";
             this.projectToolStripMenuItem1.Click += new System.EventHandler(this.projectToolStripMenuItem1_Click);
@@ -281,11 +241,29 @@
             // 
             // loadToolStripMenuItem
             // 
+            this.loadToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.cPUToolStripMenuItem,
+            this.memoryToolStripMenuItem,
+            this.otherComponentToolStripMenuItem});
             this.loadToolStripMenuItem.Name = "loadToolStripMenuItem";
-            this.loadToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.L)));
             this.loadToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
             this.loadToolStripMenuItem.Text = "Load";
-            this.loadToolStripMenuItem.Click += new System.EventHandler(this.LoadArcToolStripMenuItem_Click);
+            // 
+            // cPUToolStripMenuItem
+            // 
+            this.cPUToolStripMenuItem.Name = "cPUToolStripMenuItem";
+            this.cPUToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.P)));
+            this.cPUToolStripMenuItem.Size = new System.Drawing.Size(212, 22);
+            this.cPUToolStripMenuItem.Text = "CPU";
+            this.cPUToolStripMenuItem.Click += new System.EventHandler(this.cPUToolStripMenuItem_Click);
+            // 
+            // memoryToolStripMenuItem
+            // 
+            this.memoryToolStripMenuItem.Name = "memoryToolStripMenuItem";
+            this.memoryToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.M)));
+            this.memoryToolStripMenuItem.Size = new System.Drawing.Size(212, 22);
+            this.memoryToolStripMenuItem.Text = "Memory";
+            this.memoryToolStripMenuItem.Click += new System.EventHandler(this.memoryToolStripMenuItem_Click);
             // 
             // recompileCodeToolStripMenuItem
             // 
@@ -299,7 +277,8 @@
             // 
             this.viewToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.memoryDumpToolStripMenuItem,
-            this.registersToolStripMenuItem});
+            this.registersToolStripMenuItem,
+            this.systemToolStripMenuItem});
             this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
             this.viewToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
             this.viewToolStripMenuItem.Text = "View";
@@ -307,18 +286,26 @@
             // memoryDumpToolStripMenuItem
             // 
             this.memoryDumpToolStripMenuItem.Name = "memoryDumpToolStripMenuItem";
-            this.memoryDumpToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.M)));
-            this.memoryDumpToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
+            this.memoryDumpToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.M)));
+            this.memoryDumpToolStripMenuItem.Size = new System.Drawing.Size(195, 22);
             this.memoryDumpToolStripMenuItem.Text = "Memory dump";
             this.memoryDumpToolStripMenuItem.Click += new System.EventHandler(this.memoryDumpToolStripMenuItem_Click);
             // 
             // registersToolStripMenuItem
             // 
             this.registersToolStripMenuItem.Name = "registersToolStripMenuItem";
-            this.registersToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.R)));
-            this.registersToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
+            this.registersToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.R)));
+            this.registersToolStripMenuItem.Size = new System.Drawing.Size(195, 22);
             this.registersToolStripMenuItem.Text = "Registers";
             this.registersToolStripMenuItem.Click += new System.EventHandler(this.registersToolStripMenuItem_Click);
+            // 
+            // systemToolStripMenuItem
+            // 
+            this.systemToolStripMenuItem.Name = "systemToolStripMenuItem";
+            this.systemToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.S)));
+            this.systemToolStripMenuItem.Size = new System.Drawing.Size(195, 22);
+            this.systemToolStripMenuItem.Text = "System";
+            this.systemToolStripMenuItem.Click += new System.EventHandler(this.systemToolStripMenuItem_Click);
             // 
             // debugToolStripMenuItem
             // 
@@ -338,7 +325,7 @@
             this.assembleToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F7;
             this.assembleToolStripMenuItem.Size = new System.Drawing.Size(265, 22);
             this.assembleToolStripMenuItem.Text = "Assemble ";
-            this.assembleToolStripMenuItem.Click += new System.EventHandler(this.AssemblyButton_Click);
+            this.assembleToolStripMenuItem.Click += new System.EventHandler(this.assembleButton_Click);
             // 
             // executeToolStripMenuItem
             // 
@@ -362,18 +349,26 @@
             this.nextStepToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F10;
             this.nextStepToolStripMenuItem.Size = new System.Drawing.Size(265, 22);
             this.nextStepToolStripMenuItem.Text = "Next step";
-            this.nextStepToolStripMenuItem.Click += new System.EventHandler(this.nextStepToolStripMenuItem_Click);
+            this.nextStepToolStripMenuItem.Click += new System.EventHandler(this.nextStep);
+            // 
+            // stopDebuggingToolStripMenuItem
+            // 
+            this.stopDebuggingToolStripMenuItem.Name = "stopDebuggingToolStripMenuItem";
+            this.stopDebuggingToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Shift | System.Windows.Forms.Keys.F5)));
+            this.stopDebuggingToolStripMenuItem.Size = new System.Drawing.Size(265, 22);
+            this.stopDebuggingToolStripMenuItem.Text = "Stop debugging";
+            this.stopDebuggingToolStripMenuItem.Click += new System.EventHandler(this.stopDebuggingToolStripMenuItem_Click);
             // 
             // LoadArchitectureDialog
             // 
             this.LoadArchitectureDialog.DefaultExt = "arc";
             this.LoadArchitectureDialog.Filter = "arc files|*.arc|all files|*.*";
-            this.LoadArchitectureDialog.FileOk += new System.ComponentModel.CancelEventHandler(this.LoadArchitectureDialog_FileOk);
+            this.LoadArchitectureDialog.FileOk += new System.ComponentModel.CancelEventHandler(this.LoadArchitecture);
             // 
             // OutputBox
             // 
             this.OutputBox.BackColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.OutputBox.Location = new System.Drawing.Point(9, 424);
+            this.OutputBox.Location = new System.Drawing.Point(12, 420);
             this.OutputBox.Name = "OutputBox";
             this.OutputBox.ReadOnly = true;
             this.OutputBox.Size = new System.Drawing.Size(807, 118);
@@ -383,7 +378,7 @@
             // outputLabel
             // 
             this.outputLabel.AutoSize = true;
-            this.outputLabel.Location = new System.Drawing.Point(9, 408);
+            this.outputLabel.Location = new System.Drawing.Point(9, 404);
             this.outputLabel.Name = "outputLabel";
             this.outputLabel.Size = new System.Drawing.Size(39, 13);
             this.outputLabel.TabIndex = 25;
@@ -394,12 +389,13 @@
             this.clearOutputButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.clearOutputButton.Image = ((System.Drawing.Image)(resources.GetObject("clearOutputButton.Image")));
             this.clearOutputButton.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.clearOutputButton.Location = new System.Drawing.Point(771, 403);
+            this.clearOutputButton.Location = new System.Drawing.Point(774, 400);
             this.clearOutputButton.Name = "clearOutputButton";
             this.clearOutputButton.Size = new System.Drawing.Size(45, 22);
             this.clearOutputButton.TabIndex = 26;
             this.clearOutputButton.Text = "Clear";
             this.clearOutputButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.ClearOutputTip.SetToolTip(this.clearOutputButton, "Clear output");
             this.clearOutputButton.UseVisualStyleBackColor = true;
             this.clearOutputButton.Click += new System.EventHandler(this.clearOutputButton_Click);
             // 
@@ -459,7 +455,6 @@
             this.LoadArcButton.TabIndex = 32;
             this.LoadArcTip.SetToolTip(this.LoadArcButton, "Load architecture");
             this.LoadArcButton.UseVisualStyleBackColor = true;
-            this.LoadArcButton.Click += new System.EventHandler(this.LoadArcToolStripMenuItem_Click);
             // 
             // DebugButton
             // 
@@ -488,74 +483,130 @@
             this.OpenProjectDialog.Filter = "prj files|*.prj|all files|*.*";
             this.OpenProjectDialog.FileOk += new System.ComponentModel.CancelEventHandler(this.OpenProjectDialog_FileOk);
             // 
-            // stopDebuggingToolStripMenuItem
+            // LoadMemoryDialog
             // 
-            this.stopDebuggingToolStripMenuItem.Name = "stopDebuggingToolStripMenuItem";
-            this.stopDebuggingToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Shift | System.Windows.Forms.Keys.F5)));
-            this.stopDebuggingToolStripMenuItem.Size = new System.Drawing.Size(265, 22);
-            this.stopDebuggingToolStripMenuItem.Text = "Stop debugging";
-            this.stopDebuggingToolStripMenuItem.Click += new System.EventHandler(this.stopDebuggingToolStripMenuItem_Click);
+            this.LoadMemoryDialog.Filter = "arc files|*.arc|all files|*.*";
+            this.LoadMemoryDialog.Title = "Load memory";
+            this.LoadMemoryDialog.FileOk += new System.ComponentModel.CancelEventHandler(this.LoadMemoryDialog_FileOk);
             // 
-            // lineNumbers_For_RichTextBox1
+            // CodeBox
             // 
-            this.lineNumbers_For_RichTextBox1._SeeThroughMode_ = false;
-            this.lineNumbers_For_RichTextBox1.AutoSizing = true;
-            this.lineNumbers_For_RichTextBox1.BackgroundGradient_AlphaColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            this.lineNumbers_For_RichTextBox1.BackgroundGradient_BetaColor = System.Drawing.Color.LightSteelBlue;
-            this.lineNumbers_For_RichTextBox1.BackgroundGradient_Direction = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
-            this.lineNumbers_For_RichTextBox1.BorderLines_Color = System.Drawing.Color.SlateGray;
-            this.lineNumbers_For_RichTextBox1.BorderLines_Style = System.Drawing.Drawing2D.DashStyle.Dot;
-            this.lineNumbers_For_RichTextBox1.BorderLines_Thickness = 1F;
-            this.lineNumbers_For_RichTextBox1.DockSide = LineNumbers.LineNumbers_For_RichTextBox.LineNumberDockSide.Left;
-            this.lineNumbers_For_RichTextBox1.GridLines_Color = System.Drawing.Color.SlateGray;
-            this.lineNumbers_For_RichTextBox1.GridLines_Style = System.Drawing.Drawing2D.DashStyle.Dot;
-            this.lineNumbers_For_RichTextBox1.GridLines_Thickness = 1F;
-            this.lineNumbers_For_RichTextBox1.LineNrs_Alignment = System.Drawing.ContentAlignment.TopRight;
-            this.lineNumbers_For_RichTextBox1.LineNrs_AntiAlias = true;
-            this.lineNumbers_For_RichTextBox1.LineNrs_AsHexadecimal = false;
-            this.lineNumbers_For_RichTextBox1.LineNrs_ClippedByItemRectangle = true;
-            this.lineNumbers_For_RichTextBox1.LineNrs_LeadingZeroes = true;
-            this.lineNumbers_For_RichTextBox1.LineNrs_Offset = new System.Drawing.Size(0, 0);
-            this.lineNumbers_For_RichTextBox1.Location = new System.Drawing.Point(10, 78);
-            this.lineNumbers_For_RichTextBox1.Margin = new System.Windows.Forms.Padding(0);
-            this.lineNumbers_For_RichTextBox1.MarginLines_Color = System.Drawing.Color.SlateGray;
-            this.lineNumbers_For_RichTextBox1.MarginLines_Side = LineNumbers.LineNumbers_For_RichTextBox.LineNumberDockSide.Right;
-            this.lineNumbers_For_RichTextBox1.MarginLines_Style = System.Drawing.Drawing2D.DashStyle.Solid;
-            this.lineNumbers_For_RichTextBox1.MarginLines_Thickness = 1F;
-            this.lineNumbers_For_RichTextBox1.Name = "lineNumbers_For_RichTextBox1";
-            this.lineNumbers_For_RichTextBox1.Padding = new System.Windows.Forms.Padding(0, 0, 2, 0);
-            this.lineNumbers_For_RichTextBox1.ParentRichTextBox = this.CodeBox;
-            this.lineNumbers_For_RichTextBox1.Show_BackgroundGradient = true;
-            this.lineNumbers_For_RichTextBox1.Show_BorderLines = true;
-            this.lineNumbers_For_RichTextBox1.Show_GridLines = true;
-            this.lineNumbers_For_RichTextBox1.Show_LineNrs = true;
-            this.lineNumbers_For_RichTextBox1.Show_MarginLines = true;
-            this.lineNumbers_For_RichTextBox1.Size = new System.Drawing.Size(18, 310);
-            this.lineNumbers_For_RichTextBox1.TabIndex = 27;
-            this.lineNumbers_For_RichTextBox1.Click += new System.EventHandler(this.lineNumbers_For_RichTextBox1_Click);
+            this.CodeBox.AcceptsTab = true;
+            this.CodeBox.BackColor = System.Drawing.SystemColors.Window;
+            this.CodeBox.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.CodeBox.Location = new System.Drawing.Point(30, 74);
+            this.CodeBox.Name = "CodeBox";
+            this.CodeBox.Size = new System.Drawing.Size(386, 322);
+            this.CodeBox.TabIndex = 40;
+            this.CodeBox.TabStop = false;
+            this.CodeBox.Text = "   ";
+            this.CodeBox.TextChanged += new System.EventHandler(this.CodeBox_TextChanged);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(13, 58);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(32, 13);
+            this.label1.TabIndex = 42;
+            this.label1.Text = "Code";
+            // 
+            // BinaryCodeBox
+            // 
+            this.BinaryCodeBox.AcceptsTab = true;
+            this.BinaryCodeBox.BackColor = System.Drawing.SystemColors.Window;
+            this.BinaryCodeBox.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.BinaryCodeBox.Location = new System.Drawing.Point(432, 74);
+            this.BinaryCodeBox.Name = "BinaryCodeBox";
+            this.BinaryCodeBox.ReadOnly = true;
+            this.BinaryCodeBox.Size = new System.Drawing.Size(385, 322);
+            this.BinaryCodeBox.TabIndex = 41;
+            this.BinaryCodeBox.TabStop = false;
+            this.BinaryCodeBox.Text = "";
+            // 
+            // BinaryCodeLabel
+            // 
+            this.BinaryCodeLabel.AutoSize = true;
+            this.BinaryCodeLabel.Location = new System.Drawing.Point(429, 61);
+            this.BinaryCodeLabel.Name = "BinaryCodeLabel";
+            this.BinaryCodeLabel.Size = new System.Drawing.Size(64, 13);
+            this.BinaryCodeLabel.TabIndex = 39;
+            this.BinaryCodeLabel.Text = "Binary Code";
+            // 
+            // lineNumbers_For_RichTextBox2
+            // 
+            this.lineNumbers_For_RichTextBox2._SeeThroughMode_ = false;
+            this.lineNumbers_For_RichTextBox2.AutoSizing = true;
+            this.lineNumbers_For_RichTextBox2.BackgroundGradient_AlphaColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.lineNumbers_For_RichTextBox2.BackgroundGradient_BetaColor = System.Drawing.Color.LightSteelBlue;
+            this.lineNumbers_For_RichTextBox2.BackgroundGradient_Direction = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
+            this.lineNumbers_For_RichTextBox2.BorderLines_Color = System.Drawing.Color.SlateGray;
+            this.lineNumbers_For_RichTextBox2.BorderLines_Style = System.Drawing.Drawing2D.DashStyle.Dot;
+            this.lineNumbers_For_RichTextBox2.BorderLines_Thickness = 1F;
+            this.lineNumbers_For_RichTextBox2.DockSide = LineNumbers.LineNumbers_For_RichTextBox.LineNumberDockSide.Left;
+            this.lineNumbers_For_RichTextBox2.GridLines_Color = System.Drawing.Color.SlateGray;
+            this.lineNumbers_For_RichTextBox2.GridLines_Style = System.Drawing.Drawing2D.DashStyle.Dot;
+            this.lineNumbers_For_RichTextBox2.GridLines_Thickness = 1F;
+            this.lineNumbers_For_RichTextBox2.LineNrs_Alignment = System.Drawing.ContentAlignment.TopRight;
+            this.lineNumbers_For_RichTextBox2.LineNrs_AntiAlias = true;
+            this.lineNumbers_For_RichTextBox2.LineNrs_AsHexadecimal = false;
+            this.lineNumbers_For_RichTextBox2.LineNrs_ClippedByItemRectangle = true;
+            this.lineNumbers_For_RichTextBox2.LineNrs_LeadingZeroes = true;
+            this.lineNumbers_For_RichTextBox2.LineNrs_Offset = new System.Drawing.Size(0, 0);
+            this.lineNumbers_For_RichTextBox2.Location = new System.Drawing.Point(11, 74);
+            this.lineNumbers_For_RichTextBox2.Margin = new System.Windows.Forms.Padding(0);
+            this.lineNumbers_For_RichTextBox2.MarginLines_Color = System.Drawing.Color.SlateGray;
+            this.lineNumbers_For_RichTextBox2.MarginLines_Side = LineNumbers.LineNumbers_For_RichTextBox.LineNumberDockSide.Right;
+            this.lineNumbers_For_RichTextBox2.MarginLines_Style = System.Drawing.Drawing2D.DashStyle.Solid;
+            this.lineNumbers_For_RichTextBox2.MarginLines_Thickness = 1F;
+            this.lineNumbers_For_RichTextBox2.Name = "lineNumbers_For_RichTextBox2";
+            this.lineNumbers_For_RichTextBox2.Padding = new System.Windows.Forms.Padding(0, 0, 2, 0);
+            this.lineNumbers_For_RichTextBox2.ParentRichTextBox = this.CodeBox;
+            this.lineNumbers_For_RichTextBox2.Show_BackgroundGradient = true;
+            this.lineNumbers_For_RichTextBox2.Show_BorderLines = true;
+            this.lineNumbers_For_RichTextBox2.Show_GridLines = true;
+            this.lineNumbers_For_RichTextBox2.Show_LineNrs = true;
+            this.lineNumbers_For_RichTextBox2.Show_MarginLines = true;
+            this.lineNumbers_For_RichTextBox2.Size = new System.Drawing.Size(18, 322);
+            this.lineNumbers_For_RichTextBox2.TabIndex = 43;
+            this.lineNumbers_For_RichTextBox2.Click += new System.EventHandler(this.lineNumbers_For_RichTextBox1_Click);
+            // 
+            // otherComponentToolStripMenuItem
+            // 
+            this.otherComponentToolStripMenuItem.Name = "otherComponentToolStripMenuItem";
+            this.otherComponentToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.T)));
+            this.otherComponentToolStripMenuItem.Size = new System.Drawing.Size(212, 22);
+            this.otherComponentToolStripMenuItem.Text = "Other Component";
+            this.otherComponentToolStripMenuItem.Click += new System.EventHandler(this.otherComponentToolStripMenuItem_Click);
+            // 
+            // LoadOtherComponentDialog
+            // 
+            this.LoadOtherComponentDialog.DefaultExt = "arc files|*.arc|all files|*.*";
+            this.LoadOtherComponentDialog.FileOk += new System.ComponentModel.CancelEventHandler(this.LoadOtherComponentDialog_FileOk);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(829, 553);
+            this.ClientSize = new System.Drawing.Size(829, 543);
+            this.Controls.Add(this.lineNumbers_For_RichTextBox2);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.BinaryCodeBox);
+            this.Controls.Add(this.CodeBox);
+            this.Controls.Add(this.BinaryCodeLabel);
             this.Controls.Add(this.DebugButton);
             this.Controls.Add(this.LoadArcButton);
             this.Controls.Add(this.SaveFileButton);
             this.Controls.Add(this.OpenFileButton);
             this.Controls.Add(this.NewFileButton);
             this.Controls.Add(this.NewProjectButton);
-            this.Controls.Add(this.lineNumbers_For_RichTextBox1);
             this.Controls.Add(this.clearOutputButton);
             this.Controls.Add(this.outputLabel);
             this.Controls.Add(this.OutputBox);
             this.Controls.Add(this.BinFileNameLabel);
             this.Controls.Add(this.FileNameLabel);
-            this.Controls.Add(this.BinaryCodeLabel);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this.BinaryCodeBox);
-            this.Controls.Add(this.CodeBox);
             this.Controls.Add(this.menuStrip1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "Form1";
             this.Text = "MultiArc Compiler";
@@ -569,10 +620,6 @@
 
         #endregion
 
-        private System.Windows.Forms.RichTextBox CodeBox;
-        private System.Windows.Forms.RichTextBox BinaryCodeBox;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label BinaryCodeLabel;
         private System.Windows.Forms.OpenFileDialog LoadFileDialog;
         private System.Windows.Forms.SaveFileDialog SaveFileDialog;
         private System.Windows.Forms.Label FileNameLabel;
@@ -621,6 +668,19 @@
         private System.Windows.Forms.SaveFileDialog NewProjectDialog;
         private System.Windows.Forms.OpenFileDialog OpenProjectDialog;
         private System.Windows.Forms.ToolStripMenuItem stopDebuggingToolStripMenuItem;
+        private System.Windows.Forms.ToolTip ClearOutputTip;
+        private System.Windows.Forms.ToolTip ToggleBrekpointTip;
+        private System.Windows.Forms.ToolStripMenuItem systemToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem cPUToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem memoryToolStripMenuItem;
+        private System.Windows.Forms.OpenFileDialog LoadMemoryDialog;
+        private LineNumbers.LineNumbers_For_RichTextBox lineNumbers_For_RichTextBox2;
+        private System.Windows.Forms.RichTextBox CodeBox;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.RichTextBox BinaryCodeBox;
+        private System.Windows.Forms.Label BinaryCodeLabel;
+        private System.Windows.Forms.ToolStripMenuItem otherComponentToolStripMenuItem;
+        private System.Windows.Forms.OpenFileDialog LoadOtherComponentDialog;
 
     }
 }

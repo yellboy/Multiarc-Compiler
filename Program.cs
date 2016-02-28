@@ -6,9 +6,8 @@ using System.IO;
 
 namespace MultiArc_Compiler
 {
-    static class Program
+    public static class Program
     {
-
         public static Memory Mem;
 
         private static Form1 form;

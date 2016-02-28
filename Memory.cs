@@ -6,23 +6,50 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
+using System.Windows.Forms;
+using System.Xml;
+using System.Drawing;
+using System.Threading;
+using System.CodeDom.Compiler;
+using Microsoft.CSharp;
+using System.Reflection;
 
 namespace MultiArc_Compiler
 {
+
     /// <sumary>
     /// Simulates memory.
     /// </sumary>
-    public class Memory
+    public class Memory: NonCPUComponent
     {
+        private string name;
+
+        /// <summary>
+        /// Gets or sets name of the memory.
+        /// </summary>
+        public override string Name
+        {
+            get
+            {
+                return name;
+            }
+            set
+            {
+                name = value;
+            }
+        }
+
+        private static int nextId = 0;
+
+        private int id = nextId++;
+
         private int size = -1;
 
         /// <summary>
         /// Size of memory in bytes.
         /// </summary>
-        public int Size
+        public new int Size
         {
             get
             {
@@ -157,10 +184,6 @@ namespace MultiArc_Compiler
             {
                 return storageFile;
             }
-            set
-            {
-                storageFile = value;
-            }
         }
 
         private IMemoryObserver observer;
@@ -180,6 +203,23 @@ namespace MultiArc_Compiler
             }
         }
 
+        private bool observe;
+
+        /// <summary>
+        /// Indicating whether every change of memory should be notified to observer.
+        /// </summary>
+        public bool Observe
+        {
+            get
+            {
+                return observe;
+            }
+            set
+            {
+                observe = value;
+            }
+        }
+
         /// <summary>
         /// Indexers for write to memory and read from memory.
         /// </summary>
@@ -194,32 +234,49 @@ namespace MultiArc_Compiler
             get
             {
                 FileStream fs = new FileStream(storageFile, FileMode.Open);
-                fs.Seek(address - fs.Position, SeekOrigin.Current);
-                byte[] ret = new byte[auSize];
-                for (int i = 0; i < auSize; i++)
+                try
                 {
-                    ret[i] = (byte)(fs.ReadByte());
+                    fs.Seek(address - fs.Position, SeekOrigin.Current);
+                    byte[] ret = new byte[auSize];
+                    for (int i = 0; i < auSize; i++)
+                    {
+                        ret[i] = (byte)(fs.ReadByte());
+                    }
+                    return ret;
                 }
-                fs.Close();
-                return ret;
+                finally 
+                {
+                    fs.Close();
+                }
                 
             }
             set
             {
                 FileStream fs = new FileStream(storageFile, FileMode.Open);
-                fs.Seek(address - fs.Position, SeekOrigin.Current);
-                byte[] ret = new byte[auSize];
-                for (int i = 0; i < auSize; i++)
+                try
                 {
-                    fs.WriteByte(value[i]);
+                    fs.Seek(address - fs.Position, SeekOrigin.Current);
+                    byte[] ret = new byte[auSize];
+                    for (int i = 0; i < auSize; i++)
+                    {
+                        fs.WriteByte(value[i]);
+                    }
+                    free[address] = false;
+                    if (observer != null && observe == true)
+                    {
+                        SignalLocationChange(address, value);
+                    }
                 }
-                free[address] = false;
-                fs.Close();
-                if (observer != null)
+                finally
                 {
-                    SignalLocationChange(address, value);
+                    fs.Close();
                 }
             }
+        }
+
+        public Memory()
+        {
+            arcDirectoryName = "Memories/";
         }
 
         /// <summary>
@@ -354,10 +411,7 @@ namespace MultiArc_Compiler
             {
                 lines = File.ReadAllLines(initFile);
             }
-            if (storageFile == null)
-            {
-                storageFile = "memory.mem";
-            }
+            storageFile = dataFolder + name + id + ".mem";
             Dictionary<uint, byte[]> map = new Dictionary<uint, byte[]>();
             for (int i = 0; lines != null && i < lines.Length; i++)
             {
@@ -420,6 +474,257 @@ namespace MultiArc_Compiler
                     }
                 }
             }
+        }
+
+        private string arcFile;
+
+        private string dataFolder;
+
+        /// <summary>
+        /// Loads memory from file.
+        /// </summary>
+        /// <param name="arcFile">
+        /// Path to the file with the description.
+        /// </param>
+        /// <param name="dataFolder">
+        /// Path to the data folder of the application.
+        /// </param>
+        /// <returns>
+        /// Number of errors during loading.
+        /// </returns>
+        public override int Load(string arcFile, string dataFolder)
+        {
+            this.arcFile = arcFile;
+            this.dataFolder = dataFolder;
+            this.observer = null;
+            int errorCount = 0;
+            string content = File.ReadAllText(arcFile);
+            XmlReader xmlReader = XmlReader.Create(new StringReader(content));
+            XmlDocument doc = new XmlDocument();
+            XmlNode head = doc.ReadNode(xmlReader);
+            foreach (XmlNode node in head.ChildNodes)
+            {
+                switch (node.Name)
+                {
+                    case "name":
+                        name = node.InnerText;
+                        break;
+                    case "filename":
+                        fileName = node.InnerText;
+                        break;
+                    case "size":
+                        size = Convert.ToInt32(node.InnerText);
+                        break;
+                    case "au":
+                        auSize = Convert.ToInt32(node.InnerText);
+                        break;
+                    case "ram_start":
+                        ramStart = Convert.ToUInt32(node.InnerText);
+                        break;
+                    case "ram_end":
+                        ramEnd = Convert.ToUInt32(node.InnerText); ;
+                        break;
+                    case "rom_start":
+                        romStart = Convert.ToUInt32(node.InnerText);
+                        break;
+                    case "rom_end":
+                        romEnd = Convert.ToUInt32(node.InnerText);
+                        break;
+                    case "init_file":
+                        initFile = dataFolder + node.InnerText;
+                        break;
+                    case "dimensions":
+                        foreach (XmlNode child in node.ChildNodes)
+                        {
+                            if (!child.Name.Equals("#whitespace"))
+                            {
+                                switch (child.Name.ToLower())
+                                {
+                                    case "height":
+                                        this.Height = Convert.ToInt32(child.InnerText);
+                                        break;
+                                    case "width":
+                                        this.Width = Convert.ToInt32(child.InnerText);
+                                        break;
+                                }
+                            }
+                        }
+                        break;
+                    case "ports":
+                        int portErrorCount = 0;
+                        foreach (XmlNode port in node.ChildNodes)
+                        {
+                            if (!port.Name.Equals("#whitespace"))
+                            {
+                                Port newPort = new Port(port.Name, this);
+                                foreach (XmlNode portChild in port.ChildNodes)
+                                {
+                                    switch (portChild.Name)
+                                    {
+                                        case "name":
+                                            newPort.Name = portChild.InnerText.Trim();
+                                            break;
+                                        case "number":
+                                            newPort.Size = Convert.ToInt32(portChild.InnerText);
+                                            break;
+                                        case "side":
+                                            string innerText = portChild.InnerText.ToLower().Trim();
+                                            if (!(innerText.Equals("left") || innerText.Equals("right") ||
+                                                innerText.Equals("up") || innerText.Equals("down")))
+                                            {
+                                                Form1.Instance.AddToOutput(DateTime.Now.ToString() + " ERROR: Port side can only take values left, right, up or down.\n");
+                                                portErrorCount++;
+                                            }
+                                            else
+                                            {
+                                                switch (innerText)
+                                                {
+                                                    case "left":
+                                                        newPort.PortPosition = Position.LEFT;
+                                                        break;
+                                                    case "right":
+                                                    default:
+                                                        newPort.PortPosition = Position.RIGHT;
+                                                        break;
+                                                    case "up":
+                                                        newPort.PortPosition = Position.UP;
+                                                        break;
+                                                    case "down":
+                                                        newPort.PortPosition = Position.DOWN;
+                                                        break;
+                                                }
+                                            }
+                                            break;
+                                        case "type":
+                                            innerText = portChild.InnerText.ToLower().Trim();
+                                            if (!(innerText.Equals("in") || innerText.Equals("out") || innerText.Equals("inout")))
+                                            {
+
+                                                Form1.Instance.AddToOutput(DateTime.Now.ToString() + " ERROR: Port type can only take values in, out or inout.\n");
+                                                portErrorCount++;
+                                            }
+                                            else
+                                            {
+                                                switch (innerText)
+                                                {
+                                                    case "in":
+                                                        newPort.PortType = Kind.IN;
+                                                        break;
+                                                    case "out":
+                                                        newPort.PortType = Kind.OUT;
+                                                        break;
+                                                    case "inout":
+                                                    default:
+                                                        newPort.PortType = Kind.INOUT;
+                                                        break;
+                                                }
+                                            }
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                }
+                                if (portErrorCount == 0)
+                                {
+                                    newPort.InitializePins();
+                                    ports.AddLast(newPort);
+                                }
+                            }
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            } 
+            if (size < 0)
+            {
+                Form1.Instance.AddToOutput(DateTime.Now.ToString() + " ERROR: Memory size must be specified.\n");
+                errorCount++;
+            }
+            if (fileName == null)
+            {
+                Form1.Instance.AddToOutput(DateTime.Now.ToString() + " ERROR: File name must be specified. \n");
+                errorCount++;
+            }
+            else if (auSize <= 0)
+            {
+                Form1.Instance.AddToOutput(DateTime.Now.ToString() + " ERROR: Addressible unit size in memory must be specified.\n");
+                errorCount++;
+            }
+            if (errorCount == 0)
+            {
+                if (!File.Exists(dataFolder + "Memories/" + fileName))
+                {
+                    var file = File.Create(dataFolder + "Memories/" + fileName);
+                    file.Close();
+                    const string methodBody = @"
+// This is auto-generated code.
+// Please, edit only method body.
+
+public static void Cycle(Memory memory)
+{
+    // Define how memory behaves during one cycle.
+}
+";
+                    File.WriteAllText(dataFolder + "Memories/" + fileName, methodBody);
+                }
+                errorCount += CompileCode(dataFolder);
+                Initialize();
+                observer = new MemoryDumpForm(this);
+            }
+            return errorCount;
+        }
+
+        /// <summary>
+        /// Draws memory.
+        /// </summary>
+        public override void Draw()
+        {
+            base.Draw();
+            menu.Items.Add("Memory dump");
+            menu.Items.Add("Remove");
+            menu.ItemClicked += this.menuItemClicked;
+        }
+
+        private void menuItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            switch (e.ClickedItem.Text)
+            {
+                case "Memory dump":
+                    ((MemoryDumpForm)observer).Show();
+                    break;
+                case "Remove":
+                    Visible = false;
+                    system.RemoveComponent(this);
+                    break;
+            }
+            
+        }
+
+        public override object Clone()
+        {
+            Memory newMemory = new Memory();
+            newMemory.auSize = this.auSize;
+            newMemory.size = this.size;
+            newMemory.ramEnd = this.ramEnd;
+            newMemory.ramStart = this.ramStart;
+            newMemory.romEnd = this.romEnd;
+            newMemory.romStart = this.romStart;
+            newMemory.observer = this.observer;
+            newMemory.Height = this.Height;
+            newMemory.Width = this.Width;
+            newMemory.name = this.name;
+            newMemory.initFile = this.initFile;
+            newMemory.dataFolder = this.dataFolder;
+            newMemory.arcFile = this.arcFile;
+            newMemory.ports = new LinkedList<Port>();
+            newMemory.ports.Clear();
+            foreach (Port port in ports)
+            {
+                newMemory.ports.AddLast((Port)port.Clone());
+            }
+            newMemory.Initialize();
+            return newMemory;
         }
     }
 }

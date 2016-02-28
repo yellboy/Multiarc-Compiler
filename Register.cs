@@ -117,10 +117,28 @@ namespace MultiArc_Compiler
             set // Must be checked.
             {
                 if (start == 0 && end == this.size - 1)
-                    val = value;
+                {
+                    int bitMask = 0;
+                    for (int i = 0; i < size; i++)
+                    {
+                        if (i < size)
+                        {
+                            bitMask |= 1 << i;
+                        }
+                    }
+                    val = value & bitMask;
+                }
                 else
                 {
-                    val = value;
+                    int bitMask = 0;
+                    for (int i = 0; i < size; i++)
+                    {
+                        if (i < size)
+                        {
+                            bitMask |= 1 << i;
+                        }
+                    }
+                    val = value & bitMask;
                     if (this.parts.Count > 0)
                     {
                         foreach (Register r in Parts)
@@ -132,14 +150,14 @@ namespace MultiArc_Compiler
                                 {
                                     mask |= 1 << i;
                                 }
-                            } 
+                            }
                             int subValue = (val & mask) >> r.start;
                             r.val = subValue;
                         }
                     }
                     if (baseReg != null)
                     {
-                        baseReg.PartValueChanged(val, this); 
+                        baseReg.PartValueChanged(val, this);
                     }
                     if (observer != null)
                     {

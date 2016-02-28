@@ -134,6 +134,16 @@ namespace MultiArc_Compiler {
             pattern.AddAlternative(alt);
             AddPattern(pattern);
 
+            pattern = new ProductionPattern((int) Test1Constants.JMPADDR,
+                                            "JMPADDR");
+            alt = new ProductionPatternAlternative();
+            alt.AddToken((int) Test1Constants.IDENTIFIER, 1, 1);
+            pattern.AddAlternative(alt);
+            alt = new ProductionPatternAlternative();
+            alt.AddToken((int) Test1Constants.DEC_NUMBER, 1, 1);
+            pattern.AddAlternative(alt);
+            AddPattern(pattern);
+
             pattern = new ProductionPattern((int) Test1Constants.REGDIR,
                                             "REGDIR");
             alt = new ProductionPatternAlternative();
@@ -1157,7 +1167,7 @@ namespace MultiArc_Compiler {
                                             "jmp1");
             alt = new ProductionPatternAlternative();
             alt.AddToken((int) Test1Constants.JMP, 1, 1);
-            alt.AddProduction((int) Test1Constants.MEMDIR, 1, 1);
+            alt.AddProduction((int) Test1Constants.JMPADDR, 1, 1);
             pattern.AddAlternative(alt);
             AddPattern(pattern);
 

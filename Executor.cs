@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 using System.Threading;
+using System.Drawing;
 
 namespace MultiArc_Compiler
 {
@@ -18,16 +19,14 @@ namespace MultiArc_Compiler
     /// </summary>
     class Executor
     {
-        
+        private byte[] binary;
+
         /// <summary>
         /// Architecture constants.
         /// </summary>
-        private ArchConstants constants;
+        private CPU cpu;
 
-        /// <summary>
-        /// Binary code to be executed.
-        /// </summary>
-        private byte[] binaryCode;
+        private UserSystem system;
 
         /// <summary>
         /// Array that contains points in code that separates instructions.
@@ -89,6 +88,8 @@ namespace MultiArc_Compiler
 
         private volatile int next;
 
+        private Variables vars;
+
         /// <summary>
         /// Next instruction to be executed.
         /// </summary>
@@ -113,10 +114,14 @@ namespace MultiArc_Compiler
         /// <summary>
         /// Constructor.
         /// </summary>
-        /// <param name="constants">
-        /// Architecture constants.
-        /// <param name="binaryCode">
-        /// Binary code to be executed.
+        /// <param name="cpu">
+        /// CPU for which code is specified.
+        /// </param>
+        /// <param name="breakPoints">
+        /// Locations in code where there are breakpoints.
+        /// </param>
+        /// <param name="system">
+        /// System on which program is executed.
         /// </param>
         /// <param name="separators">
         /// Array that has informations about points where instruction separators are.
@@ -130,14 +135,15 @@ namespace MultiArc_Compiler
         /// <param name="output">
         /// Text box representing output.
         /// </param>
-        public Executor(ArchConstants constants, byte[] binaryCode, LinkedList<int> separators, LinkedList<int> breakPoints, TextBoxBase output,  int entryPoint = 0) 
+        public Executor(CPU cpu, UserSystem system, LinkedList<int> separators, LinkedList<int> breakPoints, TextBoxBase output, byte[] binary, int entryPoint = 0) 
         {
-            this.constants = constants;
-            this.binaryCode = binaryCode;
+            this.cpu = cpu;
+            this.system = system;
             this.entryPoint = entryPoint;
             this.separators = separators;
             this.breakPoints = breakPoints;
             this.output = output;
+            this.binary = binary;
         }
 
         /// <summary>
@@ -145,40 +151,67 @@ namespace MultiArc_Compiler
         /// </summary>
         public void Execute()
         {
-            constants.GetRegister("pc").Val = entryPoint;
-            LinkedList<Instruction> instructions = new LinkedList<Instruction>();
-            LinkedList<byte> binary = new LinkedList<byte>();
-            Thread.BeginCriticalRegion();
-            executing = true;
-            Thread.EndCriticalRegion();
-            Variables vars = new Variables();
-            vars.SetVariable("working", true);
-            while (true) 
+            try
             {
-                int pc = constants.GetRegister("pc").Val;
-                if (separators.Contains(pc) && pc != entryPoint)
+                cpu.Constants.GetRegister("pc").Val = entryPoint;
+                LinkedList<Instruction> instructions = new LinkedList<Instruction>();
+                LinkedList<byte> binary = new LinkedList<byte>();
+                Thread.BeginCriticalRegion();
+                executing = true;
+                Thread.EndCriticalRegion();
+                Variables vars = new Variables();
+                vars.SetVariable("working", true);
+                while (true)
                 {
-                    Instruction inst = constants.MatchInstruction(binary.ToArray());
-                    InstructionRegister ir = new InstructionRegister(binary.ToArray());
-                    inst.ReadAddressingModes(binary.ToArray());
-                    int[] operands = inst.FetchOperands(ir, constants, vars);
-                    int[] result = inst.Execute(ir, constants, vars, operands);
-                    inst.StoreResult(ir, constants, vars, result);
-                    binary.Clear();
-                    pc = constants.GetRegister("pc").Val;
-                } 
-                if (pc >= binaryCode.Length || (bool)vars.GetVariable("working") == false)
-                {
-                    Thread.BeginCriticalRegion();
-                    executing = false;
-                    Thread.EndCriticalRegion();
-                    break;
+                    int pc = cpu.Constants.GetRegister("pc").Val;
+                    if (separators.Contains(pc) && pc != entryPoint)
+                    {
+                        Instruction inst = cpu.Constants.MatchInstruction(binary.ToArray());
+                        InstructionRegister ir = new InstructionRegister(binary.ToArray());
+                        inst.ReadAddressingModes(binary.ToArray());
+                        int[] operands = inst.FetchOperands(ir, cpu, vars);
+                        int[] result = inst.Execute(ir, cpu, vars, operands);
+                        inst.StoreResult(ir, cpu, vars, result);
+                        binary.Clear();
+                        pc = cpu.Constants.GetRegister("pc").Val;
+                    }
+                    if (pc - entryPoint >= binary.Count() || (bool)vars.GetVariable("working") == false)
+                    {
+                        Thread.BeginCriticalRegion();
+                        executing = false;
+                        Thread.EndCriticalRegion();
+                        break;
+                    }
+                    //binary.AddLast(binaryCode[pc++]);
+                    //byte[] nextWord = Program.Mem[(uint)pc];
+                    byte[] nextWord = cpu.ReadFromMemory((uint)pc);
+                    for (int i = 0; i < nextWord.Length; i++ )
+                    {
+                        binary.AddLast(nextWord[i]);
+                    }
+                    pc++;
+                    cpu.Constants.GetRegister("pc").Val = pc;
                 }
-                binary.AddLast(binaryCode[pc++]);
-                constants.GetRegister("pc").Val = pc;
+                system.EndWorking();
+                output.Text += DateTime.Now.ToString() + " Code executed successfully.\n";
+                output.ScrollToCaret();
             }
-            output.Text += DateTime.Now.ToString() + " Code executed successfully.\n";
-            output.ScrollToCaret();
+            catch (System.Reflection.TargetInvocationException ex)
+            {
+                writeToOutput(DateTime.Now + " Execution error: " + ex.InnerException.Message + " in " + ex.InnerException.TargetSite + "\n");
+                File.AppendAllText("error.txt", ex.ToString());
+                StopDebugging();
+                system.EndWorking();
+                endExecution();
+            }
+            catch (Exception ex)
+            {
+                writeToOutput(DateTime.Now + " Execution error: " + ex.Message + "\n");
+                File.AppendAllText("error.txt", ex.ToString());
+                StopDebugging();
+                system.EndWorking();
+                endExecution();
+            }
         }
         
         /// <summary>
@@ -195,7 +228,7 @@ namespace MultiArc_Compiler
             Thread.BeginCriticalRegion();
             stepByStepMode = true;
             Thread.EndCriticalRegion();
-            sem.Release(1);
+            breakSem.Release(1);
             return !thread.IsAlive; 
         }
 
@@ -204,86 +237,109 @@ namespace MultiArc_Compiler
         /// </summary>
         private void executeStepByStep()
         {
-            LinkedList<Instruction> instructions = new LinkedList<Instruction>();
-            LinkedList<byte> binary = new LinkedList<byte>();
+            LinkedList<byte> instructionCode = new LinkedList<byte>();
             Thread.BeginCriticalRegion();
             executing = true;
+            next = 0;
             Thread.EndCriticalRegion();
             try
             {
-                Variables vars = new Variables();
+                vars = new Variables();
                 vars.SetVariable("working", true);
                 while (true)
                 {
-                    int pc = constants.GetRegister("pc").Val;
-                    if (separators.Contains(pc - entryPoint) && pc != entryPoint)
+                    lock (Form1.LockObject)
                     {
-                        Thread.BeginCriticalRegion();
-                        bool temp = stepByStepMode;
-                        Thread.EndCriticalRegion();
-                        if (temp == true || breakPoints.Contains(next))
-                        {
-                            if (breakPoints.Contains(next) && temp == false)
-                            {
-                                breakSem.Release(1);
-                            }
-                            sem.WaitOne();
-                        }
-                        Instruction inst = constants.MatchInstruction(binary.ToArray());
-                        InstructionRegister ir = new InstructionRegister(binary.ToArray());
-                        inst.ReadAddressingModes(binary.ToArray());
-                        int[] operands = inst.FetchOperands(ir, constants, vars);
-                        int[] result = inst.Execute(ir, constants, vars, operands);
-                        inst.StoreResult(ir, constants, vars, result);
-                        binary.Clear();
-                        pc = constants.GetRegister("pc").Val;
-                        if (separators.Contains(pc - entryPoint))
-                        {
-                            for (int i = 0; i < separators.Count - 1; i++)
-                            {
-                                if (separators.ElementAt(i) == pc - entryPoint)
-                                {
-                                    Thread.BeginCriticalRegion();
-                                    next = i;
-                                    Thread.EndCriticalRegion();
-                                }   
-                            }
-                        }
-                        if (pc - entryPoint >= binaryCode.Length || (bool)vars.GetVariable("working") == false)
+                        int pc = cpu.Constants.GetRegister("pc").Val;
+                        Console.WriteLine("Executing pc = " + pc);
+                        if (separators.Contains(pc - entryPoint) && pc != entryPoint)
                         {
 
                             Thread.BeginCriticalRegion();
-                            executing = false;
+                            bool temp = stepByStepMode;
                             Thread.EndCriticalRegion();
-                            instSem.Release(1);
-                            Thread.Yield();
-                            break;
-                        } 
-                        Thread.BeginCriticalRegion();
-                        temp = stepByStepMode;
-                        Thread.EndCriticalRegion();
-                        if (temp == true)
-                        {
-                            instSem.Release(1);
-                            Thread.Yield();
+                            // TODO Check for step by step mode
+                            if (separators.Contains(pc - entryPoint))
+                            {
+                                for (int i = 0; i < separators.Count - 1; i++)
+                                {
+                                    if (separators.ElementAt(i) == pc - entryPoint)
+                                    {
+                                        Thread.BeginCriticalRegion();
+                                        next = i;
+                                        Thread.EndCriticalRegion();
+                                    }
+                                }
+                            }
+                            Instruction inst = cpu.Constants.MatchInstruction(instructionCode.ToArray());
+                            InstructionRegister ir = new InstructionRegister(instructionCode.ToArray());
+                            inst.ReadAddressingModes(binary.ToArray());
+                            int[] operands = inst.FetchOperands(ir, cpu, vars);
+                            int[] result = inst.Execute(ir, cpu, vars, operands);
+                            inst.StoreResult(ir, cpu, vars, result);
+                            instructionCode.Clear();
+                            pc = cpu.Constants.GetRegister("pc").Val;
+                            if (pc - entryPoint >= binary.Count() || (bool)vars.GetVariable("working") == false) // First condition might not work for addressing word larger than 1
+                            {
+
+                                Thread.BeginCriticalRegion();
+                                executing = false;
+                                Thread.EndCriticalRegion();
+                                //instSem.Release(1);
+                                Thread.Yield();
+                                break;
+                            }
+                            //Thread.BeginCriticalRegion();
+                            //temp = stepByStepMode;
+                            //Thread.EndCriticalRegion();
+                            //if (temp == true)
+                            //{
+                            //    //instSem.Release(1);
+                            //    Thread.Yield();
+                            //}
                         }
+                        //byte[] readFromMemory = Program.Mem[(uint)pc];
+                        Form1.Instance.InstructionReached(next);
+                        if (breakPoints.Contains(next) && separators.Contains(pc - entryPoint))
+                        {
+                            breakSem.WaitOne();
+                        }
+                        byte[] readFromMemory = cpu.ReadFromMemory((uint)pc);
+                        Console.WriteLine("Read from memory {0}", ConversionHelper.ConvertFromByteArrayToInt(readFromMemory));
+                        pc++;
+                        for (int k = 0; k < readFromMemory.Length; k++)
+                        {
+                            instructionCode.AddLast(readFromMemory[k]);
+                        }
+                        //binary.AddLast(binaryCode[pc++]);
+                        cpu.Constants.GetRegister("pc").Val = pc;
+                        Thread.EndCriticalRegion();
                     }
-                    byte[] readFromMemory = Program.Mem[(uint)pc];
-                    pc++;
-                    for (int k = 0; k < readFromMemory.Length; k++)
-                    {
-                        binary.AddLast(readFromMemory[k]);
-                    }
-                    //binary.AddLast(binaryCode[pc++]);
-                    constants.GetRegister("pc").Val = pc;
                 }
-                breakSem.Release();
-                writeToOutput(" Code executed successfully.\n");;
+                //breakSem.Release();
+                system.EndWorking();
+                writeToOutput(" Code executed successfully.\n");
+                Form1.Instance.ExecutionStoped();
+            }
+            catch (System.Reflection.TargetInvocationException ex)
+            {
+                writeToOutput(DateTime.Now + " Execution error: " + ex.InnerException.Message + " in " + ex.InnerException.TargetSite + "\n");
+                File.AppendAllText("error.txt", ex.ToString());
+                //instSem.Release(1);
+                //breakSem.Release(1);
+                StopDebugging();
+                system.EndWorking();
+                endExecution();
             }
             catch (Exception ex)
             {
                 writeToOutput(DateTime.Now + " Execution error: " + ex.Message + "\n");
                 File.AppendAllText("error.txt", ex.ToString());
+                //instSem.Release(1);
+                //breakSem.Release(1);
+                StopDebugging();
+                system.EndWorking();
+                endExecution();
             }
         }
 
@@ -321,7 +377,7 @@ namespace MultiArc_Compiler
         /// </summary>
         public void EnterStepByStep()
         {
-            constants.GetRegister("pc").Val = entryPoint;
+            cpu.Constants.GetRegister("pc").Val = entryPoint;
             Thread.BeginCriticalRegion();
             next = 0;
             Thread.EndCriticalRegion();
@@ -329,21 +385,22 @@ namespace MultiArc_Compiler
             stepByStepMode = true;
             Thread.EndCriticalRegion();
             thread = new Thread(new ThreadStart(executeStepByStep));
+            Console.WriteLine("Executor thread id = " + thread.ManagedThreadId);
             thread.Start();
         }
 
         /// <summary>
         /// Abort execution, if there is any.
         /// </summary>
-        public void Abort()
+        public void StopDebugging()
         {
             Thread.BeginCriticalRegion();
             executing = false;
-            Thread.EndCriticalRegion();
-            if (thread != null)
+            if (vars != null)
             {
-                thread.Abort();
+                vars.SetVariable("working", false);
             }
+            Thread.EndCriticalRegion();
         }
 
         /// <summary>
@@ -354,7 +411,7 @@ namespace MultiArc_Compiler
             Thread.BeginCriticalRegion();
             stepByStepMode = false;
             Thread.EndCriticalRegion();
-            sem.Release(1);
+            breakSem.Release(1);
         }
 
         /// <summary>
@@ -370,7 +427,7 @@ namespace MultiArc_Compiler
         /// </summary>
         public void Debug()
         {
-            constants.GetRegister("pc").Val = entryPoint;
+            cpu.Constants.GetRegister("pc").Val = entryPoint;
             Thread.BeginCriticalRegion();
             next = 0;
             Thread.EndCriticalRegion();
@@ -378,6 +435,7 @@ namespace MultiArc_Compiler
             stepByStepMode = false;
             Thread.EndCriticalRegion();
             thread = new Thread(new ThreadStart(executeStepByStep));
+            Console.WriteLine("Executor thread id = " + thread.ManagedThreadId);
             thread.Start();
         }
 
@@ -387,6 +445,42 @@ namespace MultiArc_Compiler
         public void WaitUntilBreakpointOrEnd()
         {
             breakSem.WaitOne();
+        }
+
+        /// <summary>
+        /// Aborts execution of the thread, if there is any.
+        /// </summary>
+        public void Abort()
+        {
+            Thread.BeginCriticalRegion();
+            executing = false;
+            Thread.EndCriticalRegion();
+            endExecution();
+            if (thread != null)
+            {
+                thread.Abort();
+            }
+        }
+
+        /// <summary>
+        /// Delegate used for informing main form that execution is over, if it is necessarry to inform it.
+        /// </summary>
+        private delegate void EndExecution();
+
+        /// <summary>
+        /// Informing the main form that execution is over, if it is necessarry to inform it.
+        /// </summary>
+        private void endExecution()
+        {
+            if (Form1.Instance.InvokeRequired == true)
+            {
+                EndExecution d = new EndExecution(endExecution);
+                Form1.Instance.BeginInvoke(d);
+            }
+            else
+            {
+                Form1.Instance.ExecutionOver();
+            }
         }
     }
 }

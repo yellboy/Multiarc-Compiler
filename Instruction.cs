@@ -231,11 +231,11 @@ namespace MultiArc_Compiler
         /// <returns>
         /// Result of instruction execution.
         /// </returns>
-        public int[] Execute(InstructionRegister ir, ArchConstants constants, Variables variables, int[] operands)
+        public int[] Execute(InstructionRegister ir, CPU cpu, Variables variables, int[] operands)
         {
             int[] result = null;
             var t = results.CompiledAssembly.GetType("DynamicClass" + name);
-            object[] parameters = new object[] { ir, Program.Mem, constants, variables, operands, result };
+            object[] parameters = new object[] { ir, Program.Mem, cpu, variables, operands, result };
             t.GetMethod("execute_" + this.mnemonic.ToLower()).Invoke(null, parameters);
             result = (int[])(parameters[5]);
             return result;
@@ -308,14 +308,14 @@ namespace MultiArc_Compiler
         /// <returns>
         /// Array containing fetched operands.
         /// </returns>
-        public int[] FetchOperands(InstructionRegister ir, ArchConstants constants, Variables variables)
+        public int[] FetchOperands(InstructionRegister ir, CPU cpu, Variables variables)
         {
             LinkedList<int> operands = new LinkedList<int>();
             foreach (Argument arg in arguments)
             {
                 if (arg.Type.ToLower().Equals("src"))
                 {
-                    int result = arg.SelectedAddressingMode.GetData(ir, constants, variables, arg.OperandStarts[arg.SelectedAddressingMode.Name], arg.OperandEnds[arg.SelectedAddressingMode.Name]);
+                    int result = arg.SelectedAddressingMode.GetData(ir, cpu, variables, arg.OperandStarts[arg.SelectedAddressingMode.Name], arg.OperandEnds[arg.SelectedAddressingMode.Name]);
                     operands.AddLast(result);
                 }
             }
@@ -337,14 +337,14 @@ namespace MultiArc_Compiler
         /// <param name="dataToStore">
         /// Result of the instruction execution.
         /// </param>
-        public void StoreResult(InstructionRegister ir, ArchConstants constants, Variables variables, int[] dataToStore)
+        public void StoreResult(InstructionRegister ir, CPU cpu, Variables variables, int[] dataToStore)
         {
             int argCount = 0;
             foreach (Argument arg in arguments)
             {
                 if (arg.Type.ToLower().Equals("dst"))
                 {
-                    arg.SelectedAddressingMode.SetData(ir, constants, variables, arg.OperandStarts[arg.SelectedAddressingMode.Name], arg.OperandEnds[arg.SelectedAddressingMode.Name], dataToStore[argCount++]);
+                    arg.SelectedAddressingMode.SetData(ir, cpu, variables, arg.OperandStarts[arg.SelectedAddressingMode.Name], arg.OperandEnds[arg.SelectedAddressingMode.Name], dataToStore[argCount++]);
                 }
             }
         }
@@ -365,6 +365,10 @@ namespace MultiArc_Compiler
             var options = new CompilerParameters();
             var assemblyContainingNotDynamicClass = Path.GetFileName(Assembly.GetExecutingAssembly().Location);
             options.ReferencedAssemblies.Add(assemblyContainingNotDynamicClass);
+            var assemblyContaningForms = Assembly.GetAssembly(typeof(System.Windows.Forms.Control)).Location;
+            options.ReferencedAssemblies.Add(assemblyContaningForms);
+            var assemblyContainingComponent = Assembly.GetAssembly(typeof(System.ComponentModel.Component)).Location;
+            options.ReferencedAssemblies.Add(assemblyContainingComponent);
             string code = @"
 
 using System;

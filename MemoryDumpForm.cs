@@ -22,14 +22,25 @@ namespace MultiArc_Compiler
 
         private long gotoAddress;
 
-        public MemoryDumpForm()
+        private Memory memory;
+
+        private bool updating = false;
+
+        /// <summary>
+        /// Creates new object of MemoryDumpForm class.
+        /// </summary>
+        /// <param name="memory">
+        /// Memory which is observed.
+        /// </param>
+        public MemoryDumpForm(Memory memory)
         {
             InitializeComponent();
             beginAddress = 0;
-            endAddress = Program.Mem.Size >= 100 ? 100 : (uint)Program.Mem.Size;
+            endAddress = memory.Size >= 100 ? 100 : (uint)memory.Size;
             labels = new Label[endAddress / 10];
             values = new TextBox[endAddress];
-            readNewValues();
+            this.memory = memory;
+            //readNewValues();
             prevButton.Enabled = false;
         }
 
@@ -42,7 +53,7 @@ namespace MultiArc_Compiler
             for (uint i = 0; i < labels.Length; i++)
             {
                 this.Controls.Remove(labels[i]);
-                if (beginAddress + 10 * i < Program.Mem.Size)
+                if (beginAddress + 10 * i < memory.Size)
                 {
                     labels[i] = new Label();
                     labels[i].Size = new Size(70, 13);
@@ -50,13 +61,13 @@ namespace MultiArc_Compiler
                     for (uint j = 0; j < 10; j++)
                     {
                         this.Controls.Remove(values[j + 10 * i]);
-                        if (beginAddress + j + 10 * i < Program.Mem.Size)
+                        if (beginAddress + j + 10 * i < memory.Size)
                         {
                             values[j + 10 * i] = new TextBox();
                             values[j + 10 * i].Size = new Size(52, 20);
                             int valueToWrite = 0;
-                            byte[] memValue = Program.Mem[beginAddress + j + 10 * i];
-                            for (uint k = 0; k < Program.Mem.AuSize; k++)
+                            byte[] memValue = memory[beginAddress + j + 10 * i];
+                            for (uint k = 0; k < memory.AuSize; k++)
                             {
                                 valueToWrite |= (int)memValue[k] << (int)(k * 8);
                             }
@@ -69,7 +80,7 @@ namespace MultiArc_Compiler
                         }
                     }
                     xText = 80;
-                    labels[i].Text = "" + (beginAddress + i * 10) + "-" + (beginAddress + i * 10 + 9 >= Program.Mem.Size ? (int)(Program.Mem.Size - 1) : (int)(beginAddress + i * 10 + 9));
+                    labels[i].Text = "" + (beginAddress + i * 10) + "-" + (beginAddress + i * 10 + 9 >= memory.Size ? (int)(memory.Size - 1) : (int)(beginAddress + i * 10 + 9));
                     yText += 26;
                     yLabel += 26;
                     this.Controls.Add(labels[i]);
@@ -89,7 +100,7 @@ namespace MultiArc_Compiler
             prevButton.Enabled = true;
             beginAddress += 100;
             endAddress += 100;
-            if (endAddress >= Program.Mem.Size)
+            if (endAddress >= memory.Size)
             {
                 nextButton.Enabled = false;
             }
@@ -110,49 +121,54 @@ namespace MultiArc_Compiler
 
         private void updateButton_Click(object sender, EventArgs e)
         {
+            updating = true;
             for (uint i = 0; i < labels.Length; i++)
             {
-                if (beginAddress + 10 * i < Program.Mem.Size)
+                if (beginAddress + 10 * i < memory.Size)
                 {
                     for (uint j = 0; j < 10; j++)
                     {
-                        if (beginAddress + j + 10 * i < Program.Mem.Size)
+                        if (beginAddress + j + 10 * i < memory.Size)
                         {
                             int valueToWrite = Convert.ToInt32(values[j + 10 * i].Text);
-                            byte[] memValue = new byte[Program.Mem.AuSize];
-                            for (int k = 0; k < Program.Mem.AuSize; k++)
+                            byte[] memValue = new byte[memory.AuSize];
+                            for (int k = 0; k < memory.AuSize; k++)
                             {
                                 memValue[k] = (byte)(valueToWrite << 8 * k);
                             }
-                            Program.Mem[beginAddress + j + 10 * i] = memValue;
+                            memory[beginAddress + j + 10 * i] = memValue;
                         }
                     }
                 }
             }
+            updating = false;
         }
 
         void IMemoryObserver.LocationChanged(uint address, byte[] newValue)
         {
-            beginAddress = (address / 100) * 100;
-            endAddress = beginAddress + 100;
-            if (endAddress >= Program.Mem.Size)
+            if (updating == false)
             {
-                nextButton.Enabled = false;
+                beginAddress = (address / 100) * 100;
+                endAddress = beginAddress + 100;
+                if (endAddress >= memory.Size)
+                {
+                    nextButton.Enabled = false;
+                }
+                else
+                {
+                    nextButton.Enabled = true;
+                }
+                if (beginAddress <= 0)
+                {
+                    prevButton.Enabled = false;
+                }
+                else
+                {
+                    prevButton.Enabled = true;
+                }
+                readNewValues();
+                values[address - beginAddress].BackColor = Color.Yellow;
             }
-            else
-            {
-                nextButton.Enabled = true;
-            }
-            if (beginAddress <= 0)
-            {
-                prevButton.Enabled = false;
-            }
-            else
-            {
-                prevButton.Enabled = true;
-            }
-            readNewValues();
-            values[address - beginAddress].BackColor = Color.Yellow;
         }
 
         private void AddressBox_TextChanged(object sender, EventArgs e)
@@ -163,18 +179,18 @@ namespace MultiArc_Compiler
             {
                 GotoButton.Enabled = true;
                 gotoAddress = Convert.ToInt64(((TextBox)sender).Text, 10);
-                if (gotoAddress >= Program.Mem.Size)
+                if (gotoAddress >= memory.Size)
                 {
-                    gotoAddress = Program.Mem.Size - 1;
+                    gotoAddress = memory.Size - 1;
                 }
             }
             else if (regexHex.IsMatch(((TextBox)sender).Text))
             {
                 GotoButton.Enabled = true;
                 gotoAddress = Convert.ToInt64(((TextBox)sender).Text.Substring(2), 16);
-                if (gotoAddress >= Program.Mem.Size)
+                if (gotoAddress >= memory.Size)
                 {
-                    gotoAddress = Program.Mem.Size - 1;
+                    gotoAddress = memory.Size - 1;
                 }
             }
             else
@@ -187,7 +203,7 @@ namespace MultiArc_Compiler
         {
             beginAddress = (uint)((gotoAddress / 100) * 100);
             endAddress = beginAddress + 100;
-            if (endAddress >= Program.Mem.Size)
+            if (endAddress >= memory.Size)
             {
                 nextButton.Enabled = false;
             }
@@ -210,6 +226,14 @@ namespace MultiArc_Compiler
         private void valueClick(object sender, EventArgs e)
         {
             ((TextBox)sender).BackColor = Color.White;
+        }
+
+        private void MemoryDumpForm_VisibleChanged(object sender, EventArgs e)
+        {
+            if (Visible == true)
+            {
+                readNewValues();
+            }
         }
     }
 }
